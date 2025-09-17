@@ -1,0 +1,16 @@
+Methods and functions added
+
+- open a file
+- change datatype of columns (process file)
+- format optional (provide a specific format for transformation)
+- save file
+
+Bugs
+
+- format optional input box should be integrated with change type dropdown
+- its removing tables from excel files and formatting them as text
+- data type dropdown isn't being identified in saved file so its not transforming
+
+Review
+
+- 

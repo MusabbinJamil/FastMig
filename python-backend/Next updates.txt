@@ -1,0 +1,14 @@
+Next updates
+
+- fix bugs (error pop up not working, data conversion formats not implemented correctly)
+- bulk edit files with same changes
+- break product codes into separate columns or categories
+- break datetime to date and time
+- add open data to menu bar similarly process and split (product and datetime) should also be in menu bar
+
+Done
+- display first 5 rows with option to add more
+- add datetime methods ISO and more
+- auto detect column datatypes (need to implement ML model)
+- split tools to separate sections, data display section, tools section and output section (partially done)
+
