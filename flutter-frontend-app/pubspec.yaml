@@ -4,7 +4,7 @@ description: A Flutter frontend application that connects to a Python backend.
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"  # Updated SDK constraint
 
 dependencies:
   flutter:
