@@ -9,11 +9,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.3
+  file_picker: ^6.1.1  # Update to latest version
+  provider: ^6.0.0
+  http: ^1.1.0
+  path: ^1.8.0
+  # Add windows file picker support
+  win32: ^5.0.9
+  ffi: ^2.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true

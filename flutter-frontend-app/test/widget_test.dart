@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:flutter_frontend_app/main.dart';
+import 'package:flutter_frontend_app/screens/data_migration_screen.dart';
 
 void main() {
-  testWidgets('HomeScreen renders correctly', (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
+  testWidgets('FastMig app renders correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(const FastMigApp());
 
-    expect(find.text('Welcome'), findsOneWidget);
-    expect(find.byType(CustomButton), findsOneWidget);
+    expect(find.text('FastMig'), findsOneWidget);
+    expect(find.byType(DataMigrationScreen), findsOneWidget);
+    expect(find.text('Load Data'), findsOneWidget);
+    expect(find.text('No file selected'), findsOneWidget);
   });
 
-  testWidgets('LoginScreen renders correctly', (WidgetTester tester) async {
-    await tester.pumpWidget(MyApp());
+  testWidgets('Load Data section works correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(const FastMigApp());
 
-    await tester.tap(find.text('Login'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(LoginScreen), findsOneWidget);
+    expect(find.text('Select File'), findsOneWidget);
+    expect(find.text('No file selected'), findsOneWidget);
   });
 }
