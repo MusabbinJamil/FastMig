@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/data_migration_screen.dart';
 import 'models/migration_data.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => MigrationData(),
-      child: const FastMigApp(),
-    ),
-  );
+  runApp(const FastMigApp());
 }
 
 class FastMigApp extends StatelessWidget {
@@ -17,13 +12,32 @@ class FastMigApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FastMig',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => MigrationData(),
+      child: MaterialApp(
+        title: 'FastMig - Data Migration',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          useMaterial3: true,
+          scaffoldBackgroundColor: Colors.grey.shade50,
+          cardTheme: CardThemeData(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ),
+        home: const SplashScreen(),
       ),
-      home: const DataMigrationScreen(),
     );
   }
 }

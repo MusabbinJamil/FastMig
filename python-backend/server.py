@@ -6,6 +6,12 @@ import os
 import logging
 from functions import read_file, convert_column, export_data, apply_transformations, map_columns
 from werkzeug.utils import secure_filename
+from data_fitness import (
+    DataFitnessEvaluator, 
+    EvolutionaryDataCleaner,
+    evaluate_data_fitness,
+    clean_data_evolutionary
+)
 
 # Configure logging
 logging.basicConfig(
@@ -414,6 +420,248 @@ def get_status():
         'data_shape': current_data['df'].shape if 'df' in current_data else None
     })
 
+@app.route('/fitness/evaluate', methods=['POST'])
+def evaluate_fitness():
+    """
+    Evaluate fitness/health of all records in the loaded dataset
+    Returns detailed fitness scores and health status for each record
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        df = current_data['df']
+        
+        # Evaluate fitness
+        logger.info("Evaluating data fitness...")
+        fitness_summary = evaluate_data_fitness(df)
+        
+        logger.info(f"Fitness evaluation complete. Average fitness: {fitness_summary['average_fitness']:.2f}%")
+        
+        return jsonify({
+            'success': True,
+            'summary': {
+                'total_records': fitness_summary['total_records'],
+                'average_fitness': fitness_summary['average_fitness'],
+                'min_fitness': fitness_summary['min_fitness'],
+                'max_fitness': fitness_summary['max_fitness'],
+                'health_breakdown': {
+                    'excellent': fitness_summary['excellent_records'],
+                    'good': fitness_summary['good_records'],
+                    'fair': fitness_summary['fair_records'],
+                    'poor': fitness_summary['poor_records'],
+                    'critical': fitness_summary['critical_records']
+                },
+                'records_needing_cleaning': fitness_summary['records_needing_cleaning']
+            },
+            'detailed_results': fitness_summary['detailed_results'][:100],  # Limit to first 100 for performance
+            'message': f"Evaluated {fitness_summary['total_records']} records. "
+                      f"Average fitness: {fitness_summary['average_fitness']:.2f}%"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /fitness/evaluate endpoint: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': f"Failed to evaluate fitness: {str(e)}",
+            'type': type(e).__name__
+        }), 500
+
+@app.route('/fitness/record/<int:row_index>', methods=['GET'])
+def evaluate_record_fitness(row_index):
+    """
+    Evaluate fitness of a specific record
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        df = current_data['df']
+        
+        if row_index < 0 or row_index >= len(df):
+            return jsonify({'error': f'Row index {row_index} out of range (0-{len(df)-1})'}), 400
+        
+        evaluator = DataFitnessEvaluator(df)
+        fitness = evaluator.evaluate_record_fitness(row_index)
+        
+        return jsonify({
+            'success': True,
+            'row_index': row_index,
+            'fitness': fitness
+        })
+    
+    except Exception as e:
+        logger.error(f"Error evaluating record fitness: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/clean/evolutionary', methods=['POST'])
+def clean_evolutionary():
+    """
+    Clean data using evolutionary algorithms
+    
+    Request body:
+    {
+        "method": "ga|pso|de|es|hybrid",
+        "save_result": true/false,
+        "track_modifications": true/false,
+        "parameters": {
+            // Algorithm-specific parameters
+        }
+    }
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        method = data.get('method', 'hybrid').lower()
+        save_result = data.get('save_result', True)
+        track_modifications = data.get('track_modifications', True)
+        parameters = data.get('parameters', {})
+        
+        # Validate method
+        valid_methods = ['ga', 'pso', 'de', 'es', 'hybrid']
+        if method not in valid_methods:
+            return jsonify({
+                'error': f"Invalid method: {method}",
+                'valid_methods': valid_methods
+            }), 400
+        
+        df = current_data['df'].copy()
+        
+        logger.info(f"Starting evolutionary cleaning with method: {method.upper()}")
+        
+        # Clean data
+        cleaned_df, report = clean_data_evolutionary(
+            df, 
+            method=method, 
+            track_modifications=track_modifications,
+            **parameters
+        )
+        
+        # Optionally save the cleaned data
+        if save_result:
+            current_data['df'] = cleaned_df
+            current_data['df_original'] = df  # Keep backup
+        
+        # Convert cleaned data to list format (first 100 rows)
+        data_list = []
+        data_list.append(cleaned_df.columns.tolist())
+        for _, row in cleaned_df.head(100).iterrows():
+            row_data = []
+            for val in row:
+                if pd.isna(val):
+                    row_data.append(None)
+                elif isinstance(val, pd.Timestamp):
+                    row_data.append(val.isoformat())
+                else:
+                    row_data.append(val)
+            data_list.append(row_data)
+        
+        logger.info(f"Cleaning complete. Fitness improvement: {report['improvement']['fitness_increase']:.2f}%")
+        
+        return jsonify({
+            'success': True,
+            'method': method.upper(),
+            'report': report,
+            'data': data_list,
+            'columns': cleaned_df.columns.tolist(),
+            'shape': cleaned_df.shape,
+            'message': f"Data cleaned using {method.upper()}. "
+                      f"Fitness improved by {report['improvement']['fitness_increase']:.2f}%. "
+                      f"{report['improvement']['records_fixed']} records fixed. "
+                      f"{report['modifications']['records_modified'] or 0} records modified by AI."
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /clean/evolutionary endpoint: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': f"Failed to clean data: {str(e)}",
+            'type': type(e).__name__
+        }), 500
+
+@app.route('/clean/compare', methods=['POST'])
+def compare_cleaning_methods():
+    """
+    Compare different evolutionary cleaning methods
+    Returns fitness improvements for each method
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        df = current_data['df'].copy()
+        
+        methods = ['ga', 'pso', 'de', 'es', 'hybrid']
+        results = {}
+        
+        logger.info("Comparing evolutionary cleaning methods...")
+        
+        for method in methods:
+            try:
+                logger.info(f"Testing {method.upper()}...")
+                
+                # Use smaller parameters for comparison speed
+                params = {
+                    'ga': {'population_size': 20, 'generations': 30},
+                    'pso': {'n_particles': 15, 'iterations': 30},
+                    'de': {'pop_size': 15, 'max_iter': 30},
+                    'es': {'mu': 10, 'lambda_': 30, 'generations': 30},
+                    'hybrid': {}
+                }
+                
+                cleaned_df, report = clean_data_evolutionary(
+                    df, method=method, **params.get(method, {})
+                )
+                
+                results[method] = {
+                    'before_fitness': report['before']['average_fitness'],
+                    'after_fitness': report['after']['average_fitness'],
+                    'improvement': report['improvement']['fitness_increase'],
+                    'records_fixed': report['improvement']['records_fixed']
+                }
+            except Exception as e:
+                logger.warning(f"Method {method} failed: {e}")
+                results[method] = {'error': str(e)}
+        
+        # Find best method
+        best_method = max(
+            [m for m in methods if 'error' not in results[m]],
+            key=lambda m: results[m]['improvement']
+        )
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'best_method': best_method,
+            'best_improvement': results[best_method]['improvement'],
+            'message': f"Comparison complete. Best method: {best_method.upper()}"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error comparing methods: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/data/restore', methods=['POST'])
+def restore_original_data():
+    """Restore original data before cleaning"""
+    try:
+        if 'df_original' not in current_data:
+            return jsonify({'error': 'No original data to restore'}), 400
+        
+        current_data['df'] = current_data['df_original'].copy()
+        del current_data['df_original']
+        
+        return jsonify({
+            'success': True,
+            'message': 'Original data restored successfully'
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 def record_action(action_type, **params):
     """Helper function to record an action"""
     if is_recording:
@@ -467,6 +715,15 @@ if __name__ == '__main__':
     logger.info("  POST /recording/stop     - Stop recording actions")
     logger.info("  POST /recording/save     - Save recording")
     logger.info("  POST /recording/load     - Load and run recording")
+    logger.info("")
+    logger.info("  === Data Fitness & Evolutionary Cleaning ===")
+    logger.info("  POST /fitness/evaluate   - Evaluate data fitness/health")
+    logger.info("  GET  /fitness/record/<index> - Get fitness for specific record")
+    logger.info("  POST /clean/evolutionary - Clean data using evolutionary algorithms")
+    logger.info("  POST /clean/compare      - Compare all cleaning methods")
+    logger.info("  POST /data/restore       - Restore original data")
+    logger.info("")
+    logger.info("  Evolutionary Methods: GA, PSO, DE, ES, Hybrid")
     logger.info("="*60)
     logger.info("")
     

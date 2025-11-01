@@ -27,11 +27,21 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
 /coverage/
+
+# Chrome User Data and Cache
+chrome/
+chrome-profile/
+User Data/
+Cache/
+GPUCache/
+.dart_tool/chrome-device/
+build/**/chrome/
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +53,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.gradle/
+/android/captures/
+/android/local.properties
+
+# Windows build ephemeral files
+windows/flutter/ephemeral/
