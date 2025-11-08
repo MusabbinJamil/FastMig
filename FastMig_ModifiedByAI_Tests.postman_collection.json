@@ -1,0 +1,294 @@
+{
+  "info": {
+    "_postman_id": "fastmig-modified-by-ai",
+    "name": "FastMig - Modified by AI Feature Testing",
+    "description": "Test collection for the Modified_by_AI tracking feature",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["health"]
+        },
+        "description": "Verify backend server is running"
+      }
+    },
+    {
+      "name": "2. Upload Test Data",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "E:\\IBA\\Semester 4\\FastMig\\python-backend\\test_data_unclean.xlsx"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/upload",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["upload"]
+        },
+        "description": "Upload a test file with missing values to trigger AI modifications"
+      }
+    },
+    {
+      "name": "3. Get Columns Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/columns",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["columns"]
+        },
+        "description": "Get information about loaded data columns"
+      }
+    },
+    {
+      "name": "4. Evaluate Data Fitness (Before Cleaning)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/fitness/evaluate",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["fitness/evaluate"]
+        },
+        "description": "Evaluate fitness before cleaning to establish baseline"
+      }
+    },
+    {
+      "name": "5. Clean Data with Hybrid Method (Track Modifications)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"hybrid\",\n  \"save_result\": true,\n  \"track_modifications\": true,\n  \"parameters\": {}\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/clean/evolutionary",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["clean/evolutionary"]
+        },
+        "description": "Clean data using Hybrid method with Modified_by_AI tracking enabled"
+      }
+    },
+    {
+      "name": "6. Clean Data with GA Method (Track Modifications)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"ga\",\n  \"save_result\": true,\n  \"track_modifications\": true,\n  \"parameters\": {\n    \"population_size\": 20,\n    \"generations\": 50\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/clean/evolutionary",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["clean/evolutionary"]
+        },
+        "description": "Clean data using Genetic Algorithm with tracking"
+      }
+    },
+    {
+      "name": "7. Clean Data with PSO Method (Track Modifications)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"pso\",\n  \"save_result\": true,\n  \"track_modifications\": true,\n  \"parameters\": {\n    \"n_particles\": 15,\n    \"iterations\": 50\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/clean/evolutionary",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["clean/evolutionary"]
+        },
+        "description": "Clean data using Particle Swarm Optimization with tracking"
+      }
+    },
+    {
+      "name": "8. Clean Data without Tracking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"hybrid\",\n  \"save_result\": true,\n  \"track_modifications\": false,\n  \"parameters\": {}\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/clean/evolutionary",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["clean/evolutionary"]
+        },
+        "description": "Clean data WITHOUT tracking to compare - Modified_by_AI column should NOT be added"
+      }
+    },
+    {
+      "name": "9. Compare All Cleaning Methods",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/clean/compare",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["clean/compare"]
+        },
+        "description": "Compare all evolutionary methods and see which performs best"
+      }
+    },
+    {
+      "name": "10. Evaluate Single Record Fitness",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/fitness/record/0",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["fitness/record/0"]
+        },
+        "description": "Evaluate fitness of a specific record (row 0)"
+      }
+    },
+    {
+      "name": "11. Export Cleaned Data",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"output_path\": \"E:\\\\IBA\\\\Semester 4\\\\FastMig\\\\python-backend\\\\exports\\\\cleaned_with_tracking.csv\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/export",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["export"]
+        },
+        "description": "Export cleaned data with Modified_by_AI column to CSV"
+      }
+    },
+    {
+      "name": "12. Get Application Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["status"]
+        },
+        "description": "Get current application status including recording state and data shape"
+      }
+    },
+    {
+      "name": "13. Restore Original Data",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/data/restore",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["data/restore"]
+        },
+        "description": "Restore original data before cleaning (if backup exists)"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}
