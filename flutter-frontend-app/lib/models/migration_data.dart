@@ -308,4 +308,402 @@ class MigrationData with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // =========================================================================
+  // ETL OPERATIONS
+  // =========================================================================
+
+  /// Remove rows containing null values
+  Future<Map<String, dynamic>> removeNulls({
+    List<String>? columns,
+    String how = 'any',
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.removeNulls(columns: columns, how: how);
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+        _shape =
+            result['shape'] != null ? List<int>.from(result['shape']) : null;
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error removing nulls: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Remove duplicate rows
+  Future<Map<String, dynamic>> removeDuplicates({
+    List<String>? columns,
+    String keep = 'first',
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result =
+          await _apiService.removeDuplicates(columns: columns, keep: keep);
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+        _shape =
+            result['shape'] != null ? List<int>.from(result['shape']) : null;
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error removing duplicates: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Find and replace values
+  Future<Map<String, dynamic>> findReplace({
+    required String column,
+    required String findValue,
+    required String replaceValue,
+    bool useRegex = false,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.findReplace(
+        column: column,
+        findValue: findValue,
+        replaceValue: replaceValue,
+        useRegex: useRegex,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error in find and replace: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Fill null values
+  Future<Map<String, dynamic>> fillNulls({
+    required String column,
+    required String method,
+    dynamic value,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.fillNulls(
+        column: column,
+        method: method,
+        value: value,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error filling nulls: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Trim whitespace from columns
+  Future<Map<String, dynamic>> trimWhitespace({List<String>? columns}) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.trimWhitespace(columns: columns);
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error trimming whitespace: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Change text case
+  Future<Map<String, dynamic>> changeCase({
+    required String column,
+    required String caseType,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.changeCase(
+        column: column,
+        caseType: caseType,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error changing case: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Filter rows
+  Future<Map<String, dynamic>> filterRows({
+    required String column,
+    required String operator,
+    required dynamic value,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.filterRows(
+        column: column,
+        operator: operator,
+        value: value,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+        _shape =
+            result['shape'] != null ? List<int>.from(result['shape']) : null;
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error filtering rows: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Sort data
+  Future<Map<String, dynamic>> sortData({
+    required List<String> columns,
+    bool ascending = true,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.sortData(
+        columns: columns,
+        ascending: ascending,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error sorting data: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Rename column
+  Future<Map<String, dynamic>> renameColumn({
+    required String oldName,
+    required String newName,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.renameColumn(
+        oldName: oldName,
+        newName: newName,
+      );
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error renaming column: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Remove column
+  Future<Map<String, dynamic>> removeColumn({required String column}) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.removeColumn(column: column);
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+        _shape =
+            result['shape'] != null ? List<int>.from(result['shape']) : null;
+      }
+
+      return result['report'];
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error removing column: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // STEP RECORDING (New - replaces macro recording)
+  // =========================================================================
+
+  /// Start recording steps (using new endpoint)
+  Future<void> startStepRecording() async {
+    try {
+      final result = await _apiService.startStepRecording();
+      _isRecording = result['is_recording'] ?? false;
+      _recordedActionsCount = 0;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error starting step recording: $e');
+      notifyListeners();
+    }
+  }
+
+  /// Stop recording steps (using new endpoint)
+  Future<void> stopStepRecording() async {
+    try {
+      final result = await _apiService.stopStepRecording();
+      _isRecording = result['is_recording'] ?? false;
+      _recordedActionsCount = result['steps_count'] ?? 0;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error stopping step recording: $e');
+      notifyListeners();
+    }
+  }
+
+  /// Get recorded steps
+  Future<Map<String, dynamic>> getRecordedSteps() async {
+    try {
+      final result = await _apiService.getRecordedSteps();
+      _recordedActionsCount = result['steps_count'] ?? 0;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error getting recorded steps: $e');
+      rethrow;
+    }
+  }
+
+  /// Save recorded steps
+  Future<void> saveSteps(String name) async {
+    try {
+      await _apiService.saveSteps(name);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error saving steps: $e');
+      notifyListeners();
+    }
+  }
+
+  /// Replay steps on current or new data
+  Future<Map<String, dynamic>> replaySteps({String? filePath}) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final result = await _apiService.replaySteps(filePath: filePath);
+
+      if (result['success'] == true) {
+        _data = result['data'];
+        _columns = result['columns'];
+        _shape =
+            result['shape'] != null ? List<int>.from(result['shape']) : null;
+      }
+
+      return result;
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error replaying steps: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

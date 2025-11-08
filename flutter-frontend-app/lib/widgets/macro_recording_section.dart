@@ -2,33 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/migration_data.dart';
 
-class MacroRecordingSection extends StatefulWidget {
-  const MacroRecordingSection({Key? key}) : super(key: key);
+class StepRecordingSection extends StatefulWidget {
+  const StepRecordingSection({Key? key}) : super(key: key);
 
   @override
-  State<MacroRecordingSection> createState() => _MacroRecordingSectionState();
+  State<StepRecordingSection> createState() => _StepRecordingSectionState();
 }
 
-class _MacroRecordingSectionState extends State<MacroRecordingSection> {
-  final TextEditingController _recordingNameController =
-      TextEditingController();
+class _StepRecordingSectionState extends State<StepRecordingSection> {
+  final TextEditingController _stepNameController = TextEditingController();
 
   @override
   void dispose() {
-    _recordingNameController.dispose();
+    _stepNameController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveRecording(MigrationData migrationData) async {
+  Future<void> _saveSteps(MigrationData migrationData) async {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Save Recording'),
+        title: const Text('Save Steps'),
         content: TextField(
-          controller: _recordingNameController,
+          controller: _stepNameController,
           decoration: const InputDecoration(
-            labelText: 'Recording Name',
-            hintText: 'Enter a name for this recording',
+            labelText: 'Pipeline Name',
+            hintText: 'Enter a name for this pipeline',
           ),
           autofocus: true,
         ),
@@ -39,7 +38,7 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context, _recordingNameController.text);
+              Navigator.pop(context, _stepNameController.text);
             },
             child: const Text('Save'),
           ),
@@ -48,16 +47,73 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
     );
 
     if (name != null && name.isNotEmpty) {
-      await migrationData.saveRecording(name);
+      await migrationData.saveSteps(name);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Recording "$name" saved successfully!'),
+            content: Text('Steps "$name" saved successfully!'),
             backgroundColor: Colors.green,
           ),
         );
       }
-      _recordingNameController.clear();
+      _stepNameController.clear();
+    }
+  }
+
+  Future<void> _viewSteps(MigrationData migrationData) async {
+    try {
+      final result = await migrationData.getRecordedSteps();
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Recorded Steps'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: result['steps'] != null &&
+                      (result['steps'] as List).isNotEmpty
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: (result['steps'] as List).length,
+                      itemBuilder: (context, index) {
+                        final step = (result['steps'] as List)[index];
+                        return Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Text('${index + 1}'),
+                            ),
+                            title: Text(step['operation'] ?? 'Unknown'),
+                            subtitle: Text(
+                              'Parameters: ${step['parameters']?.toString() ?? 'None'}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : const Center(
+                      child: Text('No steps recorded yet'),
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -71,9 +127,21 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    const Icon(Icons.video_camera_back, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Step Recording',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 const Text(
-                  'Macro Recording',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'Record transformation steps and replay on new data',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 16),
 
@@ -102,9 +170,10 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
                     if (migrationData.recordedActionsCount > 0) ...[
                       const SizedBox(width: 8),
                       Chip(
-                        label: Text(
-                            '${migrationData.recordedActionsCount} actions'),
+                        label:
+                            Text('${migrationData.recordedActionsCount} steps'),
                         backgroundColor: Colors.blue[100],
+                        avatar: const Icon(Icons.list, size: 18),
                       ),
                     ],
                   ],
@@ -117,9 +186,9 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       if (migrationData.isRecording) {
-                        await migrationData.stopRecording();
+                        await migrationData.stopStepRecording();
                       } else {
-                        await migrationData.startRecording();
+                        await migrationData.startStepRecording();
                       }
                     },
                     icon: Icon(
@@ -141,16 +210,56 @@ class _MacroRecordingSectionState extends State<MacroRecordingSection> {
                   ),
                 ),
 
-                // Save Recording Button (only when stopped and has actions)
+                // Action Buttons (only when stopped and has steps)
                 if (!migrationData.isRecording &&
                     migrationData.recordedActionsCount > 0) ...[
                   const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _saveRecording(migrationData),
-                      icon: const Icon(Icons.save),
-                      label: const Text('Save Recording'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _viewSteps(migrationData),
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('View Steps'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _saveSteps(migrationData),
+                          icon: const Icon(Icons.save),
+                          label: const Text('Save Steps'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // Info box
+                if (!migrationData.isRecording) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: Colors.blue.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Click "Start Recording" then perform your data transformations. Each operation will be recorded.',
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

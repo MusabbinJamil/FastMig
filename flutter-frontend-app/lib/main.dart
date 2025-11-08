@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/migration_data.dart';
 import 'screens/splash_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   runApp(const FastMigApp());

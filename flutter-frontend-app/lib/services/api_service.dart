@@ -360,4 +360,506 @@ class ApiService {
       throw Exception('Error restoring data: $e');
     }
   }
+
+  // =========================================================================
+  // ETL OPERATIONS - Advanced data transformations
+  // =========================================================================
+
+  /// Remove rows containing null values
+  Future<Map<String, dynamic>> removeNulls({
+    List<String>? columns,
+    String how = 'any',
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/remove-nulls'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+          'how': how,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to remove nulls');
+      }
+    } catch (e) {
+      throw Exception('Error removing nulls: $e');
+    }
+  }
+
+  /// Remove duplicate rows
+  Future<Map<String, dynamic>> removeDuplicates({
+    List<String>? columns,
+    String keep = 'first',
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/remove-duplicates'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+          'keep': keep,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to remove duplicates');
+      }
+    } catch (e) {
+      throw Exception('Error removing duplicates: $e');
+    }
+  }
+
+  /// Find and replace values in a column
+  Future<Map<String, dynamic>> findReplace({
+    required String column,
+    required String findValue,
+    required String replaceValue,
+    bool useRegex = false,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/find-replace'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'column': column,
+          'find_value': findValue,
+          'replace_value': replaceValue,
+          'use_regex': useRegex,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to find and replace');
+      }
+    } catch (e) {
+      throw Exception('Error in find and replace: $e');
+    }
+  }
+
+  /// Fill null values in a column
+  Future<Map<String, dynamic>> fillNulls({
+    required String column,
+    required String method,
+    dynamic value,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/fill-nulls'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'column': column,
+          'method': method,
+          if (value != null) 'value': value,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to fill nulls');
+      }
+    } catch (e) {
+      throw Exception('Error filling nulls: $e');
+    }
+  }
+
+  /// Rename a column
+  Future<Map<String, dynamic>> renameColumn({
+    required String oldName,
+    required String newName,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/rename-column'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'old_name': oldName,
+          'new_name': newName,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to rename column');
+      }
+    } catch (e) {
+      throw Exception('Error renaming column: $e');
+    }
+  }
+
+  /// Remove a column
+  Future<Map<String, dynamic>> removeColumn({
+    required String column,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/remove-column'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'column': column}),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to remove column');
+      }
+    } catch (e) {
+      throw Exception('Error removing column: $e');
+    }
+  }
+
+  /// Filter rows based on a condition
+  Future<Map<String, dynamic>> filterRows({
+    required String column,
+    required String operator,
+    required dynamic value,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/filter-rows'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'column': column,
+          'operator': operator,
+          'value': value,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to filter rows');
+      }
+    } catch (e) {
+      throw Exception('Error filtering rows: $e');
+    }
+  }
+
+  /// Trim whitespace from columns
+  Future<Map<String, dynamic>> trimWhitespace({
+    List<String>? columns,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/trim-whitespace'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to trim whitespace');
+      }
+    } catch (e) {
+      throw Exception('Error trimming whitespace: $e');
+    }
+  }
+
+  /// Change text case in a column
+  Future<Map<String, dynamic>> changeCase({
+    required String column,
+    required String caseType,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/change-case'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'column': column,
+          'case_type': caseType,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to change case');
+      }
+    } catch (e) {
+      throw Exception('Error changing case: $e');
+    }
+  }
+
+  /// Sort data by columns
+  Future<Map<String, dynamic>> sortData({
+    required List<String> columns,
+    bool ascending = true,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/etl/sort-data'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'columns': columns,
+          'ascending': ascending,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to sort data');
+      }
+    } catch (e) {
+      throw Exception('Error sorting data: $e');
+    }
+  }
+
+  // =========================================================================
+  // STEP RECORDING - New endpoints (replaces macro recording)
+  // =========================================================================
+
+  /// Start recording transformation steps
+  Future<Map<String, dynamic>> startStepRecording() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/start'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to start step recording');
+      }
+    } catch (e) {
+      throw Exception('Error starting step recording: $e');
+    }
+  }
+
+  /// Stop recording transformation steps
+  Future<Map<String, dynamic>> stopStepRecording() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/stop'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to stop step recording');
+      }
+    } catch (e) {
+      throw Exception('Error stopping step recording: $e');
+    }
+  }
+
+  /// Get recorded steps
+  Future<Map<String, dynamic>> getRecordedSteps() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/steps/get'),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to get recorded steps');
+      }
+    } catch (e) {
+      throw Exception('Error getting recorded steps: $e');
+    }
+  }
+
+  /// Save recorded steps to file
+  Future<Map<String, dynamic>> saveSteps(String name) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/save'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'name': name}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to save steps');
+      }
+    } catch (e) {
+      throw Exception('Error saving steps: $e');
+    }
+  }
+
+  /// Load steps from file
+  Future<Map<String, dynamic>> loadSteps(String filePath) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/load'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'file_path': filePath}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to load steps');
+      }
+    } catch (e) {
+      throw Exception('Error loading steps: $e');
+    }
+  }
+
+  /// Replay recorded steps on current or new data
+  Future<Map<String, dynamic>> replaySteps({String? filePath}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/replay'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (filePath != null) 'file_path': filePath,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to replay steps');
+      }
+    } catch (e) {
+      throw Exception('Error replaying steps: $e');
+    }
+  }
+
+  /// Clear recorded steps
+  Future<Map<String, dynamic>> clearSteps() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/steps/clear'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to clear steps');
+      }
+    } catch (e) {
+      throw Exception('Error clearing steps: $e');
+    }
+  }
+
+  // =========================================================================
+  // MACHINE READABLE TRANSFORM (ENCODING) OPERATIONS
+  // =========================================================================
+
+  /// Label encode categorical columns
+  Future<Map<String, dynamic>> labelEncode({
+    List<String>? columns,
+    bool saveMapping = true,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/transform/label-encode'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+          'save_mapping': saveMapping,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to label encode');
+      }
+    } catch (e) {
+      throw Exception('Error in label encoding: $e');
+    }
+  }
+
+  /// One-hot encode categorical columns
+  Future<Map<String, dynamic>> oneHotEncode({
+    List<String>? columns,
+    bool dropFirst = false,
+    String prefixSep = '_',
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/transform/one-hot-encode'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+          'drop_first': dropFirst,
+          'prefix_sep': prefixSep,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to one-hot encode');
+      }
+    } catch (e) {
+      throw Exception('Error in one-hot encoding: $e');
+    }
+  }
+
+  /// Reverse label encoding
+  Future<Map<String, dynamic>> reverseLabelEncode({
+    List<String>? columns,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/transform/reverse-label-encode'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          if (columns != null) 'columns': columns,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return _parseEtlResponse(response);
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to reverse label encoding');
+      }
+    } catch (e) {
+      throw Exception('Error reversing label encoding: $e');
+    }
+  }
+
+  // =========================================================================
+  // HELPER METHODS
+  // =========================================================================
+
+  /// Parse ETL operation response
+  Map<String, dynamic> _parseEtlResponse(http.Response response) {
+    final jsonResponse = jsonDecode(response.body);
+    return {
+      'success': true,
+      'data': (jsonResponse['data'] as List)
+          .map((row) => List<dynamic>.from(row))
+          .toList(),
+      'columns': List<String>.from(jsonResponse['columns']),
+      'shape': jsonResponse['shape'],
+      'report': jsonResponse['report'],
+      'message': jsonResponse['message'],
+    };
+  }
 }

@@ -5,6 +5,7 @@ import '../widgets/side_menu.dart';
 import '../widgets/load_data_section.dart';
 import '../widgets/process_data_section.dart';
 import '../widgets/macro_recording_section.dart';
+import '../widgets/etl_operations_section.dart';
 import '../widgets/data_table_section.dart';
 import '../widgets/export_section.dart';
 import '../widgets/fitness_evaluation_section.dart';
@@ -63,7 +64,19 @@ class _DataMigrationScreenState extends State<DataMigrationScreen>
       case 1:
         return const ProcessDataSection();
       case 2:
-        return const MacroRecordingSection();
+        return Column(
+          children: [
+            const Expanded(
+              flex: 1,
+              child: StepRecordingSection(),
+            ),
+            const SizedBox(height: 16),
+            const Expanded(
+              flex: 2,
+              child: EtlOperationsSection(),
+            ),
+          ],
+        );
       case 3:
         return const DataTableSection();
       case 4:
@@ -250,7 +263,7 @@ class _DataMigrationScreenState extends State<DataMigrationScreen>
       case 1:
         return 'Convert Fields';
       case 2:
-        return 'Record Macro';
+        return 'ETL Operations & Step Recording';
       case 3:
         return 'View Data';
       case 4:
@@ -275,7 +288,7 @@ class _DataMigrationScreenState extends State<DataMigrationScreen>
       case 1:
         return 'Transform and convert column data types';
       case 2:
-        return 'Record actions for automated workflows';
+        return 'Apply ETL transformations and record reusable steps';
       case 3:
         return 'View and analyze your data';
       case 4:

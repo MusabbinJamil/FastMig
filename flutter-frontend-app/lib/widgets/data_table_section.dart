@@ -1,34 +1,215 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/migration_data.dart';
+import 'dart:math';
 
-class DataTableSection extends StatelessWidget {
+class DataTableSection extends StatefulWidget {
   const DataTableSection({Key? key}) : super(key: key);
+
+  @override
+  State<DataTableSection> createState() => _DataTableSectionState();
+}
+
+class _DataTableSectionState extends State<DataTableSection> {
+  late List<List<String>> _funnyData;
+  late List<String> _funnyColumns;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateFunnyData();
+  }
+
+  void _generateFunnyData() {
+    final random = Random();
+    final dataSetIndex = random.nextInt(5);
+
+    switch (dataSetIndex) {
+      case 0:
+        _funnyColumns = [
+          'Superhero',
+          'Power Level',
+          'Arch Nemesis',
+          'Favorite Food'
+        ];
+        _funnyData = [
+          ['Captain Obvious', '9001', 'The Confuser', 'Clarity Cereal'],
+          ['Procrastinator', '42', 'Deadlines', 'Yesterday\'s Coffee'],
+          ['Debugger Supreme', '∞', 'Semicolon Thief', 'Stack Overflow'],
+          ['Coffee Man', 'Unlimited', 'Sleep', 'More Coffee'],
+          ['The Committer', '404', 'Merge Conflicts', 'Pull Requests'],
+        ];
+        break;
+      case 1:
+        _funnyColumns = ['Pet', 'Skill', 'Mood', 'Dream Job'];
+        _funnyData = [
+          ['Keyboard Cat', 'Typing', 'Purr-plexed', 'Stack Overflow Moderator'],
+          ['Rubber Duck', 'Debugging', 'Floating', 'Chief Debug Officer'],
+          ['Office Plant', 'Photosynthesis', 'Wilting', 'Window Manager'],
+          ['Bug', 'Hiding', 'Elusive', 'Production Environment'],
+          ['Code Monkey', 'Banana.js', 'Caffeinated', 'Tech Lead'],
+        ];
+        break;
+      case 2:
+        _funnyColumns = ['Emotion', 'Trigger', 'Solution', 'Side Effect'];
+        _funnyData = [
+          ['Excitement', 'Code Works First Try', 'Celebrate!', 'Suspicion'],
+          ['Panic', 'Prod is Down', 'Rollback', 'Existential Crisis'],
+          ['Joy', 'Merge Approved', 'Dance', 'Imposter Syndrome'],
+          ['Confusion', 'Legacy Code', 'Google It', 'More Confusion'],
+          ['Relief', 'Tests Pass', 'Ship It', 'New Bug Appears'],
+        ];
+        break;
+      case 3:
+        _funnyColumns = [
+          'Tool',
+          'Promised Feature',
+          'Reality',
+          'Documentation'
+        ];
+        _funnyData = [
+          [
+            'AI Assistant',
+            'Writes Perfect Code',
+            'Needs Debugging',
+            'In Progress'
+          ],
+          [
+            'Framework v2',
+            'Backwards Compatible',
+            'Rewrite Everything',
+            'Coming Soon'
+          ],
+          [
+            'New Package',
+            'Solves All Problems',
+            'Dependency Hell',
+            'See Examples'
+          ],
+          [
+            'IDE Plugin',
+            'Increases Productivity',
+            'Increases RAM Usage',
+            'README.md'
+          ],
+          ['Code Generator', 'Saves Time', 'Generates Bugs', 'It\'s Obvious'],
+        ];
+        break;
+      default:
+        _funnyColumns = ['Error Code', 'Meaning', 'Real Meaning', 'Fix'];
+        _funnyData = [
+          ['404', 'Not Found', 'I Give Up', 'Check Spelling'],
+          ['500', 'Server Error', 'Oops', 'Turn Off & On'],
+          ['418', 'I\'m a Teapot', 'Easter Egg', 'Be a Teapot'],
+          ['401', 'Unauthorized', 'You Shall Not Pass', 'Use Sudo'],
+          ['200', 'OK', 'Surprisingly Working', 'Don\'t Touch It'],
+        ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<MigrationData>(
       builder: (context, migrationData, child) {
-        // If no data is loaded
+        // If no data is loaded, show funny data
         if (migrationData.data == null || migrationData.data!.isEmpty) {
           return Card(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.table_chart, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No data loaded',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            elevation: 2,
+            child: Column(
+              children: [
+                // Header with info banner
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.orange.shade50, Colors.orange.shade100],
+                    ),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.orange.shade300),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Upload a file to see data here',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                  child: Row(
+                    children: [
+                      Icon(Icons.sentiment_very_satisfied,
+                          color: Colors.orange.shade700, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'No Data Loaded - Here\'s Some Fun Instead! 😄',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.shade900,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Load your data using the "Load Data" button in the toolbar above',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.orange.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon:
+                            Icon(Icons.refresh, color: Colors.orange.shade700),
+                        onPressed: () {
+                          setState(() {
+                            _generateFunnyData();
+                          });
+                        },
+                        tooltip: 'Generate New Funny Data',
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                // Funny Data Table
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        headingRowColor: MaterialStateProperty.all(
+                          Colors.purple.shade50,
+                        ),
+                        columns: _funnyColumns
+                            .map((col) => DataColumn(
+                                  label: Text(
+                                    col,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.purple.shade900,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        rows: _funnyData
+                            .map(
+                              (row) => DataRow(
+                                cells: row
+                                    .map((cell) => DataCell(
+                                          Text(
+                                            cell,
+                                            style: TextStyle(
+                                              color: Colors.grey.shade800,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         }

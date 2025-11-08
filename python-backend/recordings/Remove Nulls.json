@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2025-11-08T12:13:57.750143",
+    "operation": "remove_null_rows",
+    "parameters": {
+      "columns": null,
+      "how": "any"
+    },
+    "report": {
+      "operation": "remove_null_rows",
+      "original_rows": 9,
+      "rows_removed": 1,
+      "remaining_rows": 8,
+      "columns_checked": "all",
+      "how": "any"
+    }
+  }
+]

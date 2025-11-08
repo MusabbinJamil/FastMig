@@ -4,14 +4,18 @@ import pandas as pd
 import json
 import os
 import logging
+from typing import List
 from functions import read_file, convert_column, export_data, apply_transformations, map_columns
 from werkzeug.utils import secure_filename
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+import numpy as np
 from data_fitness import (
     DataFitnessEvaluator, 
     EvolutionaryDataCleaner,
     evaluate_data_fitness,
     clean_data_evolutionary
 )
+from etl_operations import ETLOperations, StepRecorder
 
 # Configure logging
 logging.basicConfig(
@@ -33,8 +37,34 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Global variables to store data (in production, use a database)
 current_data = {}
-recorded_actions = []
-is_recording = False
+recorded_actions = []  # Legacy support
+is_recording = False  # Legacy support
+
+# New step recorder
+step_recorder = StepRecorder()
+etl_ops = ETLOperations()
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def _dataframe_to_list(df: pd.DataFrame, max_rows: int = 100) -> List[List]:
+    """Convert DataFrame to list format for JSON response"""
+    data_list = []
+    # Add headers as first row
+    data_list.append(df.columns.tolist())
+    # Add data rows (limited to max_rows for performance)
+    for _, row in df.head(max_rows).iterrows():
+        row_data = []
+        for val in row:
+            if pd.isna(val):
+                row_data.append(None)
+            elif isinstance(val, pd.Timestamp):
+                row_data.append(val.isoformat())
+            else:
+                row_data.append(val)
+        data_list.append(row_data)
+    return data_list
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -311,6 +341,580 @@ def get_columns():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ============================================================================
+# ETL OPERATIONS ENDPOINTS (transformations)
+# ============================================================================
+
+@app.route('/etl/remove-nulls', methods=['POST'])
+def etl_remove_nulls():
+    """Remove rows containing null values"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        data = request.get_json()
+        columns = data.get('columns')  # None = all columns
+        how = data.get('how', 'any')  # 'any' or 'all'
+        
+        df = current_data['df'].copy()
+        df_cleaned, report = etl_ops.remove_null_rows(df, columns=columns, how=how)
+        
+        current_data['df'] = df_cleaned
+        
+        # Record step if recording
+        if step_recorder.is_recording:
+            step_recorder.record_step('remove_null_rows', 
+                                     {'columns': columns, 'how': how}, 
+                                     report)
+        
+        # Convert to response format
+        data_list = _dataframe_to_list(df_cleaned)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_cleaned.columns.tolist(),
+            'shape': df_cleaned.shape,
+            'report': report,
+            'message': f"Removed {report['rows_removed']} rows containing null values"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /etl/remove-nulls: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/remove-duplicates', methods=['POST'])
+def etl_remove_duplicates():
+    """Remove duplicate rows"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        columns = data.get('columns')  # None = all columns
+        keep = data.get('keep', 'first')  # 'first', 'last', or False
+        
+        df = current_data['df'].copy()
+        df_cleaned, report = etl_ops.remove_duplicate_rows(df, columns=columns, keep=keep)
+        
+        current_data['df'] = df_cleaned
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('remove_duplicate_rows',
+                                     {'columns': columns, 'keep': keep},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_cleaned)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_cleaned.columns.tolist(),
+            'shape': df_cleaned.shape,
+            'report': report,
+            'message': f"Removed {report['rows_removed']} duplicate rows"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /etl/remove-duplicates: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/find-replace', methods=['POST'])
+def etl_find_replace():
+    """Find and replace values in a column"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'column' not in data or 'find_value' not in data or 'replace_value' not in data:
+            return jsonify({'error': 'column, find_value, and replace_value are required'}), 400
+        
+        column = data['column']
+        find_value = data['find_value']
+        replace_value = data['replace_value']
+        use_regex = data.get('use_regex', False)
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.find_replace(df, column, find_value, replace_value, use_regex)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('find_replace',
+                                     {'column': column, 'find_value': find_value, 
+                                      'replace_value': replace_value, 'use_regex': use_regex},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Made {report['replacements_made']} replacements in column '{column}'"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/find-replace: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/fill-nulls', methods=['POST'])
+def etl_fill_nulls():
+    """Fill null values in a column"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'column' not in data or 'method' not in data:
+            return jsonify({'error': 'column and method are required'}), 400
+        
+        column = data['column']
+        method = data['method']  # 'forward', 'backward', 'mean', 'median', 'mode', 'constant'
+        value = data.get('value')
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.fill_null_values(df, column, method, value)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('fill_null_values',
+                                     {'column': column, 'method': method, 'value': value},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Filled {report['nulls_filled']} null values in column '{column}'"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/fill-nulls: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/rename-column', methods=['POST'])
+def etl_rename_column():
+    """Rename a column"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'old_name' not in data or 'new_name' not in data:
+            return jsonify({'error': 'old_name and new_name are required'}), 400
+        
+        old_name = data['old_name']
+        new_name = data['new_name']
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.rename_column(df, old_name, new_name)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('rename_column',
+                                     {'old_name': old_name, 'new_name': new_name},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Renamed column '{old_name}' to '{new_name}'"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/rename-column: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/remove-column', methods=['POST'])
+def etl_remove_column():
+    """Remove a column"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'column' not in data:
+            return jsonify({'error': 'column is required'}), 400
+        
+        column = data['column']
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.remove_column(df, column)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('remove_column',
+                                     {'column': column},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Removed column '{column}'"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/remove-column: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/filter-rows', methods=['POST'])
+def etl_filter_rows():
+    """Filter rows based on a condition"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'column' not in data or 'operator' not in data or 'value' not in data:
+            return jsonify({'error': 'column, operator, and value are required'}), 400
+        
+        column = data['column']
+        operator = data['operator']
+        value = data['value']
+        
+        df = current_data['df'].copy()
+        df_filtered, report = etl_ops.filter_rows(df, column, operator, value)
+        
+        current_data['df'] = df_filtered
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('filter_rows',
+                                     {'column': column, 'operator': operator, 'value': value},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_filtered)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_filtered.columns.tolist(),
+            'shape': df_filtered.shape,
+            'report': report,
+            'message': f"Filtered {report['rows_removed']} rows"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/filter-rows: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/trim-whitespace', methods=['POST'])
+def etl_trim_whitespace():
+    """Trim whitespace from columns"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json() or {}
+        columns = data.get('columns')  # None = all string columns
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.trim_whitespace(df, columns)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('trim_whitespace',
+                                     {'columns': columns},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Trimmed whitespace from {len(report['columns_processed'])} columns"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /etl/trim-whitespace: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/change-case', methods=['POST'])
+def etl_change_case():
+    """Change text case in a column"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'column' not in data or 'case_type' not in data:
+            return jsonify({'error': 'column and case_type are required'}), 400
+        
+        column = data['column']
+        case_type = data['case_type']  # 'upper', 'lower', 'title', 'capitalize'
+        
+        df = current_data['df'].copy()
+        df_modified, report = etl_ops.change_case(df, column, case_type)
+        
+        current_data['df'] = df_modified
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('change_case',
+                                     {'column': column, 'case_type': case_type},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_modified)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_modified.columns.tolist(),
+            'shape': df_modified.shape,
+            'report': report,
+            'message': f"Changed case to {case_type} in column '{column}'"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/change-case: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/etl/sort-data', methods=['POST'])
+def etl_sort_data():
+    """Sort data by columns"""
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json()
+        
+        if not data or 'columns' not in data:
+            return jsonify({'error': 'columns array is required'}), 400
+        
+        columns = data['columns']
+        ascending = data.get('ascending', True)
+        
+        df = current_data['df'].copy()
+        df_sorted, report = etl_ops.sort_data(df, columns, ascending)
+        
+        current_data['df'] = df_sorted
+        
+        if step_recorder.is_recording:
+            step_recorder.record_step('sort_data',
+                                     {'columns': columns, 'ascending': ascending},
+                                     report)
+        
+        data_list = _dataframe_to_list(df_sorted)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_sorted.columns.tolist(),
+            'shape': df_sorted.shape,
+            'report': report,
+            'message': f"Sorted data by {columns}"
+        })
+    
+    except KeyError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in /etl/sort-data: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# STEP RECORDING ENDPOINTS (Renamed from Macro Recording)
+# ============================================================================
+
+@app.route('/steps/start', methods=['POST'])
+def start_recording_steps():
+    """Start recording transformation steps"""
+    try:
+        step_recorder.start_recording()
+        
+        # Also set legacy flags for backward compatibility
+        global is_recording, recorded_actions
+        is_recording = True
+        recorded_actions = []
+        
+        return jsonify({
+            'success': True,
+            'message': 'Started recording steps',
+            'is_recording': True
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/stop', methods=['POST'])
+def stop_recording_steps():
+    """Stop recording transformation steps"""
+    try:
+        step_recorder.stop_recording()
+        
+        global is_recording
+        is_recording = False
+        
+        return jsonify({
+            'success': True,
+            'message': 'Stopped recording steps',
+            'is_recording': False,
+            'steps_count': len(step_recorder.steps)
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/get', methods=['GET'])
+def get_recorded_steps():
+    """Get all recorded steps"""
+    try:
+        return jsonify({
+            'success': True,
+            'steps': step_recorder.get_steps(),
+            'steps_count': len(step_recorder.steps),
+            'is_recording': step_recorder.is_recording
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/clear', methods=['POST'])
+def clear_recorded_steps():
+    """Clear all recorded steps"""
+    try:
+        step_recorder.clear_steps()
+        
+        global recorded_actions
+        recorded_actions = []
+        
+        return jsonify({
+            'success': True,
+            'message': 'Cleared all recorded steps'
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/save', methods=['POST'])
+def save_recorded_steps():
+    """Save recorded steps to file"""
+    try:
+        data = request.get_json()
+        step_name = data.get('name', 'steps')
+        file_path = f"recordings/{step_name}.json"
+        
+        os.makedirs('recordings', exist_ok=True)
+        
+        step_recorder.save_steps(file_path)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Saved {len(step_recorder.steps)} steps to {file_path}',
+            'file_path': file_path,
+            'steps_count': len(step_recorder.steps)
+        })
+    
+    except Exception as e:
+        logger.error(f"Error saving steps: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/load', methods=['POST'])
+def load_recorded_steps():
+    """Load steps from file"""
+    try:
+        data = request.get_json()
+        file_path = data.get('file_path')
+        
+        if not file_path:
+            return jsonify({'error': 'file_path is required'}), 400
+        
+        step_recorder.load_steps(file_path)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Loaded {len(step_recorder.steps)} steps from {file_path}',
+            'steps': step_recorder.get_steps(),
+            'steps_count': len(step_recorder.steps)
+        })
+    
+    except Exception as e:
+        logger.error(f"Error loading steps: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/steps/replay', methods=['POST'])
+def replay_recorded_steps():
+    """Replay all recorded steps on current or specified data"""
+    try:
+        data = request.get_json() or {}
+        file_path = data.get('file_path')
+        
+        # Load data if file_path provided, otherwise use current data
+        if file_path:
+            df = read_file(file_path)
+        elif 'df' in current_data:
+            df = current_data['df'].copy()
+        else:
+            return jsonify({'error': 'No data loaded. Provide file_path or load data first.'}), 400
+        
+        # Replay steps
+        df_transformed, reports = step_recorder.replay_steps(df)
+        
+        # Store transformed data
+        current_data['df'] = df_transformed
+        if file_path:
+            current_data['file_path'] = file_path
+        
+        data_list = _dataframe_to_list(df_transformed)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df_transformed.columns.tolist(),
+            'shape': df_transformed.shape,
+            'reports': reports,
+            'steps_applied': len(reports),
+            'message': f'Successfully applied {len(reports)} steps'
+        })
+    
+    except Exception as e:
+        logger.error(f"Error replaying steps: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# LEGACY RECORDING ENDPOINTS (for backward compatibility)
+# ============================================================================
+
 @app.route('/recording/start', methods=['POST'])
 def start_recording():
     """Start recording actions"""
@@ -413,12 +1017,287 @@ def load_and_run_recording():
 def get_status():
     """Get current application status"""
     return jsonify({
-        'is_recording': is_recording,
-        'recorded_actions_count': len(recorded_actions),
+        'is_recording': step_recorder.is_recording,
+        'recorded_steps_count': len(step_recorder.steps),
         'has_data': 'df' in current_data,
         'current_file': current_data.get('file_path', None),
-        'data_shape': current_data['df'].shape if 'df' in current_data else None
+        'data_shape': current_data['df'].shape if 'df' in current_data else None,
+        # Legacy support
+        'recorded_actions_count': len(recorded_actions)
     })
+
+# ============================================================================
+# MACHINE READABLE TRANSFORM ENDPOINTS
+# ============================================================================
+
+@app.route('/transform/label-encode', methods=['POST'])
+def label_encode():
+    """
+    Label encode categorical columns to make data machine-readable
+    
+    Request body:
+    {
+        "columns": ["column1", "column2"] or null for all categorical columns,
+        "save_mapping": true/false  # whether to save the encoding mapping
+    }
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        data = request.get_json() or {}
+        columns = data.get('columns')
+        save_mapping = data.get('save_mapping', True)
+        
+        df = current_data['df'].copy()
+        encoders = {}
+        mappings = {}
+        columns_encoded = []
+        
+        # If no columns specified, find all categorical columns
+        if columns is None:
+            columns = df.select_dtypes(include=['object', 'category']).columns.tolist()
+            # Exclude tracking column
+            if 'Modified_by_AI' in columns:
+                columns.remove('Modified_by_AI')
+        
+        logger.info(f"🔢 Label encoding {len(columns)} columns: {columns}")
+        
+        for col in columns:
+            if col not in df.columns:
+                logger.warning(f"Column '{col}' not found, skipping")
+                continue
+            
+            # Skip if already numeric
+            if pd.api.types.is_numeric_dtype(df[col]):
+                logger.info(f"  ⏭️  '{col}' is already numeric, skipping")
+                continue
+            
+            # Create and fit label encoder
+            le = LabelEncoder()
+            
+            # Handle NaN values
+            non_null_mask = df[col].notna()
+            if non_null_mask.sum() == 0:
+                logger.warning(f"  ⚠️  '{col}' has all null values, skipping")
+                continue
+            
+            # Fit and transform non-null values
+            df.loc[non_null_mask, col] = le.fit_transform(df.loc[non_null_mask, col].astype(str))
+            
+            # Store encoder and mapping
+            encoders[col] = le
+            mappings[col] = dict(zip(le.classes_, le.transform(le.classes_)))
+            columns_encoded.append(col)
+            
+            logger.info(f"  ✓ '{col}': {len(le.classes_)} unique values encoded")
+        
+        current_data['df'] = df
+        
+        # Store encoders for potential inverse transform
+        if save_mapping:
+            if 'label_encoders' not in current_data:
+                current_data['label_encoders'] = {}
+            current_data['label_encoders'].update(encoders)
+        
+        # Record step if recording
+        if step_recorder.is_recording:
+            step_recorder.add_step('label_encode', columns=columns, save_mapping=save_mapping)
+        
+        data_list = _dataframe_to_list(df)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df.columns.tolist(),
+            'shape': df.shape,
+            'report': {
+                'columns_encoded': columns_encoded,
+                'mappings': mappings if save_mapping else None,
+                'total_encoded': len(columns_encoded)
+            },
+            'message': f"Successfully label encoded {len(columns_encoded)} columns"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /transform/label-encode: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to label encode columns'
+        }), 500
+
+@app.route('/transform/one-hot-encode', methods=['POST'])
+def one_hot_encode():
+    """
+    One-hot encode categorical columns to make data machine-readable
+    
+    Request body:
+    {
+        "columns": ["column1", "column2"] or null for all categorical columns,
+        "drop_first": false,  # whether to drop first category to avoid multicollinearity
+        "prefix_sep": "_"     # separator between column name and category
+    }
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        data = request.get_json() or {}
+        columns = data.get('columns')
+        drop_first = data.get('drop_first', False)
+        prefix_sep = data.get('prefix_sep', '_')
+        
+        df = current_data['df'].copy()
+        columns_encoded = []
+        new_columns_created = []
+        
+        # If no columns specified, find all categorical columns
+        if columns is None:
+            columns = df.select_dtypes(include=['object', 'category']).columns.tolist()
+            # Exclude tracking column
+            if 'Modified_by_AI' in columns:
+                columns.remove('Modified_by_AI')
+        
+        logger.info(f"🎯 One-hot encoding {len(columns)} columns: {columns}")
+        
+        for col in columns:
+            if col not in df.columns:
+                logger.warning(f"Column '{col}' not found, skipping")
+                continue
+            
+            # Skip if already numeric
+            if pd.api.types.is_numeric_dtype(df[col]):
+                logger.info(f"  ⏭️  '{col}' is already numeric, skipping")
+                continue
+            
+            # Get unique values count
+            unique_count = df[col].nunique()
+            
+            # Perform one-hot encoding
+            one_hot = pd.get_dummies(df[col], prefix=col, prefix_sep=prefix_sep, drop_first=drop_first)
+            
+            # Track new columns
+            new_cols = one_hot.columns.tolist()
+            new_columns_created.extend(new_cols)
+            
+            # Drop original column and add one-hot columns
+            df = df.drop(columns=[col])
+            df = pd.concat([df, one_hot], axis=1)
+            
+            columns_encoded.append(col)
+            logger.info(f"  ✓ '{col}': {unique_count} unique values → {len(new_cols)} new columns")
+        
+        current_data['df'] = df
+        
+        # Record step if recording
+        if step_recorder.is_recording:
+            step_recorder.add_step('one_hot_encode', columns=columns, drop_first=drop_first, prefix_sep=prefix_sep)
+        
+        data_list = _dataframe_to_list(df)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df.columns.tolist(),
+            'shape': df.shape,
+            'report': {
+                'columns_encoded': columns_encoded,
+                'new_columns_created': new_columns_created,
+                'total_encoded': len(columns_encoded),
+                'total_new_columns': len(new_columns_created)
+            },
+            'message': f"Successfully one-hot encoded {len(columns_encoded)} columns, created {len(new_columns_created)} new columns"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /transform/one-hot-encode: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to one-hot encode columns'
+        }), 500
+
+@app.route('/transform/reverse-label-encode', methods=['POST'])
+def reverse_label_encode():
+    """
+    Reverse label encoding to get original categorical values
+    
+    Request body:
+    {
+        "columns": ["column1", "column2"] or null for all previously encoded columns
+    }
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        if 'label_encoders' not in current_data or not current_data['label_encoders']:
+            return jsonify({'error': 'No label encodings found. Please perform label encoding first.'}), 400
+        
+        data = request.get_json() or {}
+        columns = data.get('columns')
+        
+        df = current_data['df'].copy()
+        encoders = current_data['label_encoders']
+        columns_decoded = []
+        
+        # If no columns specified, decode all encoded columns
+        if columns is None:
+            columns = list(encoders.keys())
+        
+        logger.info(f"🔄 Reversing label encoding for {len(columns)} columns: {columns}")
+        
+        for col in columns:
+            if col not in df.columns:
+                logger.warning(f"Column '{col}' not found, skipping")
+                continue
+            
+            if col not in encoders:
+                logger.warning(f"No encoder found for '{col}', skipping")
+                continue
+            
+            le = encoders[col]
+            
+            # Handle NaN values
+            non_null_mask = df[col].notna()
+            if non_null_mask.sum() == 0:
+                logger.warning(f"  ⚠️  '{col}' has all null values, skipping")
+                continue
+            
+            # Inverse transform
+            df.loc[non_null_mask, col] = le.inverse_transform(df.loc[non_null_mask, col].astype(int))
+            columns_decoded.append(col)
+            
+            logger.info(f"  ✓ '{col}': decoded to original values")
+        
+        current_data['df'] = df
+        
+        data_list = _dataframe_to_list(df)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'columns': df.columns.tolist(),
+            'shape': df.shape,
+            'report': {
+                'columns_decoded': columns_decoded,
+                'total_decoded': len(columns_decoded)
+            },
+            'message': f"Successfully reversed label encoding for {len(columns_decoded)} columns"
+        })
+    
+    except Exception as e:
+        logger.error(f"Error in /transform/reverse-label-encode: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to reverse label encoding'
+        }), 500
+
+# ============================================================================
+# DATA FITNESS & EVOLUTIONARY CLEANING ENDPOINTS
+# ============================================================================
 
 @app.route('/fitness/evaluate', methods=['POST'])
 def evaluate_fitness():
@@ -703,20 +1582,48 @@ if __name__ == '__main__':
     logger.info("="*60)
     logger.info("Server will be available at http://localhost:5000")
     logger.info("")
-    logger.info("Endpoints available:")
+    logger.info("=== Core Endpoints ===")
     logger.info("  GET  /health             - Health check")
-    logger.info("  POST /upload             - Upload a file (recommended)")
+    logger.info("  POST /upload             - Upload a file")
     logger.info("  POST /load               - Load a file from server path (legacy)")
-    logger.info("  POST /process            - Process data")
+    logger.info("  POST /process            - Process data (convert column)")
     logger.info("  POST /export             - Export processed data")
     logger.info("  GET  /columns            - Get column information")
     logger.info("  GET  /status             - Get application status")
-    logger.info("  POST /recording/start    - Start recording actions")
-    logger.info("  POST /recording/stop     - Stop recording actions")
-    logger.info("  POST /recording/save     - Save recording")
-    logger.info("  POST /recording/load     - Load and run recording")
     logger.info("")
-    logger.info("  === Data Fitness & Evolutionary Cleaning ===")
+    logger.info("=== ETL Operations ===")
+    logger.info("  POST /etl/remove-nulls       - Remove rows with null values")
+    logger.info("  POST /etl/remove-duplicates  - Remove duplicate rows")
+    logger.info("  POST /etl/find-replace       - Find and replace values")
+    logger.info("  POST /etl/fill-nulls         - Fill null values (forward/backward/mean/median/mode/constant)")
+    logger.info("  POST /etl/rename-column      - Rename a column")
+    logger.info("  POST /etl/remove-column      - Remove a column")
+    logger.info("  POST /etl/filter-rows        - Filter rows by condition")
+    logger.info("  POST /etl/trim-whitespace    - Trim whitespace from columns")
+    logger.info("  POST /etl/change-case        - Change text case (upper/lower/title/capitalize)")
+    logger.info("  POST /etl/sort-data          - Sort data by columns")
+    logger.info("")
+    logger.info("=== Machine Readable Transform (Encoding) ===")
+    logger.info("  POST /transform/label-encode         - Label encode categorical columns")
+    logger.info("  POST /transform/one-hot-encode       - One-hot encode categorical columns")
+    logger.info("  POST /transform/reverse-label-encode - Reverse label encoding")
+    logger.info("")
+    logger.info("=== Step Recording (Record & Replay Transformations) ===")
+    logger.info("  POST /steps/start        - Start recording transformation steps")
+    logger.info("  POST /steps/stop         - Stop recording steps")
+    logger.info("  GET  /steps/get          - Get all recorded steps")
+    logger.info("  POST /steps/clear        - Clear recorded steps")
+    logger.info("  POST /steps/save         - Save steps to file")
+    logger.info("  POST /steps/load         - Load steps from file")
+    logger.info("  POST /steps/replay       - Replay steps on data")
+    logger.info("")
+    logger.info("=== Legacy Recording Endpoints (Backward Compatibility) ===")
+    logger.info("  POST /recording/start    - Start recording (legacy)")
+    logger.info("  POST /recording/stop     - Stop recording (legacy)")
+    logger.info("  POST /recording/save     - Save recording (legacy)")
+    logger.info("  POST /recording/load     - Load and run recording (legacy)")
+    logger.info("")
+    logger.info("=== Data Fitness & Evolutionary Cleaning ===")
     logger.info("  POST /fitness/evaluate   - Evaluate data fitness/health")
     logger.info("  GET  /fitness/record/<index> - Get fitness for specific record")
     logger.info("  POST /clean/evolutionary - Clean data using evolutionary algorithms")
