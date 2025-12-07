@@ -13,6 +13,7 @@ dependencies:
   provider: ^6.0.0
   http: ^1.1.0
   path: ^1.8.0
+  shared_preferences: ^2.2.0
   # Add windows file picker support
   win32: ^5.0.9
   ffi: ^2.1.0

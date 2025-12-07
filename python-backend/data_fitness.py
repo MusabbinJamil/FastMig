@@ -247,6 +247,91 @@ class DataFitnessEvaluator:
             return "Poor"
         else:
             return "Critical"
+    
+    def detect_sensitive_columns(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Detect columns with sensitive data that shouldn't be imputed using AI.
+        These include: dates of birth, NIC, ID numbers, passport numbers, etc.
+        
+        Returns:
+            Dictionary mapping column names to sensitivity info
+            {
+                'column_name': {
+                    'reason': 'string explaining why',
+                    'severity': 'high|medium',
+                    'recommendation': 'string with recommendation'
+                }
+            }
+        """
+        logger.info("🔍 Detecting sensitive columns that shouldn't be imputed...")
+        
+        sensitive_columns = {}
+        
+        # Define patterns and keywords for sensitive data
+        date_keywords = ['birth', 'dob', 'birthday', 'date_of_birth', 'born', 'birthdate']
+        id_keywords = ['nic', 'nid', 'national_id', 'passport', 'ssn', 'social_security', 
+                       'tax_id', 'license', 'driver', 'registration', 'vehicle', 
+                       'vin', 'chassis', 'serial', 'id_number', 'identification']
+        
+        for col in self.df.columns:
+            col_lower = col.lower()
+            
+            # Skip tracking column
+            if col == 'Modified_by_AI':
+                continue
+            
+            reason = None
+            severity = 'high'
+            
+            # Check for date of birth columns
+            if any(keyword in col_lower for keyword in date_keywords):
+                reason = "Date of Birth - Cannot be reliably imputed. Missing dates should be obtained from original source."
+                severity = 'high'
+            
+            # Check for ID/NIC columns
+            elif any(keyword in col_lower for keyword in id_keywords):
+                reason = "Identification Number (NIC/Passport/ID) - These are unique identifiers that cannot be imputed. Missing values must be verified from original documents."
+                severity = 'high'
+            
+            # Check for patterns in column names suggesting sensitive data
+            elif 'phone' in col_lower or 'mobile' in col_lower or 'contact' in col_lower:
+                # Only flag if it looks like personal contact
+                if 'work' not in col_lower and 'office' not in col_lower:
+                    reason = "Contact Information - Personal phone/contact data should not be AI-imputed."
+                    severity = 'medium'
+            
+            # Check actual data patterns if column has high-confidence ID format
+            if reason is None:
+                non_null = self.df[col].dropna()
+                if len(non_null) > 0:
+                    sample_values = non_null.head(10).astype(str)
+                    
+                    # Check if values look like IDs (alphanumeric, mostly unique)
+                    unique_ratio = len(non_null.unique()) / len(non_null)
+                    if unique_ratio > 0.95:  # Very high uniqueness suggests IDs
+                        sample = sample_values.values[0]
+                        # Check for ID-like patterns
+                        if any(char.isdigit() for char in sample) and len(sample) > 5:
+                            if any(keyword in col_lower for keyword in ['id', 'code', 'reference', 'ref']):
+                                reason = "Unique Identifier - High cardinality suggests this is an ID field. AI imputation may create duplicate or invalid IDs."
+                                severity = 'high'
+            
+            if reason:
+                sensitive_columns[col] = {
+                    'reason': reason,
+                    'severity': severity,
+                    'recommendation': 'Consider manual imputation or excluding from AI cleaning.',
+                    'has_missing': int(self.df[col].isna().sum()),
+                    'total_missing_pct': round((self.df[col].isna().sum() / len(self.df)) * 100, 2)
+                }
+                logger.warning(f"⚠️  Sensitive column detected: '{col}' - {reason}")
+        
+        if sensitive_columns:
+            logger.info(f"✓ Found {len(sensitive_columns)} sensitive columns")
+        else:
+            logger.info("✓ No obvious sensitive columns detected")
+        
+        return sensitive_columns
 
 
 class EvolutionaryDataCleaner:

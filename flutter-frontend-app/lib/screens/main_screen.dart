@@ -10,6 +10,8 @@ import '../widgets/encoding_section.dart';
 import '../widgets/export_section.dart';
 import '../widgets/fitness_evaluation_section.dart';
 import '../widgets/evolutionary_cleaning_section.dart';
+import '../widgets/console_view.dart';
+import '../widgets/dev_settings_panel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -174,6 +176,11 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
+                  icon: const Icon(Icons.engineering, color: Colors.white),
+                  onPressed: () => _showDialog('devsettings'),
+                  tooltip: 'Development Settings',
+                ),
+                IconButton(
                   icon: const Icon(Icons.help_outline, color: Colors.white),
                   onPressed: () => _showDialog('help'),
                   tooltip: 'Help',
@@ -196,12 +203,14 @@ class _MainScreenState extends State<MainScreen> {
                         label: 'Load Data',
                         color: Colors.green,
                         onPressed: () => _showDialog('load'),
+                        featureKey: 'none',
                       ),
                       _RibbonButton(
                         icon: Icons.download,
                         label: 'Export',
                         color: Colors.blue,
                         onPressed: () => _showDialog('export'),
+                        featureKey: 'export',
                       ),
                     ],
                   ),
@@ -214,18 +223,21 @@ class _MainScreenState extends State<MainScreen> {
                         label: 'Convert Fields',
                         color: Colors.orange,
                         onPressed: () => _showDialog('convert'),
+                        featureKey: 'convert',
                       ),
                       _RibbonButton(
                         icon: Icons.auto_awesome,
                         label: 'ETL Operations',
                         color: Colors.purple,
                         onPressed: () => _showDialog('etl'),
+                        featureKey: 'etl',
                       ),
                       _RibbonButton(
                         icon: Icons.code,
                         label: 'Encoding',
                         color: Colors.indigo,
                         onPressed: () => _showDialog('encoding'),
+                        featureKey: 'encoding',
                       ),
                     ],
                   ),
@@ -238,6 +250,7 @@ class _MainScreenState extends State<MainScreen> {
                         label: 'Record Steps',
                         color: Colors.red,
                         onPressed: () => _showDialog('record'),
+                        featureKey: 'record',
                       ),
                     ],
                   ),
@@ -250,12 +263,34 @@ class _MainScreenState extends State<MainScreen> {
                         label: 'Data Fitness',
                         color: Colors.teal,
                         onPressed: () => _showDialog('fitness'),
+                        featureKey: 'fitness',
                       ),
                       _RibbonButton(
                         icon: Icons.auto_fix_high,
                         label: 'AI Cleaning',
                         color: Colors.pink,
                         onPressed: () => _showDialog('cleaning'),
+                        featureKey: 'cleaning',
+                      ),
+                    ],
+                  ),
+                  const VerticalDivider(width: 24),
+                  _buildRibbonSection(
+                    'Tools',
+                    [
+                      _RibbonButton(
+                        icon: Icons.terminal,
+                        label: 'Console',
+                        color: Colors.green,
+                        onPressed: () => _showDialog('console'),
+                        featureKey: 'console',
+                      ),
+                      _RibbonButton(
+                        icon: Icons.engineering,
+                        label: 'Dev Settings',
+                        color: Colors.amber,
+                        onPressed: () => _showDialog('devsettings'),
+                        featureKey: 'none',
                       ),
                     ],
                   ),
@@ -297,31 +332,44 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildRibbonButton(_RibbonButton button) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: button.onPressed,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+    return Consumer<MigrationData>(
+      builder: (context, migrationData, child) {
+        bool isEnabled = button.isEnabled(migrationData);
+
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isEnabled ? button.onPressed : null,
             borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(button.icon, color: button.color, size: 28),
-              const SizedBox(height: 4),
-              Text(
-                button.label,
-                style: const TextStyle(fontSize: 11),
-                textAlign: TextAlign.center,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color:
+                      isEnabled ? Colors.grey.shade300 : Colors.grey.shade200,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                color: isEnabled ? Colors.transparent : Colors.grey.shade100,
               ),
-            ],
+              child: Opacity(
+                opacity: isEnabled ? 1.0 : 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(button.icon, color: button.color, size: 28),
+                    const SizedBox(height: 4),
+                    Text(
+                      button.label,
+                      style: const TextStyle(fontSize: 11),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -381,9 +429,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
           // Panel Content
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: _getDialogContent(dialogType),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: _getDialogContent(dialogType),
+              ),
             ),
           ),
         ],
@@ -409,6 +459,10 @@ class _MainScreenState extends State<MainScreen> {
         return Icons.health_and_safety;
       case 'cleaning':
         return Icons.auto_fix_high;
+      case 'console':
+        return Icons.terminal;
+      case 'devsettings':
+        return Icons.engineering;
       case 'help':
         return Icons.help_outline;
       default:
@@ -434,6 +488,10 @@ class _MainScreenState extends State<MainScreen> {
         return Colors.teal;
       case 'cleaning':
         return Colors.pink;
+      case 'console':
+        return Colors.green;
+      case 'devsettings':
+        return Colors.amber;
       default:
         return Colors.blue;
     }
@@ -457,6 +515,10 @@ class _MainScreenState extends State<MainScreen> {
         return 'Data Fitness Evaluation';
       case 'cleaning':
         return 'AI Data Cleaning';
+      case 'console':
+        return 'Console Output';
+      case 'devsettings':
+        return 'Development Settings';
       case 'help':
         return 'Help & Documentation';
       default:
@@ -488,6 +550,10 @@ class _MainScreenState extends State<MainScreen> {
         return const FitnessEvaluationSection();
       case 'cleaning':
         return const EvolutionaryCleaningSection();
+      case 'console':
+        return const ConsoleView();
+      case 'devsettings':
+        return const DevSettingsPanel();
       case 'help':
         return _buildHelpContent();
       default:
@@ -612,11 +678,36 @@ class _RibbonButton {
   final String label;
   final Color color;
   final VoidCallback onPressed;
+  final String featureKey;
 
   _RibbonButton({
     required this.icon,
     required this.label,
     required this.color,
     required this.onPressed,
+    required this.featureKey,
   });
+
+  bool isEnabled(MigrationData migrationData) {
+    switch (featureKey) {
+      case 'etl':
+        return migrationData.enableETL;
+      case 'convert':
+        return migrationData.enableConvertFields;
+      case 'record':
+        return migrationData.enableMacroRecording;
+      case 'fitness':
+        return migrationData.enableDataFitness;
+      case 'cleaning':
+        return migrationData.enableAICleaning;
+      case 'encoding':
+        return migrationData.enableEncoding;
+      case 'export':
+        return migrationData.enableExport;
+      case 'console':
+        return migrationData.enableConsole;
+      default:
+        return true;
+    }
+  }
 }

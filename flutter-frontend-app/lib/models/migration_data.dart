@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../services/file_picker_service.dart';
 import '../services/api_service.dart';
+import '../services/console_log_service.dart';
 
 class MigrationData with ChangeNotifier {
   final FilePickerService _filePickerService = FilePickerService();
   final ApiService _apiService = ApiService();
+  final ConsoleLogService _consoleLogService = ConsoleLogService();
 
   List<List<dynamic>>? _data;
   List<String>? _columns;
@@ -20,6 +22,17 @@ class MigrationData with ChangeNotifier {
   bool _isRecording = false;
   int _recordedActionsCount = 0;
 
+  // Development features flags
+  bool _enableETL = true;
+  bool _enableAIFeatures = true;
+  bool _enableMacroRecording = true;
+  bool _enableConvertFields = true;
+  bool _enableDataFitness = true;
+  bool _enableAICleaning = true;
+  bool _enableEncoding = true;
+  bool _enableExport = true;
+  bool _enableConsole = true;
+
   // Getters
   List<List<dynamic>>? get data => _data;
   List<String>? get columns => _columns;
@@ -34,6 +47,18 @@ class MigrationData with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isRecording => _isRecording;
   int get recordedActionsCount => _recordedActionsCount;
+
+  // Development features getters
+  bool get enableETL => _enableETL;
+  bool get enableAIFeatures => _enableAIFeatures;
+  bool get enableMacroRecording => _enableMacroRecording;
+  bool get enableConvertFields => _enableConvertFields;
+  bool get enableDataFitness => _enableDataFitness;
+  bool get enableAICleaning => _enableAICleaning;
+  bool get enableEncoding => _enableEncoding;
+  bool get enableExport => _enableExport;
+  bool get enableConsole => _enableConsole;
+  ConsoleLogService get consoleLogService => _consoleLogService;
 
   void selectColumn(String column) {
     _selectedColumn = column;
@@ -227,6 +252,25 @@ class MigrationData with ChangeNotifier {
       _errorMessage = e.toString();
       debugPrint('Error getting record fitness: $e');
       rethrow;
+    }
+  }
+
+  /// Detect sensitive columns that shouldn't be AI-imputed
+  /// Returns columns like Date of Birth, NIC, Passport numbers, etc.
+  Future<Map<String, dynamic>> detectSensitiveColumns() async {
+    try {
+      final result = await _apiService.detectSensitiveColumns();
+      return result;
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint('Error detecting sensitive columns: $e');
+      // Return empty result on error - this is non-critical
+      return {
+        'success': false,
+        'sensitive_columns': {},
+        'count': 0,
+        'error': e.toString()
+      };
     }
   }
 
@@ -705,5 +749,122 @@ class MigrationData with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Development features setters
+  void toggleETL() {
+    _enableETL = !_enableETL;
+    _consoleLogService.info(
+        'ETL Operations ${_enableETL ? 'enabled' : 'disabled'}',
+        function: 'toggleETL');
+    notifyListeners();
+  }
+
+  void toggleAIFeatures() {
+    _enableAIFeatures = !_enableAIFeatures;
+    _consoleLogService.info(
+        'AI Features ${_enableAIFeatures ? 'enabled' : 'disabled'}',
+        function: 'toggleAIFeatures');
+    notifyListeners();
+  }
+
+  void toggleMacroRecording() {
+    _enableMacroRecording = !_enableMacroRecording;
+    _consoleLogService.info(
+        'Macro Recording ${_enableMacroRecording ? 'enabled' : 'disabled'}',
+        function: 'toggleMacroRecording');
+    notifyListeners();
+  }
+
+  void toggleConvertFields() {
+    _enableConvertFields = !_enableConvertFields;
+    _consoleLogService.info(
+        'Convert Fields ${_enableConvertFields ? 'enabled' : 'disabled'}',
+        function: 'toggleConvertFields');
+    notifyListeners();
+  }
+
+  void toggleDataFitness() {
+    _enableDataFitness = !_enableDataFitness;
+    _consoleLogService.info(
+        'Data Fitness ${_enableDataFitness ? 'enabled' : 'disabled'}',
+        function: 'toggleDataFitness');
+    notifyListeners();
+  }
+
+  void toggleAICleaning() {
+    _enableAICleaning = !_enableAICleaning;
+    _consoleLogService.info(
+        'AI Cleaning ${_enableAICleaning ? 'enabled' : 'disabled'}',
+        function: 'toggleAICleaning');
+    notifyListeners();
+  }
+
+  void setETL(bool value) {
+    _enableETL = value;
+    notifyListeners();
+  }
+
+  void setAIFeatures(bool value) {
+    _enableAIFeatures = value;
+    notifyListeners();
+  }
+
+  void setMacroRecording(bool value) {
+    _enableMacroRecording = value;
+    notifyListeners();
+  }
+
+  void setConvertFields(bool value) {
+    _enableConvertFields = value;
+    notifyListeners();
+  }
+
+  void setDataFitness(bool value) {
+    _enableDataFitness = value;
+    notifyListeners();
+  }
+
+  void setAICleaning(bool value) {
+    _enableAICleaning = value;
+    notifyListeners();
+  }
+
+  void toggleEncoding() {
+    _enableEncoding = !_enableEncoding;
+    _consoleLogService.info(
+        'Encoding ${_enableEncoding ? 'enabled' : 'disabled'}',
+        function: 'toggleEncoding');
+    notifyListeners();
+  }
+
+  void toggleExport() {
+    _enableExport = !_enableExport;
+    _consoleLogService.info('Export ${_enableExport ? 'enabled' : 'disabled'}',
+        function: 'toggleExport');
+    notifyListeners();
+  }
+
+  void toggleConsole() {
+    _enableConsole = !_enableConsole;
+    _consoleLogService.info(
+        'Console ${_enableConsole ? 'enabled' : 'disabled'}',
+        function: 'toggleConsole');
+    notifyListeners();
+  }
+
+  void setEncoding(bool value) {
+    _enableEncoding = value;
+    notifyListeners();
+  }
+
+  void setExport(bool value) {
+    _enableExport = value;
+    notifyListeners();
+  }
+
+  void setConsole(bool value) {
+    _enableConsole = value;
+    notifyListeners();
   }
 }

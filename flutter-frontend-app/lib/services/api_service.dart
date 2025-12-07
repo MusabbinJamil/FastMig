@@ -1,13 +1,19 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 import 'file_picker_service.dart';
+import 'console_log_service.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:5000';
+  final ConsoleLogService _consoleLogService = ConsoleLogService();
 
   /// Upload a file to the backend and get its data with advanced metadata
   Future<Map<String, dynamic>> uploadFile(PickedFileData fileData) async {
     try {
+      _consoleLogService.info('Uploading file: ${fileData.fileName}',
+          function: 'uploadFile');
       var request = http.MultipartRequest(
         'POST',
         Uri.parse('$baseUrl/upload'),
@@ -24,7 +30,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        return {
+        final result = {
           'success': true,
           'data': (jsonResponse['data'] as List)
               .map((row) => List<dynamic>.from(row))
@@ -36,11 +42,20 @@ class ApiService {
           'encoding': jsonResponse['encoding'] ?? 'utf-8',
           'format': jsonResponse['format'] ?? 'unknown',
         };
+        _consoleLogService.success(
+            'File loaded: ${result['filename']} (${result['shape'][0]} rows, ${result['shape'][1]} columns)',
+            function: 'uploadFile');
+        return result;
       } else {
         final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Failed to upload file: ${error['error'] ?? 'Unknown error'}',
+            function: 'uploadFile');
         throw Exception(error['error'] ?? 'Failed to upload file');
       }
     } catch (e) {
+      _consoleLogService.error('Error uploading file: $e',
+          function: 'uploadFile');
       throw Exception('Error uploading file: $e');
     }
   }
@@ -49,6 +64,8 @@ class ApiService {
   Future<Map<String, dynamic>> processData(String column, String format,
       {String? dateFormat}) async {
     try {
+      _consoleLogService.info('Processing column "$column" to format "$format"',
+          function: 'processData');
       final response = await http.post(
         Uri.parse('$baseUrl/process'),
         headers: {'Content-Type': 'application/json'},
@@ -61,6 +78,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Column "$column" converted to $format successfully',
+            function: 'processData');
         return {
           'success': true,
           'data': (jsonResponse['data'] as List)
@@ -72,9 +92,13 @@ class ApiService {
         };
       } else {
         final error = jsonDecode(response.body);
+        _consoleLogService.error('Failed to process column: ${error['error']}',
+            function: 'processData');
         throw Exception(error['error'] ?? 'Failed to process data');
       }
     } catch (e) {
+      _consoleLogService.error('Error processing data: $e',
+          function: 'processData');
       throw Exception('Error processing data: $e');
     }
   }
@@ -82,6 +106,8 @@ class ApiService {
   /// Export processed data to file
   Future<Map<String, dynamic>> exportData(String outputPath) async {
     try {
+      _consoleLogService.info('Exporting data to: $outputPath',
+          function: 'exportData');
       final response = await http.post(
         Uri.parse('$baseUrl/export'),
         headers: {'Content-Type': 'application/json'},
@@ -90,6 +116,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Data exported successfully to: ${jsonResponse['file_path']}',
+            function: 'exportData');
         return {
           'success': true,
           'message': jsonResponse['message'],
@@ -97,9 +126,13 @@ class ApiService {
         };
       } else {
         final error = jsonDecode(response.body);
+        _consoleLogService.error('Failed to export data: ${error['error']}',
+            function: 'exportData');
         throw Exception(error['error'] ?? 'Failed to export data');
       }
     } catch (e) {
+      _consoleLogService.error('Error exporting data: $e',
+          function: 'exportData');
       throw Exception('Error exporting data: $e');
     }
   }
@@ -124,12 +157,16 @@ class ApiService {
   /// Start recording macro actions
   Future<Map<String, dynamic>> startRecording() async {
     try {
+      _consoleLogService.info('Starting macro recording',
+          function: 'startRecording');
       final response = await http.post(
         Uri.parse('$baseUrl/recording/start'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
+        _consoleLogService.success('Macro recording started',
+            function: 'startRecording');
         return jsonDecode(response.body);
       } else {
         throw Exception('Failed to start recording');
@@ -236,12 +273,16 @@ class ApiService {
   /// Evaluate data fitness - assess health and quality of data
   Future<Map<String, dynamic>> evaluateFitness() async {
     try {
+      _consoleLogService.info('Evaluating data fitness...',
+          function: 'evaluateFitness');
       final response = await http.post(
         Uri.parse('$baseUrl/fitness/evaluate'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
+        _consoleLogService.success('Data fitness evaluation completed',
+            function: 'evaluateFitness');
         return jsonDecode(response.body);
       } else {
         final error = jsonDecode(response.body);
@@ -267,6 +308,43 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error getting record fitness: $e');
+    }
+  }
+
+  /// Detect sensitive columns that shouldn't be AI-imputed
+  /// Returns columns like Date of Birth, NIC, Passport numbers, etc.
+  Future<Map<String, dynamic>> detectSensitiveColumns() async {
+    try {
+      _consoleLogService.info('Detecting sensitive columns...',
+          function: 'detectSensitiveColumns');
+      final response = await http.get(
+        Uri.parse('$baseUrl/fitness/sensitive-columns'),
+      );
+
+      if (response.statusCode == 200) {
+        _consoleLogService.success('Sensitive columns detection completed',
+            function: 'detectSensitiveColumns');
+        return jsonDecode(response.body);
+      } else {
+        final error = jsonDecode(response.body);
+        // Return empty result if error, don't throw
+        return {
+          'success': false,
+          'sensitive_columns': {},
+          'count': 0,
+          'error': error['error'] ?? 'Failed to detect sensitive columns'
+        };
+      }
+    } catch (e) {
+      // Log but don't throw - feature is non-critical
+      _consoleLogService.warning('Error detecting sensitive columns: $e',
+          function: 'detectSensitiveColumns');
+      return {
+        'success': false,
+        'sensitive_columns': {},
+        'count': 0,
+        'error': 'Error detecting sensitive columns: $e'
+      };
     }
   }
 
@@ -371,6 +449,8 @@ class ApiService {
     String how = 'any',
   }) async {
     try {
+      _consoleLogService.info('Removing null values from data',
+          function: 'removeNulls');
       final response = await http.post(
         Uri.parse('$baseUrl/etl/remove-nulls'),
         headers: {'Content-Type': 'application/json'},
@@ -381,12 +461,18 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
+        _consoleLogService.success('Null values removed successfully',
+            function: 'removeNulls');
         return _parseEtlResponse(response);
       } else {
         final error = jsonDecode(response.body);
+        _consoleLogService.error('Failed to remove nulls: ${error['error']}',
+            function: 'removeNulls');
         throw Exception(error['error'] ?? 'Failed to remove nulls');
       }
     } catch (e) {
+      _consoleLogService.error('Error removing nulls: $e',
+          function: 'removeNulls');
       throw Exception('Error removing nulls: $e');
     }
   }
@@ -397,6 +483,8 @@ class ApiService {
     String keep = 'first',
   }) async {
     try {
+      _consoleLogService.info('Removing duplicate rows from data',
+          function: 'removeDuplicates');
       final response = await http.post(
         Uri.parse('$baseUrl/etl/remove-duplicates'),
         headers: {'Content-Type': 'application/json'},
@@ -407,9 +495,14 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
+        _consoleLogService.success('Duplicate rows removed successfully',
+            function: 'removeDuplicates');
         return _parseEtlResponse(response);
       } else {
         final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Failed to remove duplicates: ${error['error']}',
+            function: 'removeDuplicates');
         throw Exception(error['error'] ?? 'Failed to remove duplicates');
       }
     } catch (e) {
@@ -847,6 +940,41 @@ class ApiService {
   // =========================================================================
   // HELPER METHODS
   // =========================================================================
+
+  /// Get backend logs
+  Future<List<String>> getBackendLogs() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/logs'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse is Map && jsonResponse.containsKey('logs')) {
+          final logs = jsonResponse['logs'];
+          if (logs is List && logs.isNotEmpty) {
+            return logs.map((log) => log.toString()).toList();
+          } else {
+            return ['No logs yet - waiting for backend operations...'];
+          }
+        }
+      } else if (response.statusCode == 404) {
+        return [
+          'Backend logs endpoint not found. Make sure server is updated.'
+        ];
+      }
+      return [
+        'Unable to connect to backend logs - received status ${response.statusCode}'
+      ];
+    } on SocketException {
+      return ['Error: Cannot connect to backend server at $baseUrl'];
+    } on TimeoutException {
+      return ['Error: Backend server request timed out'];
+    } catch (e) {
+      return ['Error fetching backend logs: $e'];
+    }
+  }
 
   /// Parse ETL operation response
   Map<String, dynamic> _parseEtlResponse(http.Response response) {

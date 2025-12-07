@@ -5,6 +5,7 @@ import json
 import os
 import logging
 from typing import List
+from collections import deque
 from functions import read_file, convert_column, export_data, apply_transformations, map_columns
 from werkzeug.utils import secure_filename
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -17,12 +18,28 @@ from data_fitness import (
 )
 from etl_operations import ETLOperations, StepRecorder
 
-# Configure logging
+# Configure logging with custom handler to store logs
+class LogCapture(logging.Handler):
+    """Custom handler to capture logs in memory"""
+    def __init__(self, max_logs=500):
+        super().__init__()
+        self.logs = deque(maxlen=max_logs)
+    
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.logs.append(log_entry)
+
+log_capture = LogCapture()
+log_capture.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+logger.addHandler(log_capture)
+# Also add root logger handler
+logging.getLogger().addHandler(log_capture)
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Flutter web clients
@@ -70,6 +87,16 @@ def _dataframe_to_list(df: pd.DataFrame, max_rows: int = 100) -> List[List]:
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'FastMig backend is running'})
+
+@app.route('/logs', methods=['GET'])
+def get_logs():
+    """Get captured backend logs"""
+    try:
+        logs = list(log_capture.logs)
+        return jsonify({'logs': logs, 'count': len(logs)}), 200
+    except Exception as e:
+        logger.error(f'Error retrieving logs: {e}')
+        return jsonify({'error': 'Failed to retrieve logs', 'logs': []}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -1371,6 +1398,48 @@ def evaluate_record_fitness(row_index):
     except Exception as e:
         logger.error(f"Error evaluating record fitness: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+@app.route('/fitness/sensitive-columns', methods=['GET'])
+def detect_sensitive_columns():
+    """
+    Detect columns with sensitive data that shouldn't be AI-imputed.
+    Includes: Date of Birth, NIC, Passport, ID numbers, etc.
+    
+    Returns:
+    {
+        'success': true,
+        'sensitive_columns': {
+            'column_name': {
+                'reason': 'string explaining why',
+                'severity': 'high|medium',
+                'recommendation': 'string',
+                'has_missing': number,
+                'total_missing_pct': number
+            }
+        },
+        'message': 'string'
+    }
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        df = current_data['df']
+        evaluator = DataFitnessEvaluator(df)
+        sensitive_cols = evaluator.detect_sensitive_columns()
+        
+        logger.info(f"Detected {len(sensitive_cols)} sensitive columns")
+        
+        return jsonify({
+            'success': True,
+            'sensitive_columns': sensitive_cols,
+            'count': len(sensitive_cols),
+            'message': f"Detected {len(sensitive_cols)} columns with potentially sensitive data that may need special handling during imputation."
+        })
+    
+    except Exception as e:
+        logger.error(f"Error detecting sensitive columns: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e), 'sensitive_columns': {}}), 500
 
 @app.route('/clean/evolutionary', methods=['POST'])
 def clean_evolutionary():

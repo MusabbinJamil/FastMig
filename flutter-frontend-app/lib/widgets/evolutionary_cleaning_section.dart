@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/migration_data.dart';
+import 'sensitive_data_warning.dart';
 
 class EvolutionaryCleaningSection extends StatefulWidget {
   const EvolutionaryCleaningSection({Key? key}) : super(key: key);
@@ -16,8 +17,10 @@ class _EvolutionaryCleaningSectionState
   bool _trackModifications = true;
   bool _isCleaning = false;
   bool _isComparing = false;
+  bool _isLoadingSensitiveColumns = false;
   Map<String, dynamic>? _cleaningReport;
   Map<String, dynamic>? _comparisonResults;
+  Map<String, dynamic>? _sensitiveColumns;
 
   final Map<String, Map<String, dynamic>> _methodInfo = {
     'hybrid': {
@@ -51,6 +54,35 @@ class _EvolutionaryCleaningSectionState
       'color': Colors.teal,
     },
   };
+
+  Future<void> _loadSensitiveColumns() async {
+    final migrationData = Provider.of<MigrationData>(context, listen: false);
+
+    setState(() {
+      _isLoadingSensitiveColumns = true;
+    });
+
+    try {
+      final result = await migrationData.detectSensitiveColumns();
+
+      setState(() {
+        _sensitiveColumns = result['sensitive_columns'] ?? {};
+        _isLoadingSensitiveColumns = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingSensitiveColumns = false;
+        _sensitiveColumns = {};
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load sensitive columns when widget initializes
+    Future.microtask(() => _loadSensitiveColumns());
+  }
 
   Future<void> _cleanData() async {
     final migrationData = Provider.of<MigrationData>(context, listen: false);
@@ -413,6 +445,36 @@ class _EvolutionaryCleaningSectionState
                       });
                     },
                   ),
+                  const SizedBox(height: 24),
+                  // Sensitive Data Warning
+                  if (_isLoadingSensitiveColumns)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text('Checking for sensitive data...'),
+                        ],
+                      ),
+                    )
+                  else if (_sensitiveColumns != null &&
+                      (_sensitiveColumns as Map).isNotEmpty)
+                    SensitiveDataWarning(
+                      sensitiveColumns:
+                          _sensitiveColumns as Map<String, dynamic>,
+                      onDismiss: () {
+                        setState(() {
+                          _sensitiveColumns = {};
+                        });
+                      },
+                    ),
                   const SizedBox(height: 24),
                   Row(
                     children: [
