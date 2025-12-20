@@ -17,6 +17,11 @@ from data_fitness import (
     clean_data_evolutionary
 )
 from etl_operations import ETLOperations, StepRecorder
+from ga_fitness_evolver import DataFitnessEvolverGA, PopulationConfig, evolve_records
+from ga_engine import GeneticAlgorithmEngine, GAResult
+from ga_operators import GAConfig, SelectionMethod, CrossoverMethod, MutationMethod
+from ga_genotype_phenotype import RealValuedMapper
+from ga_data_cleaning_pipeline import DataCleaningPipeline
 
 # Configure logging with custom handler to store logs
 class LogCapture(logging.Handler):
@@ -1053,6 +1058,40 @@ def get_status():
         'recorded_actions_count': len(recorded_actions)
     })
 
+@app.route('/config/apply', methods=['POST'])
+def apply_configurations():
+    """
+    Apply general configuration settings to the application
+    
+    Request body:
+    {
+        "setting_name": "value",
+        "another_setting": value
+    }
+    
+    Returns: Confirmation of applied settings
+    """
+    try:
+        data = request.get_json() or {}
+        
+        # Store configuration for future use
+        if 'config' not in current_data:
+            current_data['config'] = {}
+        
+        current_data['config'].update(data)
+        
+        logger.info(f"Applied configurations: {list(data.keys())}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Configurations applied successfully',
+            'applied_settings': list(data.keys())
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in /config/apply: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 # ============================================================================
 # MACHINE READABLE TRANSFORM ENDPOINTS
 # ============================================================================
@@ -1610,6 +1649,301 @@ def restore_original_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ============================================================================
+# GENETIC ALGORITHM ENDPOINTS (GA Evolution)
+# ============================================================================
+
+@app.route('/ga/analyze-population', methods=['POST'])
+def analyze_population_fitness():
+    """
+    Analyze fitness distribution of the population.
+    
+    Request body:
+    {
+        "fitness_threshold": 85.0
+    }
+    
+    Returns: Detailed fitness analysis
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
+        
+        data = request.get_json() or {}
+        fitness_threshold = data.get('fitness_threshold', 85.0)
+        
+        df = current_data['df']
+        evolver = DataFitnessEvolverGA(df, track_modifications=True)
+        analysis = evolver.analyze_population(fitness_threshold=fitness_threshold)
+        
+        logger.info(f"Population analysis: {analysis['unhealthy_records']} unhealthy, {analysis['healthy_records']} healthy")
+        
+        return jsonify({
+            'success': True,
+            'total_records': analysis['total_records'],
+            'healthy_records': analysis['healthy_records'],
+            'unhealthy_records': analysis['unhealthy_records'],
+            'healthy_percentage': analysis['healthy_percentage'],
+            'unhealthy_percentage': analysis['unhealthy_percentage'],
+            'average_fitness': analysis['avg_fitness'],
+            'min_fitness': analysis['min_fitness'],
+            'max_fitness': analysis['max_fitness'],
+            'fitness_distribution': analysis['fitness_distribution'],
+            'fitness_threshold': fitness_threshold,
+            'statistics': {
+                'std_fitness': analysis['std_fitness']
+            }
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in /ga/analyze-population: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
+@app.route('/ga/select-populations', methods=['POST'])
+def select_populations():
+    """
+    Select healthy and unhealthy populations for evolution.
+    
+    Request body:
+    {
+        "fitness_threshold": 85.0,
+        "healthy_sample_size": null  (null = use all, or specify a number)
+    }
+    
+    Returns: Population configuration
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json() or {}
+        fitness_threshold = data.get('fitness_threshold', 85.0)
+        healthy_sample_size = data.get('healthy_sample_size')
+        
+        df = current_data['df']
+        evolver = DataFitnessEvolverGA(df, track_modifications=True)
+        config = evolver.select_populations(fitness_threshold, healthy_sample_size)
+        
+        logger.info(f"Selected {config.unhealthy_count} unhealthy, {config.healthy_count} healthy")
+        
+        # Store config in session for next step
+        current_data['ga_config'] = config
+        
+        return jsonify({
+            'success': True,
+            'unhealthy_count': config.unhealthy_count,
+            'healthy_count': config.healthy_count,
+            'target_columns': config.target_columns,
+            'fitness_threshold': config.fitness_threshold,
+            'column_bounds': {k: list(v) for k, v in config.column_bounds.items()}
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in /ga/select-populations: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
+@app.route('/ga/run-evolution', methods=['POST'])
+def run_genetic_algorithm_evolution():
+    """
+    Run genetic algorithm evolution on unhealthy records.
+    
+    Request body:
+    {
+        "population_size": 30,
+        "generations": 100,
+        "mutation_rate": 0.1,
+        "crossover_rate": 0.8,
+        "selection_method": "tournament",
+        "crossover_method": "single_point",
+        "mutation_method": "gaussian",
+        "fitness_threshold": 85.0,
+        "healthy_sample_size": null,
+        "elitism": true,
+        "elite_count": 2,
+        "early_stopping_enabled": true,
+        "early_stopping_patience": 10,
+        "track_progress": false
+    }
+    
+    Returns: Evolution results with fitness history and best expression
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json() or {}
+        
+        # Extract GA config parameters
+        ga_config = GAConfig(
+            population_size=data.get('population_size', 30),
+            generations=data.get('generations', 100),
+            mutation_rate=data.get('mutation_rate', 0.1),
+            crossover_rate=data.get('crossover_rate', 0.8),
+            elitism_rate=data.get('elitism_rate', 0.05),  # Keep top 5%
+            selection_method=SelectionMethod(data.get('selection_method', 'tournament')),
+            crossover_method=CrossoverMethod(data.get('crossover_method', 'single_point')),
+            mutation_method=MutationMethod(data.get('mutation_method', 'gaussian')),
+            early_stopping=data.get('early_stopping_enabled', True),
+            early_stopping_generations=data.get('early_stopping_patience', 10),
+        )
+        
+        # Validate config
+        is_valid, errors = ga_config.validate()
+        if not is_valid:
+            return jsonify({'error': 'Invalid GA config', 'validation_errors': errors}), 400
+        
+        df = current_data['df']
+        fitness_threshold = data.get('fitness_threshold', 85.0)
+        healthy_sample_size = data.get('healthy_sample_size')
+        
+        # Create evolver and run evolution
+        logger.info("Starting GA evolution...")
+        evolver = DataFitnessEvolverGA(df, track_modifications=True)
+        config = evolver.select_populations(fitness_threshold, healthy_sample_size)
+        evolved_df, results = evolver.evolve_unhealthy_records(config, ga_config)
+        
+        # Store evolved data
+        current_data['evolved_df'] = evolved_df
+        current_data['df_original'] = df
+        
+        # Format fitness history
+        fitness_history = []
+        if 'generation_metrics' in results:
+            for metric in results['generation_metrics']:
+                fitness_history.append({
+                    'generation': metric.get('generation', 0),
+                    'best_fitness': metric.get('best_fitness', 0),
+                    'worst_fitness': metric.get('worst_fitness', 0),
+                    'average_fitness': metric.get('average_fitness', 0),
+                    'fitness_variance': metric.get('fitness_variance', 0),
+                    'population_size': metric.get('population_size', 0)
+                })
+        
+        logger.info(f"GA evolution complete. Fitness improved by {results.get('fitness_metrics', {}).get('improvement', 0):.2f}%")
+        
+        return jsonify({
+            'success': True,
+            'fitness_history': fitness_history,
+            'fitness_metrics': results.get('fitness_metrics', {}),
+            'modification_tracking': results.get('modification_tracking', {}),
+            'convergence_achieved': results.get('convergence_achieved', False),
+            'total_generations': results.get('total_generations', 0),
+            'message': f"GA Evolution completed. Improved {results.get('fitness_metrics', {}).get('records_at_target', 0)} records to target fitness."
+        }), 200
+    
+    except ValueError as e:
+        logger.error(f"Invalid parameter in /ga/run-evolution: {str(e)}")
+        return jsonify({'error': f'Invalid parameter: {str(e)}', 'type': 'ValueError'}), 400
+    except Exception as e:
+        logger.error(f"Error in /ga/run-evolution: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
+@app.route('/ga/quick-evolve', methods=['POST'])
+def quick_evolve_records():
+    """
+    Quick evolution endpoint - loads data, analyzes, and evolves in one call.
+    
+    Request body:
+    {
+        "fitness_threshold": 85.0,
+        "population_size": 30,
+        "generations": 50,
+        "save_result": true
+    }
+    
+    Returns: Evolved DataFrame and results
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data loaded'}), 400
+        
+        data = request.get_json() or {}
+        df = current_data['df']
+        
+        evolved_df, results = evolve_records(
+            df,
+            fitness_threshold=data.get('fitness_threshold', 85.0),
+            healthy_sample_size=data.get('healthy_sample_size'),
+            ga_config=GAConfig(
+                population_size=data.get('population_size', 30),
+                generations=data.get('generations', 50)
+            ) if data.get('generations') else None
+        )
+        
+        if data.get('save_result', True):
+            current_data['evolved_df'] = evolved_df
+            current_data['df_original'] = df
+        
+        # Convert to list for JSON response
+        data_list = _dataframe_to_list(evolved_df, max_rows=100)
+        
+        return jsonify({
+            'success': True,
+            'data': data_list,
+            'shape': evolved_df.shape,
+            'columns': evolved_df.columns.tolist(),
+            'results': results,
+            'message': 'Quick evolution completed successfully'
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in /ga/quick-evolve: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
+
+
+@app.route('/ga/export-evolved', methods=['POST'])
+def export_evolved_data():
+    """
+    Export the evolved/cleaned dataset.
+    
+    Request body:
+    {
+        "filename": "evolved_data.csv",
+        "format": "csv"  (csv or json)
+    }
+    
+    Returns: Download URL or file path
+    """
+    try:
+        if 'evolved_df' not in current_data:
+            return jsonify({'error': 'No evolved data. Run evolution first.'}), 400
+        
+        data = request.get_json() or {}
+        filename = data.get('filename', 'evolved_data')
+        format_type = data.get('format', 'csv').lower()
+        
+        evolved_df = current_data['evolved_df']
+        
+        # Create filename with timestamp
+        import datetime
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        safe_filename = f"{filename}_{timestamp}.{format_type}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
+        
+        if format_type == 'csv':
+            evolved_df.to_csv(filepath, index=False)
+        elif format_type == 'json':
+            evolved_df.to_json(filepath, orient='records')
+        else:
+            return jsonify({'error': f'Unsupported format: {format_type}'}), 400
+        
+        logger.info(f"Evolved data exported to {filepath}")
+        
+        return jsonify({
+            'success': True,
+            'filename': safe_filename,
+            'filepath': filepath,
+            'download_url': f'/uploads/{safe_filename}'
+        }), 200
+    
+    except Exception as e:
+        logger.error(f"Error in /ga/export-evolved: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 def record_action(action_type, **params):
     """Helper function to record an action"""
     if is_recording:
@@ -1659,6 +1993,7 @@ if __name__ == '__main__':
     logger.info("  POST /export             - Export processed data")
     logger.info("  GET  /columns            - Get column information")
     logger.info("  GET  /status             - Get application status")
+    logger.info("  POST /config/apply       - Apply configurations")
     logger.info("")
     logger.info("=== ETL Operations ===")
     logger.info("  POST /etl/remove-nulls       - Remove rows with null values")
@@ -1699,7 +2034,16 @@ if __name__ == '__main__':
     logger.info("  POST /clean/compare      - Compare all cleaning methods")
     logger.info("  POST /data/restore       - Restore original data")
     logger.info("")
-    logger.info("  Evolutionary Methods: GA, PSO, DE, ES, Hybrid")
+    logger.info("=== Genetic Algorithm (GA) Evolution ===")
+    logger.info("  POST /ga/analyze-population  - Analyze population fitness distribution")
+    logger.info("  POST /ga/select-populations  - Select healthy/unhealthy populations")
+    logger.info("  POST /ga/run-evolution       - Run GA evolution with custom parameters")
+    logger.info("  POST /ga/quick-evolve        - Quick evolution (one-call evolution)")
+    logger.info("  POST /ga/export-evolved      - Export evolved/cleaned data")
+    logger.info("")
+    logger.info("  Methods: Tournament/Roulette/Rank-based Selection")
+    logger.info("  Crossover: Single-point/Two-point/Uniform/Arithmetic")
+    logger.info("  Mutation: Gaussian/Uniform/Adaptive")
     logger.info("="*60)
     logger.info("")
     

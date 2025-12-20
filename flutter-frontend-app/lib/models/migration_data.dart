@@ -47,6 +47,7 @@ class MigrationData with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isRecording => _isRecording;
   int get recordedActionsCount => _recordedActionsCount;
+  ApiService get apiService => _apiService;
 
   // Development features getters
   bool get enableETL => _enableETL;

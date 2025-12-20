@@ -68,19 +68,34 @@ class DataFitnessEvaluator:
                 type_map[col] = 'boolean'
                 logger.debug(f"  ✓ '{col}': boolean")
             else:
-                # Try to infer from values
-                try:
-                    pd.to_numeric(non_null)
-                    type_map[col] = 'numeric'
-                    logger.debug(f"  ✓ '{col}': numeric (inferred)")
-                except:
+                # Try to infer from values - use percentage-based approach
+                # Try numeric conversion on all values
+                numeric_success = 0
+                datetime_success = 0
+                
+                for val in non_null:
                     try:
-                        pd.to_datetime(non_null)
-                        type_map[col] = 'datetime'
-                        logger.debug(f"  ✓ '{col}': datetime (inferred)")
+                        float(val)
+                        numeric_success += 1
                     except:
-                        type_map[col] = 'string'
-                        logger.debug(f"  ✓ '{col}': string ({len(non_null.unique())} unique values)")
+                        pass
+                    try:
+                        pd.Timestamp(str(val))
+                        datetime_success += 1
+                    except:
+                        pass
+                
+                # If >50% of values convert to numeric, treat as numeric
+                if numeric_success > len(non_null) * 0.5:
+                    type_map[col] = 'numeric'
+                    logger.debug(f"  ✓ '{col}': numeric (inferred, {numeric_success}/{len(non_null)} convertible)")
+                # If >50% of values convert to datetime, treat as datetime
+                elif datetime_success > len(non_null) * 0.5:
+                    type_map[col] = 'datetime'
+                    logger.debug(f"  ✓ '{col}': datetime (inferred, {datetime_success}/{len(non_null)} convertible)")
+                else:
+                    type_map[col] = 'string'
+                    logger.debug(f"  ✓ '{col}': string ({len(non_null.unique())} unique values)")
         
         logger.info(f"✓ Type inference complete: {dict(sorted([(k, v) for k, v in type_map.items()]))}")
         return type_map
@@ -135,27 +150,49 @@ class DataFitnessEvaluator:
             issues.append(f"{missing_cols} missing values")
             logger.debug(f"  Row {row_idx}: {missing_cols}/{total_cols} missing → score={missing_score:.1f}")
         
-        # 2. Type consistency penalty
+        # 2. Type consistency penalty - more aggressive detection
         type_mismatches = 0
         for col, value in row.items():
             if pd.isna(value):
                 continue
             
             expected_type = self.column_types.get(col, 'unknown')
-            if expected_type == 'integer':
-                if not isinstance(value, (int, np.integer)):
-                    try:
-                        int(value)
-                    except:
-                        type_mismatches += 1
-                        issues.append(f"Type mismatch in '{col}'")
-            elif expected_type == 'float':
-                if not isinstance(value, (int, float, np.integer, np.floating)):
-                    try:
-                        float(value)
-                    except:
-                        type_mismatches += 1
-                        issues.append(f"Type mismatch in '{col}'")
+            is_mismatch = False
+            
+            # Check for type mismatches
+            if expected_type in ['integer', 'numeric', 'float']:
+                # Numeric column - value should be convertible to number
+                try:
+                    float(str(value))
+                except (ValueError, TypeError):
+                    is_mismatch = True
+                    issues.append(f"Non-numeric value '{value}' in numeric column '{col}'")
+            
+            elif expected_type == 'datetime':
+                # Datetime column - value should be convertible to datetime
+                try:
+                    pd.Timestamp(str(value))
+                except (ValueError, TypeError, pd.errors.ParserError):
+                    is_mismatch = True
+                    issues.append(f"Invalid datetime value '{value}' in datetime column '{col}'")
+            
+            elif expected_type == 'string':
+                # String column - check for suspicious numeric/datetime patterns
+                try:
+                    # If it's mostly numeric and column is string, flag it
+                    float(str(value))
+                    # Only flag if column has mostly strings
+                    numeric_count = sum(1 for v in self.df[col].dropna() 
+                                       if isinstance(v, (int, float, np.integer, np.floating)))
+                    total_count = len(self.df[col].dropna())
+                    if numeric_count < total_count * 0.1:  # If <10% numeric in string column
+                        is_mismatch = True
+                        issues.append(f"Suspicious numeric value '{value}' in string column '{col}'")
+                except (ValueError, TypeError):
+                    pass
+            
+            if is_mismatch:
+                type_mismatches += 1
         
         if type_mismatches > 0:
             type_consistency_score = max(0, 100 - (type_mismatches / total_cols * 100))

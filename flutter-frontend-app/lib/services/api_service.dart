@@ -270,6 +270,34 @@ class ApiService {
     }
   }
 
+  /// Apply configurations to the backend
+  Future<Map<String, dynamic>> applyConfigurations(
+      Map<String, dynamic> settings) async {
+    try {
+      _consoleLogService.info('Applying configurations',
+          function: 'applyConfigurations');
+      final response = await http.post(
+        Uri.parse('$baseUrl/config/apply'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(settings),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Configurations applied successfully',
+            function: 'applyConfigurations');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to apply configurations');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error applying configurations: $e',
+          function: 'applyConfigurations');
+      throw Exception('Error applying configurations: $e');
+    }
+  }
+
   /// Evaluate data fitness - assess health and quality of data
   Future<Map<String, dynamic>> evaluateFitness() async {
     try {
@@ -989,5 +1017,212 @@ class ApiService {
       'report': jsonResponse['report'],
       'message': jsonResponse['message'],
     };
+  }
+
+  // ============================================================================
+  // GENETIC ALGORITHM ENDPOINTS
+  // ============================================================================
+
+  /// Analyze population fitness distribution
+  Future<Map<String, dynamic>> analyzePopulationFitness({
+    required double fitnessThreshold,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Analyzing population fitness (threshold: $fitnessThreshold)',
+          function: 'analyzePopulationFitness');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ga/analyze-population'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'fitness_threshold': fitnessThreshold}),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Population analyzed: ${jsonResponse['healthy_records']} healthy, ${jsonResponse['unhealthy_records']} unhealthy',
+            function: 'analyzePopulationFitness');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Failed to analyze population: ${error['error'] ?? 'Unknown error'}',
+            function: 'analyzePopulationFitness');
+        throw Exception(error['error'] ?? 'Failed to analyze population');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error analyzing population: $e',
+          function: 'analyzePopulationFitness');
+      throw Exception('Error analyzing population: $e');
+    }
+  }
+
+  /// Select populations for evolution
+  Future<Map<String, dynamic>> selectPopulations({
+    required double fitnessThreshold,
+    int? healthySampleSize,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Selecting populations (threshold: $fitnessThreshold)',
+          function: 'selectPopulations');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ga/select-populations'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'fitness_threshold': fitnessThreshold,
+              if (healthySampleSize != null)
+                'healthy_sample_size': healthySampleSize,
+            }),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Populations selected: ${jsonResponse['unhealthy_count']} to evolve, ${jsonResponse['healthy_count']} templates',
+            function: 'selectPopulations');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Failed to select populations: ${error['error'] ?? 'Unknown error'}',
+            function: 'selectPopulations');
+        throw Exception(error['error'] ?? 'Failed to select populations');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error selecting populations: $e',
+          function: 'selectPopulations');
+      throw Exception('Error selecting populations: $e');
+    }
+  }
+
+  /// Run genetic algorithm evolution
+  Future<Map<String, dynamic>> runGeneticAlgorithmEvolution({
+    required Map<String, dynamic> gaConfig,
+    required bool trackProgress,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Starting GA evolution (pop: ${gaConfig['population_size']}, gen: ${gaConfig['generations']})',
+          function: 'runGeneticAlgorithmEvolution');
+
+      final requestBody = {
+        ...gaConfig,
+        'track_progress': trackProgress,
+      };
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ga/run-evolution'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(requestBody),
+          )
+          .timeout(const Duration(minutes: 5)); // 5 minute timeout for GA
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'GA evolution completed: ${jsonResponse['total_generations']} generations',
+            function: 'runGeneticAlgorithmEvolution');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'GA evolution failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'runGeneticAlgorithmEvolution');
+        throw Exception(error['error'] ?? 'GA evolution failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error running GA evolution: $e',
+          function: 'runGeneticAlgorithmEvolution');
+      throw Exception('Error running GA evolution: $e');
+    }
+  }
+
+  /// Quick evolution endpoint (one-call)
+  Future<Map<String, dynamic>> quickEvolve({
+    required double fitnessThreshold,
+    int? populationSize,
+    int? generations,
+    bool saveResult = true,
+  }) async {
+    try {
+      _consoleLogService.info('Starting quick evolution',
+          function: 'quickEvolve');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ga/quick-evolve'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'fitness_threshold': fitnessThreshold,
+              if (populationSize != null) 'population_size': populationSize,
+              if (generations != null) 'generations': generations,
+              'save_result': saveResult,
+            }),
+          )
+          .timeout(const Duration(minutes: 5));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Quick evolution completed',
+            function: 'quickEvolve');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error('Quick evolution failed: ${error['error']}',
+            function: 'quickEvolve');
+        throw Exception(error['error'] ?? 'Quick evolution failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error in quick evolution: $e',
+          function: 'quickEvolve');
+      throw Exception('Error in quick evolution: $e');
+    }
+  }
+
+  /// Export evolved data
+  Future<Map<String, dynamic>> exportEvolvedData({
+    required String filename,
+    required String format,
+  }) async {
+    try {
+      _consoleLogService.info('Exporting evolved data ($filename.$format)',
+          function: 'exportEvolvedData');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ga/export-evolved'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'filename': filename,
+              'format': format,
+            }),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Data exported: ${jsonResponse['filename']}',
+            function: 'exportEvolvedData');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Export failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'exportEvolvedData');
+        throw Exception(error['error'] ?? 'Export failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error exporting data: $e',
+          function: 'exportEvolvedData');
+      throw Exception('Error exporting data: $e');
+    }
   }
 }

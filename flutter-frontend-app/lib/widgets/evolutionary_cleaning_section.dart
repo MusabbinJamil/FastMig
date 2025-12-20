@@ -18,9 +18,11 @@ class _EvolutionaryCleaningSectionState
   bool _isCleaning = false;
   bool _isComparing = false;
   bool _isLoadingSensitiveColumns = false;
+  bool _isQuickEvolving = false;
   Map<String, dynamic>? _cleaningReport;
   Map<String, dynamic>? _comparisonResults;
   Map<String, dynamic>? _sensitiveColumns;
+  Map<String, dynamic>? _quickEvolveResult;
 
   final Map<String, Map<String, dynamic>> _methodInfo = {
     'hybrid': {
@@ -156,6 +158,58 @@ class _EvolutionaryCleaningSectionState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error comparing methods: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _quickEvolveData() async {
+    final migrationData = Provider.of<MigrationData>(context, listen: false);
+
+    setState(() {
+      _isQuickEvolving = true;
+      _quickEvolveResult = null;
+    });
+
+    try {
+      // Import ApiService for quick evolve
+      final apiService = migrationData.apiService;
+
+      // Call quick evolve with sensible defaults for fastest evolution
+      // fitness_threshold: 85.0 (default), population_size: 20 (small for speed), generations: 30 (quick)
+      final result = await apiService.quickEvolve(
+        fitnessThreshold: 85.0,
+        populationSize: 20,
+        generations: 30,
+        saveResult: true,
+      );
+
+      setState(() {
+        _quickEvolveResult = result;
+        _isQuickEvolving = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Quick Evolution completed! Best fitness: ${(result['best_fitness'] as num?)?.toStringAsFixed(2) ?? 'N/A'}',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isQuickEvolving = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Quick Evolution failed: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -342,6 +396,194 @@ class _EvolutionaryCleaningSectionState
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+                // Quick Evolve Card
+                if (hasData)
+                  Card(
+                    elevation: 2,
+                    color: Colors.green.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.bolt,
+                                color: Colors.green.shade700,
+                                size: 28,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Quick Evolve (Genetic Algorithm)',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Automatically clean & improve data with optimized GA defaults (20 population, 30 generations)',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'One-click evolution with sensible defaults for fastest results:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              Icon(Icons.check_circle,
+                                  size: 16, color: Colors.green.shade700),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Population Size: 20 (small for speed)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              Icon(Icons.check_circle,
+                                  size: 16, color: Colors.green.shade700),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Generations: 30 (quick convergence)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              Icon(Icons.check_circle,
+                                  size: 16, color: Colors.green.shade700),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Fitness Threshold: 85%',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: hasData && !_isQuickEvolving
+                                  ? _quickEvolveData
+                                  : null,
+                              icon: _isQuickEvolving
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    )
+                                  : const Icon(Icons.play_circle),
+                              label: Text(
+                                _isQuickEvolving
+                                    ? 'Evolving Data...'
+                                    : 'Start Quick Evolution',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade700,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Quick Evolve Result
+                          if (_quickEvolveResult != null) ...[
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border:
+                                    Border.all(color: Colors.green.shade200),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.check_circle,
+                                          color: Colors.green.shade700),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        'Evolution Complete',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildQuickEvolveResultRow(
+                                    'Best Fitness',
+                                    '${(_quickEvolveResult!['best_fitness'] as num?)?.toStringAsFixed(2) ?? 'N/A'}%',
+                                    Colors.green,
+                                  ),
+                                  _buildQuickEvolveResultRow(
+                                    'Generations Run',
+                                    '${_quickEvolveResult!['total_generations'] ?? 'N/A'}',
+                                    Colors.blue,
+                                  ),
+                                  if (_quickEvolveResult!['execution_time'] !=
+                                      null)
+                                    _buildQuickEvolveResultRow(
+                                      'Time Taken',
+                                      '${(_quickEvolveResult!['execution_time'] as num?)?.toStringAsFixed(2) ?? 'N/A'}s',
+                                      Colors.orange,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 24),
                 if (!hasData)
                   Container(
@@ -642,6 +884,31 @@ class _EvolutionaryCleaningSectionState
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickEvolveResultRow(String label, String value, Color color) {
+    return Row(
+      children: [
+        Icon(Icons.info, size: 14, color: color),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }
