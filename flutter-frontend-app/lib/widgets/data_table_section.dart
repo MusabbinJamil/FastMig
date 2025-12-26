@@ -317,21 +317,80 @@ class _DataTableSectionState extends State<DataTableSection> {
                                 ),
                               ))
                           .toList(),
-                      rows: dataRows
-                          .map(
-                            (row) => DataRow(
-                              cells: (row as List<dynamic>)
-                                  .map((cell) => DataCell(
-                                        Text(
+                      rows: dataRows.asMap().entries.map(
+                        (entry) {
+                          final rowIndex = entry.key;
+                          final row = entry.value;
+
+                          // Build a set of problem cell positions for this row
+                          final problemCells = <int>{};
+                          if (migrationData.errorCells != null) {
+                            for (final error in migrationData.errorCells!) {
+                              // error['row'] is 1-indexed (header is row 0)
+                              // rowIndex is 0-indexed for data rows
+                              if (error['row'] == rowIndex + 1) {
+                                problemCells.add(error['col']);
+                              }
+                            }
+                          }
+
+                          return DataRow(
+                            cells: (row as List<dynamic>)
+                                .asMap()
+                                .entries
+                                .map((cellEntry) {
+                                  final colIndex = cellEntry.key;
+                                  final cell = cellEntry.value;
+                                  final isProblematic =
+                                      problemCells.contains(colIndex);
+
+                                  return DataCell(
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isProblematic
+                                            ? Colors.red.shade100
+                                            : null,
+                                        border: isProblematic
+                                            ? Border.all(
+                                                color: Colors.red.shade400,
+                                                width: 1.5,
+                                              )
+                                            : null,
+                                        borderRadius: isProblematic
+                                            ? BorderRadius.circular(2)
+                                            : null,
+                                      ),
+                                      child: Tooltip(
+                                        message: isProblematic
+                                            ? '⚠️ Data quality issue detected'
+                                            : '',
+                                        child: SelectableText(
                                           cell?.toString() ?? 'null',
-                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          onSelectionChanged:
+                                              (selection, cause) {},
+                                          style: TextStyle(
+                                            color: isProblematic
+                                                ? Colors.red.shade900
+                                                : null,
+                                            fontWeight: isProblematic
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
                                         ),
-                                      ))
-                                  .toList()
-                                  .cast<DataCell>(),
-                            ),
-                          )
-                          .toList(),
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .toList()
+                                .cast<DataCell>(),
+                          );
+                        },
+                      ).toList(),
                     ),
                   ),
                 ),

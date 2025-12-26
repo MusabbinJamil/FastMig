@@ -11,6 +11,7 @@ class MigrationData with ChangeNotifier {
   List<List<dynamic>>? _data;
   List<String>? _columns;
   Map<String, String>? _dtypes;
+  List<Map<String, dynamic>>? _errorCells;
   String? _selectedColumn;
   String? _selectedDataType;
   String? _fileName;
@@ -37,6 +38,7 @@ class MigrationData with ChangeNotifier {
   List<List<dynamic>>? get data => _data;
   List<String>? get columns => _columns;
   Map<String, String>? get dtypes => _dtypes;
+  List<Map<String, dynamic>>? get errorCells => _errorCells;
   String? get selectedColumn => _selectedColumn;
   String? get selectedDataType => _selectedDataType;
   String? get fileName => _fileName;
@@ -96,11 +98,21 @@ class MigrationData with ChangeNotifier {
         _data = result['data'];
         _columns = result['columns'];
         _dtypes = result['dtypes'];
+        _errorCells = result['error_cells'] != null
+            ? List<Map<String, dynamic>>.from(result['error_cells'] ?? [])
+            : [];
         _encoding = result['encoding'];
         _fileFormat = result['format'];
         _shape =
             result['shape'] != null ? List<int>.from(result['shape']) : null;
         _errorMessage = null;
+
+        // DEBUG: Log error cells
+        debugPrint(
+            '🔍 DEBUG: Upload result error_cells: ${result['error_cells']}');
+        debugPrint('🔍 DEBUG: Parsed _errorCells: $_errorCells');
+        debugPrint(
+            '🔍 DEBUG: Data shape: ${_shape}, Columns: ${_columns?.length}');
       } else {
         _errorMessage = 'Failed to upload file';
       }

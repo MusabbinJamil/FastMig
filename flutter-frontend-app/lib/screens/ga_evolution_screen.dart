@@ -114,6 +114,68 @@ class _GAEvolutionScreenState extends State<GAEvolutionScreen>
     }
   }
 
+  Future<void> _quickEvolve() async {
+    setState(() {
+      _isEvolving = true;
+      _evolutionProgress = 0.0;
+      _metricsHistory = [];
+      _errorMessage = null;
+    });
+
+    try {
+      // Switch to progress tab
+      _tabController.animateTo(1);
+
+      // Call quick evolve endpoint
+      final result = await _apiService.quickEvolve(
+        fitnessThreshold: 85.0,
+        populationSize: 20,
+        generations: 30,
+        saveResult: true,
+      );
+
+      // Process fitness history
+      if (result['fitness_history'] is List) {
+        final metricsHistory = (result['fitness_history'] as List)
+            .map((m) => GAMetricsModel.fromJson(m))
+            .toList();
+        setState(() {
+          _metricsHistory = metricsHistory;
+          _evolutionProgress = 1.0;
+        });
+      }
+
+      setState(() {
+        _isEvolving = false;
+      });
+
+      // Show success snackbar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Quick Evolution completed! Best fitness: ${(result["best_fitness"] as num?)?.toStringAsFixed(2) ?? "N/A"}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isEvolving = false;
+        _errorMessage = 'Quick evolution failed: $e';
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   void _stopEvolution() {
     setState(() {
       _isEvolving = false;
@@ -223,6 +285,19 @@ class _GAEvolutionScreenState extends State<GAEvolutionScreen>
                     icon: const Icon(Icons.play_circle),
                     label: const Text('Start Evolution'),
                     onPressed: _isEvolving ? null : _startEvolution,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.bolt),
+                    label: const Text('Quick Evolve (Optimized Defaults)'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: _isEvolving ? null : _quickEvolve,
                   ),
                 ),
               ],

@@ -12,7 +12,6 @@ import '../widgets/fitness_evaluation_section.dart';
 import '../widgets/evolutionary_cleaning_section.dart';
 import '../widgets/console_view.dart';
 import '../widgets/dev_settings_panel.dart';
-import 'ga_evolution_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -34,14 +33,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _activeDialog = '';
     });
-  }
-
-  void _navigateToGAScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const GAEvolutionScreen(),
-      ),
-    );
   }
 
   @override
@@ -280,13 +271,6 @@ class _MainScreenState extends State<MainScreen> {
                         color: Colors.pink,
                         onPressed: () => _showDialog('cleaning'),
                         featureKey: 'cleaning',
-                      ),
-                      _RibbonButton(
-                        icon: Icons.biotech,
-                        label: 'GA Evolution',
-                        color: Colors.deepPurple,
-                        onPressed: () => _navigateToGAScreen(),
-                        featureKey: 'ga',
                       ),
                     ],
                   ),

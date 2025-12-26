@@ -1,0 +1,19 @@
+{
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "Command Prompt": {
+            "path": ["${env:windir}\\System32\\cmd.exe"],
+            "icon": "terminal-cmd"
+        }
+    },
+
+    "terminal.integrated.env.windows": {
+        "MSYS_NO_PATHCONV": "1",
+        "MSYS2_ARG_CONV_EXCL": "*"
+    }
+}

@@ -41,6 +41,9 @@ class ApiService {
           'shape': jsonResponse['shape'],
           'encoding': jsonResponse['encoding'] ?? 'utf-8',
           'format': jsonResponse['format'] ?? 'unknown',
+          'error_cells': jsonResponse['error_cells'] ?? [],
+          'column_types': jsonResponse['column_types'] ?? {},
+          'warnings': jsonResponse['warnings'] ?? [],
         };
         _consoleLogService.success(
             'File loaded: ${result['filename']} (${result['shape'][0]} rows, ${result['shape'][1]} columns)',
@@ -1223,6 +1226,101 @@ class ApiService {
       _consoleLogService.error('Error exporting data: $e',
           function: 'exportEvolvedData');
       throw Exception('Error exporting data: $e');
+    }
+  }
+
+  // ============================================================================
+  // UNIFIED EVOLUTIONARY ALGORITHM ENDPOINTS (All Methods: GA, PSO, DE, ES)
+  // ============================================================================
+
+  /// Run any evolutionary algorithm method (unified endpoint)
+  /// Supports: GA, PSO, Differential Evolution, Evolution Strategy, Hybrid
+  Future<Map<String, dynamic>> runEvolutionaryMethod({
+    required String method,
+    required Map<String, dynamic> config,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Starting $method evolution with config: ${config.keys}',
+          function: 'runEvolutionaryMethod');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/evo/run'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'method': method,
+              'config': config,
+            }),
+          )
+          .timeout(const Duration(minutes: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            '${method.toUpperCase()} evolution completed',
+            function: 'runEvolutionaryMethod');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Evolution failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'runEvolutionaryMethod');
+        throw Exception(error['error'] ?? 'Evolution failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error running evolutionary method: $e',
+          function: 'runEvolutionaryMethod');
+      throw Exception('Error running evolutionary method: $e');
+    }
+  }
+
+  /// Compare multiple evolutionary algorithm methods
+  /// Returns fitness improvement metrics for each method
+  Future<Map<String, dynamic>> compareEvolutionaryMethods({
+    List<String> methods = const ['ga', 'pso', 'de', 'es', 'hybrid'],
+    Map<String, dynamic>? config,
+  }) async {
+    try {
+      _consoleLogService.info('Comparing methods: $methods',
+          function: 'compareEvolutionaryMethods');
+
+      final requestConfig = config ??
+          {
+            'fitness_threshold': 85.0,
+            'max_iterations': 50,
+            'population_size': 20,
+          };
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/evo/compare'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'methods': methods,
+              'config': requestConfig,
+            }),
+          )
+          .timeout(
+              const Duration(minutes: 15)); // Longer timeout for comparison
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Comparison complete: Best method is ${jsonResponse['best_method']}',
+            function: 'compareEvolutionaryMethods');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Comparison failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'compareEvolutionaryMethods');
+        throw Exception(error['error'] ?? 'Comparison failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error comparing evolutionary methods: $e',
+          function: 'compareEvolutionaryMethods');
+      throw Exception('Error comparing evolutionary methods: $e');
     }
   }
 }

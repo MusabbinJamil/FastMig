@@ -22,6 +22,7 @@ from ga_engine import GeneticAlgorithmEngine, GAResult
 from ga_operators import GAConfig, SelectionMethod, CrossoverMethod, MutationMethod
 from ga_genotype_phenotype import RealValuedMapper
 from ga_data_cleaning_pipeline import DataCleaningPipeline
+from data_quality_analyzer import DataQualityAnalyzer
 
 # Configure logging with custom handler to store logs
 class LogCapture(logging.Handler):
@@ -105,7 +106,7 @@ def get_logs():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Upload a file and return its data"""
+    """Upload a file and return its data with quality analysis"""
     try:
         # Check if file is in the request
         if 'file' not in request.files:
@@ -144,33 +145,25 @@ def upload_file():
         current_data['file_path'] = file_path
         current_data['filename'] = filename
         
-        # Convert DataFrame to list of lists for JSON response
-        data_list = []
-        # Add headers as first row
-        data_list.append(df.columns.tolist())
-        # Add data rows (limit to first 100 rows for performance)
-        for _, row in df.head(100).iterrows():
-            # Handle NaN values and special types
-            row_data = []
-            for val in row:
-                if pd.isna(val):
-                    row_data.append(None)
-                elif isinstance(val, pd.Timestamp):
-                    row_data.append(val.isoformat())
-                else:
-                    row_data.append(val)
-            data_list.append(row_data)
+        # Perform data quality analysis
+        analyzer = DataQualityAnalyzer()
+        quality_report = analyzer.analyze(df)
         
         app.logger.info(f"Successfully processed file: {filename} ({df.shape[0]} rows, {df.shape[1]} columns)")
+        app.logger.info(f"Found {len(quality_report['error_cells'])} problematic cells")
+        app.logger.info(f"DEBUG: error_cells = {quality_report['error_cells']}")
         
         return jsonify({
             'success': True,
-            'data': data_list,
+            'data': quality_report['data'][:101],  # Include header + 100 rows max
             'columns': df.columns.tolist(),
             'shape': df.shape,
             'dtypes': {col: str(dtype) for col, dtype in df.dtypes.items()},
+            'column_types': quality_report['column_types'],
+            'error_cells': quality_report['error_cells'],
+            'warnings': quality_report['warnings'],
             'filename': filename,
-            'message': f"Successfully uploaded {filename}"
+            'message': f"Successfully uploaded {filename} - {len(quality_report['error_cells'])} cells flagged for review"
         })
     
     except FileNotFoundError as e:
@@ -188,7 +181,7 @@ def upload_file():
 
 @app.route('/load', methods=['POST'])
 def load_file():
-    """Load a file and return its data (legacy endpoint for file path)"""
+    """Load a file and return its data with quality analysis (legacy endpoint for file path)"""
     try:
         data = request.get_json()
         if not data or 'file_path' not in data:
@@ -203,20 +196,19 @@ def load_file():
         current_data['df'] = df
         current_data['file_path'] = file_path
         
-        # Convert DataFrame to list of lists for JSON response
-        data_list = []
-        # Add headers as first row
-        data_list.append(df.columns.tolist())
-        # Add data rows (limit to first 100 rows for performance)
-        for _, row in df.head(100).iterrows():
-            data_list.append(row.tolist())
+        # Perform data quality analysis
+        analyzer = DataQualityAnalyzer()
+        quality_report = analyzer.analyze(df)
         
         return jsonify({
             'success': True,
-            'data': data_list,
+            'data': quality_report['data'][:101],  # Include header + 100 rows max
             'columns': df.columns.tolist(),
             'shape': df.shape,
-            'dtypes': {col: str(dtype) for col, dtype in df.dtypes.items()}
+            'dtypes': {col: str(dtype) for col, dtype in df.dtypes.items()},
+            'column_types': quality_report['column_types'],
+            'error_cells': quality_report['error_cells'],
+            'warnings': quality_report['warnings']
         })
         
     except Exception as e:
