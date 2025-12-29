@@ -247,6 +247,73 @@ class _DataTableSectionState extends State<DataTableSection> {
                       '${dataRows.length} rows × ${columns.length} columns',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    const SizedBox(width: 16),
+                    // Color legend
+                    if (migrationData.errorCells != null &&
+                            migrationData.errorCells!.isNotEmpty ||
+                        migrationData.aiModifiedCells != null &&
+                            migrationData.aiModifiedCells!.isNotEmpty)
+                      Row(
+                        children: [
+                          if (migrationData.errorCells != null &&
+                              migrationData.errorCells!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade100,
+                                border:
+                                    Border.all(color: Colors.red.shade400),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.warning,
+                                      size: 14, color: Colors.red.shade700),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${migrationData.errorCells!.length} Issues',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.red.shade900,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (migrationData.aiModifiedCells != null &&
+                              migrationData.aiModifiedCells!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade100,
+                                border:
+                                    Border.all(color: Colors.green.shade400),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.check_circle,
+                                      size: 14, color: Colors.green.shade700),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${migrationData.aiModifiedCells!.length} AI Fixed',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.green.shade900,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     const Spacer(),
                     if (migrationData.selectedColumn != null)
                       Chip(
@@ -334,6 +401,36 @@ class _DataTableSectionState extends State<DataTableSection> {
                             }
                           }
 
+                          // Build a set of AI-modified cell positions for this row
+                          final aiModifiedCells = <int>{};
+                          if (migrationData.aiModifiedCells != null) {
+                            for (final modified
+                                in migrationData.aiModifiedCells!) {
+                              // Handle both old format (row/col indices) and new format (row/column name)
+                              final modRow = modified['row'];
+                              final modCol = modified['col'];
+                              final modColumnName = modified['column'];
+
+                              // Check if this modification applies to this row
+                              // rowIndex is 0-indexed for data rows
+                              // Old format: row is 1-indexed, New format: row is 0-indexed
+                              final rowMatch = modRow == rowIndex + 1 || modRow == rowIndex;
+
+                              if (rowMatch) {
+                                if (modCol != null) {
+                                  // Old format: use column index directly
+                                  aiModifiedCells.add(modCol);
+                                } else if (modColumnName != null && columns.isNotEmpty) {
+                                  // New format: find column index by name
+                                  final colIdx = columns.indexOf(modColumnName);
+                                  if (colIdx >= 0) {
+                                    aiModifiedCells.add(colIdx);
+                                  }
+                                }
+                              }
+                            }
+                          }
+
                           return DataRow(
                             cells: (row as List<dynamic>)
                                 .asMap()
@@ -343,6 +440,41 @@ class _DataTableSectionState extends State<DataTableSection> {
                                   final cell = cellEntry.value;
                                   final isProblematic =
                                       problemCells.contains(colIndex);
+                                  final isAiModified =
+                                      aiModifiedCells.contains(colIndex);
+
+                                  // Determine cell styling based on state
+                                  Color? bgColor;
+                                  Color? borderColor;
+                                  Color? textColor;
+                                  FontWeight fontWeight = FontWeight.normal;
+                                  String tooltipMessage = '';
+
+                                  if (isAiModified) {
+                                    // AI-modified cells: green styling
+                                    bgColor = Colors.green.shade100;
+                                    borderColor = Colors.green.shade400;
+                                    textColor = Colors.green.shade900;
+                                    fontWeight = FontWeight.w600;
+
+                                    // Try to get modification details for tooltip
+                                    final modDetails = migrationData.getCellModificationDetails(rowIndex, columns[colIndex]);
+                                    if (modDetails != null && modDetails['modified_by'] == 'AI') {
+                                      final oldVal = modDetails['old_value'] ?? 'null';
+                                      final operation = modDetails['operation'] ?? 'modification';
+                                      tooltipMessage = '✅ Modified by AI Chat\nOperation: $operation\nOld value: $oldVal';
+                                    } else {
+                                      tooltipMessage = '✅ Fixed by AI';
+                                    }
+                                  } else if (isProblematic) {
+                                    // Problem cells: red styling
+                                    bgColor = Colors.red.shade100;
+                                    borderColor = Colors.red.shade400;
+                                    textColor = Colors.red.shade900;
+                                    fontWeight = FontWeight.w600;
+                                    tooltipMessage =
+                                        '⚠️ Data quality issue detected';
+                                  }
 
                                   return DataCell(
                                     Container(
@@ -351,35 +483,28 @@ class _DataTableSectionState extends State<DataTableSection> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: isProblematic
-                                            ? Colors.red.shade100
-                                            : null,
-                                        border: isProblematic
+                                        color: bgColor,
+                                        border: borderColor != null
                                             ? Border.all(
-                                                color: Colors.red.shade400,
+                                                color: borderColor,
                                                 width: 1.5,
                                               )
                                             : null,
-                                        borderRadius: isProblematic
+                                        borderRadius: (isProblematic ||
+                                                isAiModified)
                                             ? BorderRadius.circular(2)
                                             : null,
                                       ),
                                       child: Tooltip(
-                                        message: isProblematic
-                                            ? '⚠️ Data quality issue detected'
-                                            : '',
+                                        message: tooltipMessage,
                                         child: SelectableText(
                                           cell?.toString() ?? 'null',
                                           maxLines: 1,
                                           onSelectionChanged:
                                               (selection, cause) {},
                                           style: TextStyle(
-                                            color: isProblematic
-                                                ? Colors.red.shade900
-                                                : null,
-                                            fontWeight: isProblematic
-                                                ? FontWeight.w600
-                                                : FontWeight.normal,
+                                            color: textColor,
+                                            fontWeight: fontWeight,
                                           ),
                                         ),
                                       ),

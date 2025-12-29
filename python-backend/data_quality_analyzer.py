@@ -19,6 +19,9 @@ class DataQualityAnalyzer:
     Never fails - always loads data but marks problematic cells visually.
     """
 
+    # Columns to exclude from error detection (e.g., tracking columns added by the system)
+    EXCLUDED_COLUMNS = ['Modified_by_AI', 'modified_by_ai', '_modified_by_ai']
+
     def __init__(self):
         self.issues = {}  # Will store {(row, col): [issues]}
         self.column_types = {}  # Inferred types for each column
@@ -91,8 +94,14 @@ class DataQualityAnalyzer:
     def _infer_column_types(self, df: pd.DataFrame) -> None:
         """Infer the expected type for each column"""
         for col in df.columns:
+            # Skip excluded columns (e.g., tracking columns added by the system)
+            if col in self.EXCLUDED_COLUMNS:
+                self.column_types[col] = 'excluded'
+                logger.info(f"Column '{col}' excluded from analysis (system tracking column)")
+                continue
+
             col_data = df[col].dropna()  # Ignore NaN values
-            
+
             if len(col_data) == 0:
                 self.column_types[col] = 'unknown'
                 continue
@@ -160,8 +169,16 @@ class DataQualityAnalyzer:
 
     def _validate_cell(self, row_idx: int, col_idx: int, col_name: str, value: Any) -> None:
         """Validate individual cell and add issues if found"""
+        # Skip excluded columns (e.g., tracking columns added by the system)
+        if col_name in self.EXCLUDED_COLUMNS:
+            return
+
         issues = []
         expected_type = self.column_types.get(col_name, 'string')
+
+        # Skip cells in excluded column types
+        if expected_type == 'excluded':
+            return
 
         # Check 1: Missing values
         if pd.isna(value) or (isinstance(value, str) and value.strip() == ''):
@@ -251,12 +268,23 @@ class DataQualityAnalyzer:
 
 
     def _is_datetime_value(self, value_str: str) -> bool:
-        """Check if a string represents a datetime value"""
+        """Check if a string represents a datetime value (not a numeric timestamp)"""
         if not value_str or not isinstance(value_str, str):
             return False
-        
+
         value_str = str(value_str).strip()
-        
+
+        # Reject numeric timestamps (like 1.7047584e+18) - these need cleaning
+        # They should be converted to proper datetime strings
+        try:
+            numeric_val = float(value_str)
+            # If it parses as a very large number, it's likely a numeric timestamp
+            # that needs to be converted to a proper datetime format
+            if abs(numeric_val) > 1e9:  # Looks like a Unix timestamp
+                return False
+        except ValueError:
+            pass  # Not a numeric value, continue checking
+
         try:
             pd.to_datetime(value_str)
             return True
@@ -265,23 +293,48 @@ class DataQualityAnalyzer:
 
     def _dataframe_to_list(self, df: pd.DataFrame) -> List[List]:
         """Convert DataFrame to list of lists for JSON response"""
+        # Identify datetime columns
+        datetime_cols = set()
+        for col in df.columns:
+            if pd.api.types.is_datetime64_any_dtype(df[col]):
+                datetime_cols.add(col)
+
         data_list = []
-        
+
         # Add headers as first row
         data_list.append(df.columns.tolist())
-        
+
         # Add data rows
         for _, row in df.iterrows():
             row_data = []
-            for val in row:
+            for col_name, val in zip(df.columns, row):
                 if pd.isna(val):
                     row_data.append(None)
                 elif isinstance(val, pd.Timestamp):
                     row_data.append(val.isoformat())
+                elif col_name in datetime_cols and isinstance(val, (int, float)):
+                    # Convert numeric timestamps in datetime columns to ISO format
+                    # Only if the number is large enough to be a reasonable timestamp
+                    try:
+                        numeric_val = float(val)
+                        if abs(numeric_val) > 1e15:  # Nanoseconds
+                            dt_val = datetime.fromtimestamp(numeric_val / 1e9)
+                            row_data.append(dt_val.strftime('%Y-%m-%dT%H:%M:%S'))
+                        elif abs(numeric_val) > 1e12:  # Milliseconds
+                            dt_val = datetime.fromtimestamp(numeric_val / 1e3)
+                            row_data.append(dt_val.strftime('%Y-%m-%dT%H:%M:%S'))
+                        elif abs(numeric_val) > 1e9:  # Seconds (year ~2001+)
+                            dt_val = datetime.fromtimestamp(numeric_val)
+                            row_data.append(dt_val.strftime('%Y-%m-%dT%H:%M:%S'))
+                        else:
+                            # Small number - keep as-is (likely regular data, not a timestamp)
+                            row_data.append(str(val))
+                    except (ValueError, OSError, OverflowError):
+                        row_data.append(str(val))
                 else:
                     row_data.append(str(val))
             data_list.append(row_data)
-        
+
         return data_list
 
 

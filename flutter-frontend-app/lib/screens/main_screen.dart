@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import '../models/migration_data.dart';
 import '../widgets/data_table_section.dart';
@@ -12,6 +13,10 @@ import '../widgets/fitness_evaluation_section.dart';
 import '../widgets/evolutionary_cleaning_section.dart';
 import '../widgets/console_view.dart';
 import '../widgets/dev_settings_panel.dart';
+import '../widgets/secret_demo_panel.dart';
+import '../widgets/azure_openai_section.dart';
+import '../widgets/dvd_logo_animation.dart';
+import '../widgets/splash_animation_overlay.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -23,9 +28,69 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   String _activeDialog = '';
 
+  // Secret features - tap counting with timer
+  int _tapCount = 0;
+  Timer? _tapTimer;
+
+  // Overlay states
+  bool _showDvdAnimation = false;
+  bool _showSplashAnimation = false;
+
   void _showDialog(String dialogType) {
     setState(() {
       _activeDialog = dialogType;
+    });
+  }
+
+  void _handleLogoTap() {
+    _tapCount++;
+
+    // Cancel existing timer
+    _tapTimer?.cancel();
+
+    // Set timer to evaluate taps after 400ms of no tapping
+    _tapTimer = Timer(const Duration(milliseconds: 400), () {
+      _evaluateTaps();
+    });
+  }
+
+  void _evaluateTaps() {
+    final taps = _tapCount;
+    _tapCount = 0;
+
+    if (taps == 1) {
+      // Single tap - show splash animation
+      _showSplash();
+    } else if (taps == 2) {
+      // Double tap - DVD logo animation
+      _showDvd();
+    } else if (taps >= 3) {
+      // Triple tap (or more) - secret demo panel
+      _showDialog('secretdemo');
+    }
+  }
+
+  void _showSplash() {
+    setState(() {
+      _showSplashAnimation = true;
+    });
+  }
+
+  void _closeSplash() {
+    setState(() {
+      _showSplashAnimation = false;
+    });
+  }
+
+  void _showDvd() {
+    setState(() {
+      _showDvdAnimation = true;
+    });
+  }
+
+  void _closeDvd() {
+    setState(() {
+      _showDvdAnimation = false;
     });
   }
 
@@ -36,36 +101,55 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void dispose() {
+    _tapTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      body: Column(
-        children: [
-          // Top Header Bar (Excel-like ribbon)
-          _buildHeaderBar(),
-          // Main Content Area - Data Table with Side Panel
-          Expanded(
-            child: Row(
-              children: [
-                // Data Table (left side, takes remaining space)
-                Expanded(
-                  flex: _activeDialog.isNotEmpty ? 6 : 10,
-                  child: const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: DataTableSection(),
-                  ),
+    return Stack(
+      children: [
+        // Main app content
+        Scaffold(
+          backgroundColor: Colors.grey.shade50,
+          body: Column(
+            children: [
+              // Top Header Bar (Excel-like ribbon)
+              _buildHeaderBar(),
+              // Main Content Area - Data Table with Side Panel
+              Expanded(
+                child: Row(
+                  children: [
+                    // Data Table (left side, takes remaining space)
+                    Expanded(
+                      flex: _activeDialog.isNotEmpty ? 6 : 10,
+                      child: const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: DataTableSection(),
+                      ),
+                    ),
+                    // Side Panel (right side, appears when dialog is active)
+                    if (_activeDialog.isNotEmpty)
+                      Expanded(
+                        flex: 4,
+                        child: _buildSidePanel(_activeDialog),
+                      ),
+                  ],
                 ),
-                // Side Panel (right side, appears when dialog is active)
-                if (_activeDialog.isNotEmpty)
-                  Expanded(
-                    flex: 4,
-                    child: _buildSidePanel(_activeDialog),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        // Splash animation overlay
+        if (_showSplashAnimation)
+          SplashAnimationOverlay(onClose: _closeSplash),
+
+        // DVD logo animation overlay
+        if (_showDvdAnimation)
+          DvdLogoAnimation(onClose: _closeDvd),
+      ],
     );
   }
 
@@ -93,14 +177,23 @@ class _MainScreenState extends State<MainScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.flash_on, color: Colors.white, size: 24),
-                const SizedBox(width: 8),
-                const Text(
-                  'FastMig',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Secret features trigger:
+                // 1 tap = splash animation, 2 taps = DVD logo, 3 taps = demo panel
+                GestureDetector(
+                  onTap: _handleLogoTap,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.flash_on, color: Colors.white, size: 24),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'FastMig',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -272,6 +365,13 @@ class _MainScreenState extends State<MainScreen> {
                         onPressed: () => _showDialog('cleaning'),
                         featureKey: 'cleaning',
                       ),
+                      _RibbonButton(
+                        icon: Icons.smart_toy,
+                        label: 'AI Chat',
+                        color: Colors.cyan,
+                        onPressed: () => _showDialog('aichat'),
+                        featureKey: 'aichat',
+                      ),
                     ],
                   ),
                   const VerticalDivider(width: 24),
@@ -429,16 +529,34 @@ class _MainScreenState extends State<MainScreen> {
           ),
           // Panel Content
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: _getDialogContent(dialogType),
-              ),
-            ),
+            child: _needsCustomScrolling(dialogType)
+                ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _getDialogContent(dialogType),
+                  )
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _getDialogContent(dialogType),
+                    ),
+                  ),
           ),
         ],
       ),
     );
+  }
+
+  /// Returns true if the dialog type manages its own scrolling
+  /// (e.g., has Expanded widgets or custom ListView)
+  bool _needsCustomScrolling(String dialogType) {
+    switch (dialogType) {
+      case 'aichat':
+        return true; // AI Chat has its own ListView for messages
+      case 'console':
+        return true; // Console may have its own scroll view
+      default:
+        return false;
+    }
   }
 
   IconData _getDialogIcon(String dialogType) {
@@ -465,6 +583,10 @@ class _MainScreenState extends State<MainScreen> {
         return Icons.engineering;
       case 'help':
         return Icons.help_outline;
+      case 'secretdemo':
+        return Icons.science;
+      case 'aichat':
+        return Icons.smart_toy;
       default:
         return Icons.info;
     }
@@ -492,6 +614,10 @@ class _MainScreenState extends State<MainScreen> {
         return Colors.green;
       case 'devsettings':
         return Colors.amber;
+      case 'secretdemo':
+        return Colors.deepPurple;
+      case 'aichat':
+        return Colors.cyan;
       default:
         return Colors.blue;
     }
@@ -521,6 +647,10 @@ class _MainScreenState extends State<MainScreen> {
         return 'Development Settings';
       case 'help':
         return 'Help & Documentation';
+      case 'secretdemo':
+        return 'EA Demo Lab';
+      case 'aichat':
+        return 'AI Chat Assistant';
       default:
         return 'Dialog';
     }
@@ -556,6 +686,10 @@ class _MainScreenState extends State<MainScreen> {
         return const DevSettingsPanel();
       case 'help':
         return _buildHelpContent();
+      case 'secretdemo':
+        return const SecretDemoPanel();
+      case 'aichat':
+        return const AzureOpenAISection();
       default:
         return const Center(child: Text('Content not available'));
     }
@@ -604,6 +738,7 @@ class _MainScreenState extends State<MainScreen> {
                 'Evolution Strategy (ES) - Consistent improvements with self-adaptation',
                 'Hybrid Method (Recommended) - Auto-selects best algorithm per column',
                 'AI Modification Tracking - Transparent "Modified_by_AI" column tracking',
+                'AI Chat Assistant - Natural language data analysis and modification',
               ],
             ),
             const SizedBox(height: 24),
@@ -706,6 +841,8 @@ class _RibbonButton {
         return migrationData.enableExport;
       case 'console':
         return migrationData.enableConsole;
+      case 'aichat':
+        return migrationData.enableAIChat;
       default:
         return true;
     }

@@ -22,10 +22,10 @@ class FastMigApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           useMaterial3: true,
           scaffoldBackgroundColor: Colors.grey.shade50,
-          cardTheme: CardThemeData(
+          cardTheme: const CardTheme(
             elevation: 2,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(

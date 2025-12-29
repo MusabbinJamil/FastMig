@@ -148,6 +148,15 @@ class DevSettingsPanel extends StatelessWidget {
                       onChanged: (_) => migrationData.toggleConsole(),
                       color: Colors.green,
                     ),
+                    const SizedBox(height: 8),
+                    _buildToggleTile(
+                      icon: Icons.smart_toy,
+                      title: 'AI Chat',
+                      subtitle: 'Azure OpenAI chat assistant',
+                      value: migrationData.enableAIChat,
+                      onChanged: (_) => migrationData.toggleAIChat(),
+                      color: Colors.cyan,
+                    ),
                     const SizedBox(height: 24),
                     // Section: Feature Status
                     Container(
@@ -219,6 +228,11 @@ class DevSettingsPanel extends StatelessWidget {
                             'Console',
                             migrationData.enableConsole,
                           ),
+                          const SizedBox(height: 6),
+                          _buildStatusBadge(
+                            'AI Chat',
+                            migrationData.enableAIChat,
+                          ),
                         ],
                       ),
                     ),
@@ -246,6 +260,7 @@ class DevSettingsPanel extends StatelessWidget {
                         migrationData.setEncoding(true);
                         migrationData.setExport(true);
                         migrationData.setConsole(true);
+                        migrationData.setAIChat(true);
                       },
                       color: Colors.green,
                     ),
@@ -263,6 +278,7 @@ class DevSettingsPanel extends StatelessWidget {
                         migrationData.setEncoding(false);
                         migrationData.setExport(false);
                         migrationData.setConsole(false);
+                        migrationData.setAIChat(false);
                       },
                       color: Colors.red,
                     ),
@@ -280,6 +296,7 @@ class DevSettingsPanel extends StatelessWidget {
                         migrationData.setEncoding(true);
                         migrationData.setExport(true);
                         migrationData.setConsole(true);
+                        migrationData.setAIChat(true);
                       },
                       color: Colors.blue,
                     ),
@@ -313,7 +330,8 @@ class DevSettingsPanel extends StatelessWidget {
                             '• Macro Recording: Automate and replay user workflows\n'
                             '• Encoding: Character encoding and conversion\n'
                             '• Export: Export data to files\n'
-                            '• Console: Developer console and logging\n\n'
+                            '• Console: Developer console and logging\n'
+                            '• AI Chat: Azure OpenAI chat assistant\n\n'
                             'Use "Reset to Defaults" to restore all features to enabled state.',
                             style: TextStyle(
                               fontSize: 11,

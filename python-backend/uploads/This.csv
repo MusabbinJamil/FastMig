@@ -1,0 +1,513 @@
+Date,Account/Account Code,Start Date,End Date,Start Balance,End Balance,Description,Received,Spent,Balance,Order ID,Status,Transaction Type
+15-09-25,Casebang-S,01-09-25,30-09-25,12729.3,17643.05,ESCROW_VERIFIED_ADD | Order: 250913CCW466VV | Wallet: shopee_pay | TxnID: 196218737987165969,55.59,0,7262.36,250913CCW466VV,Not Reconciled,ESCROW_VERIFIED_ADD
+15-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912B2RVVMRT | Wallet: shopee_pay | TxnID: 196213733662400182,130.75,0,7206.77,250912B2RVVMRT,Not Reconciled,ESCROW_VERIFIED_ADD
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196202479287803665,0,21.6,7076.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196196208149012453,0,21.6,7097.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196189712497516348,0,21.6,7119.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913CSDV7UNY | Wallet: shopee_pay | TxnID: 196189445135802341,74.62,0,7140.82,250913CSDV7UNY,Not Reconciled,ESCROW_VERIFIED_ADD
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196178109391707772,0,21.6,7066.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196168274621243062,0,21.6,7087.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250827V73D2PNC | Wallet: shopee_pay | TxnID: 196161108568972987,85.64,0,7109.4,250827V73D2PNC,Not Reconciled,ESCROW_VERIFIED_ADD
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196159141138407036,0,21.6,7023.76,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196151262507441788,0,21.6,7045.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196142424555265660,0,21.6,7066.96,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196133312530488956,0,21.6,7088.56,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196098382383554321,0,21.6,7110.16,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509105GAG9R45 | Wallet: shopee_pay | TxnID: 196082161382596369,74.62,0,7131.76,2509105GAG9R45,Not Reconciled,ESCROW_VERIFIED_ADD
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196081635383320246,0,21.6,7057.14,,Not Reconciled,SVS_PAYMENT_DEDUCT
+15-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196076481338678966,0,21.6,7078.74,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250909323MUHJH | Wallet: shopee_pay | TxnID: 196067711183232828,85.1,0,7100.34,250909323MUHJH,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196059861794954876,0,21.6,7015.24,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509104YU8V60S | Wallet: shopee_pay | TxnID: 196054517563793078,243.02,0,7036.84,2509104YU8V60S,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196053176074379025,0,21.6,6793.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509092GMH0Y4Q | Wallet: shopee_pay | TxnID: 196049846786858683,132.24,0,6815.42,2509092GMH0Y4Q,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196043135162261477,0,21.6,6683.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250909253R6YGD | Wallet: shopee_pay | TxnID: 196035316879007419,492.87,0,6704.78,250909253R6YGD,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912ATEC7NQN | Wallet: shopee_pay | TxnID: 196034967594082065,189.01,0,6211.91,250912ATEC7NQN,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196033224827215845,0,21.6,6022.9,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509093FRV72N5 | Wallet: shopee_pay | TxnID: 196027446015827772,141.87,0,6044.5,2509093FRV72N5,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196025057728798332,0,21.6,5902.63,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196018239401107131,0,21.6,5924.23,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25091052B3S68S | Wallet: shopee_pay | TxnID: 196017328700268305,121.24,0,5945.83,25091052B3S68S,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196005495427833829,0,21.6,5824.59,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509091CQRMGN2 | Wallet: shopee_pay | TxnID: 196002406859808529,130.75,0,5846.19,2509091CQRMGN2,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195995729494286097,0,21.6,5715.44,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509117ERCQH3P | Wallet: shopee_pay | TxnID: 195993399021608764,132.24,0,5737.04,2509117ERCQH3P,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509093KKKFR4X | Wallet: shopee_pay | TxnID: 195985807985614518,140.27,0,5604.8,2509093KKKFR4X,Not Reconciled,ESCROW_VERIFIED_ADD
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195982780755091126,0,21.6,5464.53,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195945379357793979,0,21.6,5486.13,,Not Reconciled,SVS_PAYMENT_DEDUCT
+14-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195934522854874748,0,21.6,5507.73,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195901409596546684,0,21.6,5529.33,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907SFH8S0WF | Wallet: shopee_pay | TxnID: 195900301914480613,214.48,0,5550.93,250907SFH8S0WF,Not Reconciled,ESCROW_VERIFIED_ADD
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195894032554008246,0,21.6,5336.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25090922BANE54 | Wallet: shopee_pay | TxnID: 195893997355409169,169.57,0,5358.05,25090922BANE54,Not Reconciled,ESCROW_VERIFIED_ADD
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195884546682527548,0,21.6,5188.48,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907US2V8ANF | Wallet: shopee_pay | TxnID: 195884443922079505,113,0,5210.08,250907US2V8ANF,Not Reconciled,ESCROW_VERIFIED_ADD
+13-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509104WT36T5X | Wallet: shopee_pay | TxnID: 195876340308647740,55.59,0,5097.08,2509104WT36T5X,Not Reconciled,ESCROW_VERIFIED_ADD
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195875871200911121,0,21.6,5041.49,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250911847BXGFC | Wallet: shopee_pay | TxnID: 195874185476644668,74.62,0,5063.09,250911847BXGFC,Not Reconciled,ESCROW_VERIFIED_ADD
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195868688891518588,0,21.6,4988.47,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195861974649675388,0,21.6,5010.07,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195855270440607717,0,21.6,5031.67,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195850222176313317,0,21.6,5053.27,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195838577077132982,0,21.6,5074.87,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195828510999191222,0,21.6,5096.47,,Not Reconciled,SVS_PAYMENT_DEDUCT
+13-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195795842521636625,0,21.6,5118.07,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509080H8K7UQC | Wallet: shopee_pay | TxnID: 195784431061966821,56.23,0,5139.67,2509080H8K7UQC,Not Reconciled,ESCROW_VERIFIED_ADD
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195771897911189308,0,21.6,5083.44,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195759028226236091,0,21.6,5105.04,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195753986555387877,0,21.6,5126.64,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195747664933953509,0,21.6,5148.24,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195738272545185765,0,21.6,5169.84,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509105HS4V77H | Wallet: shopee_pay | TxnID: 195735452311887845,74.62,0,5191.44,2509105HS4V77H,Not Reconciled,ESCROW_VERIFIED_ADD
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195728060488621841,0,21.6,5116.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250910643QYR1M | Wallet: shopee_pay | TxnID: 195720609005575862,85.1,0,5138.42,250910643QYR1M,Not Reconciled,ESCROW_VERIFIED_ADD
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195720349428489915,0,21.6,5053.32,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195713390172184380,0,21.6,5074.92,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195705122360139446,0,21.6,5096.52,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195695631455493948,0,21.6,5118.12,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250908VVDGRD5D | Wallet: shopee_pay | TxnID: 195692624626065083,186.89,0,5139.72,250908VVDGRD5D,Not Reconciled,ESCROW_VERIFIED_ADD
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195666512818741221,0,21.6,4952.83,,Not Reconciled,SVS_PAYMENT_DEDUCT
+12-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195643833512369980,0,21.6,4974.43,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250906S8FCWXW4 | Wallet: shopee_pay | TxnID: 195625604379320293,55.49,0,4996.03,250906S8FCWXW4,Not Reconciled,ESCROW_VERIFIED_ADD
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905P67NMNNJ | Wallet: shopee_pay | TxnID: 195625412246642661,46.61,0,4940.54,250905P67NMNNJ,Not Reconciled,ESCROW_VERIFIED_ADD
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907UUP038N2 | Wallet: shopee_pay | TxnID: 195614761734381372,74.62,0,4893.93,250907UUP038N2,Not Reconciled,ESCROW_VERIFIED_ADD
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195613648012451813,0,21.6,4819.31,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195604497735622268,0,21.6,4840.91,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195597617382563510,0,21.6,4862.51,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195591483716280293,0,21.6,4884.11,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195584812189228668,0,21.6,4905.71,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195575912899550993,0,21.6,4927.31,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195568158369652411,0,21.6,4948.91,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509080GHSN53R | Wallet: shopee_pay | TxnID: 195567166970404625,186.89,0,4970.51,2509080GHSN53R,Not Reconciled,ESCROW_VERIFIED_ADD
+11-09-25,,,,,,WITHDRAWAL_CREATED | Wallet: shopee_pay | TxnID: 195565350350364342,0,10000,4783.62,,Not Reconciled,WITHDRAWAL_CREATED
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195555446340198373,0,21.6,14783.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195547661678419941,0,21.6,14805.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195526406640246757,0,21.6,14826.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509092TB9UTS1 | Wallet: shopee_pay | TxnID: 195513293299785340,75.47,0,14848.42,2509092TB9UTS1,Not Reconciled,ESCROW_VERIFIED_ADD
+11-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195501391794413243,0,21.6,14772.95,,Not Reconciled,SVS_PAYMENT_DEDUCT
+11-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903HCYMJ1Q7 | Wallet: shopee_pay | TxnID: 195500852641799996,69.75,0,14794.55,250903HCYMJ1Q7,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195479326433484604,0,21.6,14724.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509080RANSTAP | Wallet: shopee_pay | TxnID: 195473549954129724,84.13,0,14746.4,2509080RANSTAP,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509091C3QSVEQ | Wallet: shopee_pay | TxnID: 195468923452268305,73.67,0,14662.27,2509091C3QSVEQ,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195464743643782972,0,21.6,14588.6,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195458410227965627,0,21.6,14610.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905P21K1QNS | Wallet: shopee_pay | TxnID: 195452099260063717,132.24,0,14631.8,250905P21K1QNS,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195449408865705957,0,21.6,14499.56,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250906Q2HWWA5F | Wallet: shopee_pay | TxnID: 195446566671097660,130.75,0,14521.16,250906Q2HWWA5F,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509080CSAWNPE | Wallet: shopee_pay | TxnID: 195445928734236342,55.59,0,14390.41,2509080CSAWNPE,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195443369017614006,0,21.6,14334.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907TK309JBT | Wallet: shopee_pay | TxnID: 195438586235985590,56.23,0,14356.42,250907TK309JBT,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195436933344665361,0,21.6,14300.19,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195428618455752379,0,21.6,14321.79,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195420315294113404,0,21.6,14343.39,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195408377717727036,0,21.6,14364.99,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195396269517053627,0,21.6,14386.59,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907SV9BFG5R | Wallet: shopee_pay | TxnID: 195387327260925622,74.62,0,14408.19,250907SV9BFG5R,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907SV7EEQPQ | Wallet: shopee_pay | TxnID: 195387318536773436,74.62,0,14333.57,250907SV7EEQPQ,Not Reconciled,ESCROW_VERIFIED_ADD
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195358537658933052,0,21.6,14258.95,,Not Reconciled,SVS_PAYMENT_DEDUCT
+10-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195351279801737020,0,21.6,14280.55,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250907TQV29RFK | Wallet: shopee_pay | TxnID: 195326313593052945,122.62,0,14302.15,250907TQV29RFK,Not Reconciled,ESCROW_VERIFIED_ADD
+09-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903HUQJ209E | Wallet: shopee_pay | TxnID: 195321385973718715,130.75,0,14179.53,250903HUQJ209E,Not Reconciled,ESCROW_VERIFIED_ADD
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195319092712841189,0,21.6,14048.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195307033317089084,0,21.6,14070.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195300511946120891,0,21.6,14091.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195293020919177020,0,21.6,14113.58,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195283867337367525,0,21.6,14135.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195272972313828988,0,21.6,14156.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195259892628463377,0,21.6,14178.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195248259290111670,0,21.6,14199.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195218206447640251,0,21.6,14221.58,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195211215213960828,0,21.6,14243.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+09-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 250902F81RFNNP | Wallet: shopee_pay | TxnID: 195210840561950390,0,10.38,14264.78,250902F81RFNNP,Not Reconciled,ESCROW_VERIFIED_MINUS
+09-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195207094947815094,0,21.6,14275.16,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195201444180139707,0,21.6,14296.76,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195195261843152508,0,21.6,14318.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195186801026014844,0,21.6,14339.96,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195177967788236475,0,21.6,14361.56,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903HV22Q3QG | Wallet: shopee_pay | TxnID: 195175336919441381,74.37,0,14383.16,250903HV22Q3QG,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903H75F1H1N | Wallet: shopee_pay | TxnID: 195174488478916220,74.51,0,14308.79,250903H75F1H1N,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905NSXU7SRX | Wallet: shopee_pay | TxnID: 195173400677719676,534.08,0,14234.28,250905NSXU7SRX,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905MEDVF0YP | Wallet: shopee_pay | TxnID: 195172886791593745,56.03,0,13700.2,250905MEDVF0YP,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250904JUTERYY0 | Wallet: shopee_pay | TxnID: 195168486111059941,189.01,0,13644.17,250904JUTERYY0,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195167764019682998,0,21.6,13455.16,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195156838595960593,0,21.6,13476.76,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903H1R0N0CX | Wallet: shopee_pay | TxnID: 195156801635950262,189.01,0,13498.36,250903H1R0N0CX,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195147708015582902,0,21.6,13309.35,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195135808137600997,0,21.6,13330.95,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195123330754289339,0,21.6,13352.55,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250901BR8H0NVQ | Wallet: shopee_pay | TxnID: 195117234736078652,141.92,0,13374.15,250901BR8H0NVQ,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905MGPT366P | Wallet: shopee_pay | TxnID: 195111440724532923,83.05,0,13232.23,250905MGPT366P,Not Reconciled,ESCROW_VERIFIED_ADD
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195101501834665745,0,21.6,13149.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+08-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195066507531657020,0,21.6,13170.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195056976948895505,0,21.6,13192.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195051755812167350,0,21.6,13213.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195045048297987900,0,21.6,13235.58,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195034701788880508,0,21.6,13257.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903FC0GG00T | Wallet: shopee_pay | TxnID: 195032348734004918,27.36,0,13278.78,250903FC0GG00T,Not Reconciled,ESCROW_VERIFIED_ADD
+07-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250905P29U593A | Wallet: shopee_pay | TxnID: 195024825998122981,113,0,13251.42,250905P29U593A,Not Reconciled,ESCROW_VERIFIED_ADD
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195023967793192635,0,21.6,13138.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195014391291190971,0,21.6,13160.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 195000654140284901,0,21.6,13181.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194987081288654460,0,21.6,13203.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194978472983011003,0,21.6,13224.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250904K4TXAR63 | Wallet: shopee_pay | TxnID: 194972723850518332,140.27,0,13246.42,250904K4TXAR63,Not Reconciled,ESCROW_VERIFIED_ADD
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194950196478615525,0,21.6,13106.15,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194927387937349436,0,21.6,13127.75,,Not Reconciled,SVS_PAYMENT_DEDUCT
+07-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 2508282BMAY2B9 | Wallet: shopee_pay | TxnID: 194921248835247803,0,10.38,13149.35,2508282BMAY2B9,Not Reconciled,ESCROW_VERIFIED_MINUS
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250904KQMBGV0V | Wallet: shopee_pay | TxnID: 194911468557180732,141.87,0,13159.73,250904KQMBGV0V,Not Reconciled,ESCROW_VERIFIED_ADD
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250904M432PH9K | Wallet: shopee_pay | TxnID: 194904667107368933,130.75,0,13017.86,250904M432PH9K,Not Reconciled,ESCROW_VERIFIED_ADD
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194894561686855355,0,21.6,12887.11,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194886443158478460,0,21.6,12908.71,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194877111721270971,0,21.6,12930.31,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194867082284769084,0,21.6,12951.91,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194862722070945467,0,21.6,12973.51,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250904M7T5KT8E | Wallet: shopee_pay | TxnID: 194861675457814501,74.62,0,12995.11,250904M7T5KT8E,Not Reconciled,ESCROW_VERIFIED_ADD
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194854569820298876,0,21.6,12920.49,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250901C3MXJE4D | Wallet: shopee_pay | TxnID: 194851470732959419,187.43,0,12942.09,250901C3MXJE4D,Not Reconciled,ESCROW_VERIFIED_ADD
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194847838985789244,0,21.6,12754.66,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194835163631329041,0,21.6,12776.26,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194822968122023740,0,21.6,12797.86,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194782729731055589,0,21.6,12819.46,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903GTCJJYRP | Wallet: shopee_pay | TxnID: 194777659018845820,130.75,0,12841.06,250903GTCJJYRP,Not Reconciled,ESCROW_VERIFIED_ADD
+06-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194774539211644540,0,21.6,12710.31,,Not Reconciled,SVS_PAYMENT_DEDUCT
+06-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903GNJG3247 | Wallet: shopee_pay | TxnID: 194772453719809809,292.93,0,12731.91,250903GNJG3247,Not Reconciled,ESCROW_VERIFIED_ADD
+05-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903HM7F8PQX | Wallet: shopee_pay | TxnID: 194770645135925009,75.28,0,12438.98,250903HM7F8PQX,Not Reconciled,ESCROW_VERIFIED_ADD
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194761345575427900,0,21.6,12363.7,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194755884574842550,0,21.6,12385.3,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194749203870654076,0,21.6,12406.9,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194742474663534267,0,21.6,12428.5,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903GJHTBXN8 | Wallet: shopee_pay | TxnID: 194736319606300342,140.27,0,12450.1,250903GJHTBXN8,Not Reconciled,ESCROW_VERIFIED_ADD
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194727801176268475,0,21.6,12309.83,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2508280D9NKC9W | Wallet: shopee_pay | TxnID: 194722184315281078,132.06,0,12331.43,2508280D9NKC9W,Not Reconciled,ESCROW_VERIFIED_ADD
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194716246103563900,0,21.6,12199.37,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194706058122370742,0,21.6,12220.97,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194695783990173457,0,21.6,12242.57,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194683407169494801,0,21.6,12264.17,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194662464153984828,0,21.6,12285.77,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194632666207756049,0,21.6,12307.37,,Not Reconciled,SVS_PAYMENT_DEDUCT
+05-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 250827TVY2X1TU | Wallet: shopee_pay | TxnID: 194631276953607862,0,10.38,12328.97,250827TVY2X1TU,Not Reconciled,ESCROW_VERIFIED_MINUS
+05-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194627035774066449,0,21.6,12339.35,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194615554739281590,0,21.6,12360.95,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194606744184299281,0,21.6,12382.55,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194597988289486609,0,21.6,12404.15,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194585667001392827,0,21.6,12425.75,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250903G7QT6S1G | Wallet: shopee_pay | TxnID: 194576800813162108,84.13,0,12447.35,250903G7QT6S1G,Not Reconciled,ESCROW_VERIFIED_ADD
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194575379128655542,0,21.6,12363.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194568035808321297,0,21.6,12384.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194557305017081829,0,21.6,12406.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194545030940073659,0,21.6,12428.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194528428089679633,0,21.6,12449.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194494313600655035,0,21.6,12471.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+04-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194483071137881724,0,21.6,12492.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194471521551392572,0,21.6,12514.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194461149893238588,0,21.6,12536.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194452160610574309,0,21.6,12557.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194441226882129532,0,21.6,12579.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194431445765201590,0,21.6,12600.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194424634148397029,0,21.6,12622.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194411931396742843,0,21.6,12644.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194403506784837605,0,21.6,12665.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194385724361940753,0,21.6,12687.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194355650245959355,0,21.6,12708.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+03-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194339870670331665,0,21.6,12730.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194328890049568741,0,21.6,12752.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194322556600197093,0,21.6,12773.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194316709757198097,0,21.6,12795.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194306069546147644,0,21.6,12816.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194297823578037942,0,21.6,12838.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194283893858246629,0,21.6,12860.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2508281T0EF58M | Wallet: shopee_pay | TxnID: 194279968979558070,75.16,0,12881.62,2508281T0EF58M,Not Reconciled,ESCROW_VERIFIED_ADD
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194272946406039222,0,21.6,12806.46,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194260868471463606,0,21.6,12828.06,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194249552105053969,0,21.6,12849.66,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194226327421722597,0,21.6,12871.26,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194199447050133477,0,21.6,12892.86,,Not Reconciled,SVS_PAYMENT_DEDUCT
+02-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194191707703746230,0,21.6,12914.46,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194183661334044342,0,21.6,12936.06,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194177351456661179,0,21.6,12957.66,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194166540436774716,0,21.6,12979.26,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194156802705727292,0,21.6,13000.86,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194147246470602427,0,21.6,13022.46,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2508306GHW3891 | Wallet: shopee_pay | TxnID: 194146547146039057,84.67,0,13044.06,2508306GHW3891,Not Reconciled,ESCROW_VERIFIED_ADD
+01-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250829547MPVSM | Wallet: shopee_pay | TxnID: 194142729523961526,113.54,0,12959.39,250829547MPVSM,Not Reconciled,ESCROW_VERIFIED_ADD
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194137139825352677,0,21.6,12845.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194129947432853477,0,21.6,12867.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25082817JEM7TN | Wallet: shopee_pay | TxnID: 194126475086012028,167.78,0,12889.05,25082817JEM7TN,Not Reconciled,ESCROW_VERIFIED_ADD
+01-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250826S35UDDBX | Wallet: shopee_pay | TxnID: 194126186182352869,56.77,0,12721.27,250826S35UDDBX,Not Reconciled,ESCROW_VERIFIED_ADD
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194122203019616060,0,21.6,12664.5,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194108533011128124,0,21.6,12686.1,,Not Reconciled,SVS_PAYMENT_DEDUCT
+01-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 194077971567353617,0,21.6,12707.7,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198381812584554108,0,21.6,17643.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250927HTR9NT81 | Wallet: shopee_pay | TxnID: 198380928056172348,152.95,0,17664.65,250927HTR9NT81,Not Reconciled,ESCROW_VERIFIED_ADD
+30-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250927JPXDB6VS | Wallet: shopee_pay | TxnID: 198377311542713980,62.5,0,17511.7,250927JPXDB6VS,Not Reconciled,ESCROW_VERIFIED_ADD
+30-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250928N3EF0Y4D | Wallet: shopee_pay | TxnID: 198358400784932539,88.84,0,17449.2,250928N3EF0Y4D,Not Reconciled,ESCROW_VERIFIED_ADD
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198347088008847035,0,21.6,17360.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198327739499945659,0,21.6,17381.96,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198320559354814134,0,21.6,17403.56,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198319866623565585,0,21.6,17425.16,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198319615183429436,0,21.6,17446.76,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198319043919224805,0,21.6,17468.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198318075303436049,0,21.6,17489.96,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925DUS2N9Y9 | Wallet: shopee_pay | TxnID: 198305722004414139,111.58,0,17511.56,250925DUS2N9Y9,Not Reconciled,ESCROW_VERIFIED_ADD
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198300825892691580,0,21.6,17399.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198252093197262460,0,21.6,17421.58,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198251728846462949,0,21.6,17443.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+30-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198250542982504209,0,21.6,17464.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924CBJ6W1QM | Wallet: shopee_pay | TxnID: 198248200144953019,137.59,0,17486.38,250924CBJ6W1QM,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198239433865043643,0,21.6,17348.79,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925CN2EY3PM | Wallet: shopee_pay | TxnID: 198233907684974353,55.52,0,17370.39,250925CN2EY3PM,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198215284723556027,0,21.6,17314.87,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250926FTJUKP0T | Wallet: shopee_pay | TxnID: 198213430488866428,89.91,0,17336.47,250926FTJUKP0T,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924B8GVXD04 | Wallet: shopee_pay | TxnID: 198210696339594934,112.93,0,17246.56,250924B8GVXD04,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198204499775463094,0,21.6,17133.63,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198199509090574097,0,21.6,17155.23,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 198192820064886459,0,21.6,17176.83,,Not Reconciled,SVS_PAYMENT_DEDUCT
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924ASBDGUAF | Wallet: shopee_pay | TxnID: 198185066793279100,167.66,0,17198.43,250924ASBDGUAF,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250927J9BHBH70 | Wallet: shopee_pay | TxnID: 198149341892845180,213.42,0,17030.77,250927J9BHBH70,Not Reconciled,ESCROW_VERIFIED_ADD
+29-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924BHM906U9 | Wallet: shopee_pay | TxnID: 198115082868105189,335.84,0,16817.35,250924BHM906U9,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250926GK28SF89 | Wallet: shopee_pay | TxnID: 198101141135826705,62.5,0,16481.51,250926GK28SF89,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925EXUEYFMM | Wallet: shopee_pay | TxnID: 198091562318569142,55.52,0,16419.01,250925EXUEYFMM,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250926HAD2VREY | Wallet: shopee_pay | TxnID: 198085522688646838,52.72,0,16363.49,250926HAD2VREY,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509239N9J3Q0B | Wallet: shopee_pay | TxnID: 198075481541582609,79.9,0,16310.77,2509239N9J3Q0B,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509239PN2FBE3 | Wallet: shopee_pay | TxnID: 198073305687662204,223.72,0,16230.87,2509239PN2FBE3,Not Reconciled,ESCROW_VERIFIED_ADD
+28-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924BM5S83D0 | Wallet: shopee_pay | TxnID: 198037149294010043,62.5,0,16007.15,250924BM5S83D0,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509226DS6190J | Wallet: shopee_pay | TxnID: 197944325336735505,96.14,0,15944.65,2509226DS6190J,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925DR0J0AV9 | Wallet: shopee_pay | TxnID: 197935363937804049,89.91,0,15848.51,250925DR0J0AV9,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197928567605042812,0,21.6,15758.6,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197915201985584764,0,21.6,15780.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197909740699787068,0,21.6,15801.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197903970092457596,0,21.6,15823.4,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197899130217963281,0,21.6,15845,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924C159CC4T | Wallet: shopee_pay | TxnID: 197893288173248124,55.52,0,15866.6,250924C159CC4T,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197889145459187382,0,21.6,15811.08,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197882777415196433,0,21.6,15832.68,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509201MENU5MR | Wallet: shopee_pay | TxnID: 197881350697525009,56.19,0,15854.28,2509201MENU5MR,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25092267H31FRH | Wallet: shopee_pay | TxnID: 197878231829847676,79.9,0,15798.09,25092267H31FRH,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197875642451107601,0,21.6,15718.19,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197859986959769404,0,21.6,15739.79,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925D61MNNVF | Wallet: shopee_pay | TxnID: 197858492562808636,56.19,0,15761.39,250925D61MNNVF,Not Reconciled,ESCROW_VERIFIED_ADD
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197831055909068561,0,21.6,15705.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+27-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197817064482676709,0,21.6,15726.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197805557459984188,0,21.6,15748.4,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250919VPSV2C1J | Wallet: shopee_pay | TxnID: 197799267681705654,223.72,0,15770,250919VPSV2C1J,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250920158BSFY9 | Wallet: shopee_pay | TxnID: 197790790473228261,80.86,0,15546.28,250920158BSFY9,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197789205160533628,0,21.6,15465.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25092261Y8G8WU | Wallet: shopee_pay | TxnID: 197784682056654652,186.34,0,15487.02,25092261Y8G8WU,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25092275W250C0 | Wallet: shopee_pay | TxnID: 197778276834352822,223.46,0,15300.68,25092275W250C0,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925CUWR4PAW | Wallet: shopee_pay | TxnID: 197771852855123729,192.02,0,15077.22,250925CUWR4PAW,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197767124196794172,0,21.6,14885.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924C76TM0DM | Wallet: shopee_pay | TxnID: 197766352629407419,137.59,0,14906.8,250924C76TM0DM,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197759771749654332,0,21.6,14769.21,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509226XJ0JKKW | Wallet: shopee_pay | TxnID: 197756146377826108,61.76,0,14790.81,2509226XJ0JKKW,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197753294100111164,0,21.6,14729.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509214PK57783 | Wallet: shopee_pay | TxnID: 197752465121091259,62.5,0,14750.65,2509214PK57783,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509225750GSEU | Wallet: shopee_pay | TxnID: 197749833295994684,391.9,0,14688.15,2509225750GSEU,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509202BRJEAUE | Wallet: shopee_pay | TxnID: 197749606098935612,96.14,0,14296.25,2509202BRJEAUE,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HBSD1W29 | Wallet: shopee_pay | TxnID: 197749571604979685,117.62,0,14200.11,250915HBSD1W29,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197748159869361846,0,21.6,14082.49,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250925CMU0K0R8 | Wallet: shopee_pay | TxnID: 197747427426443025,79.9,0,14104.09,250925CMU0K0R8,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197742482258140859,0,21.6,14024.19,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197736366879022774,0,21.6,14045.79,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509238QFWJ8JP | Wallet: shopee_pay | TxnID: 197732958403042940,56.19,0,14067.39,2509238QFWJ8JP,Not Reconciled,ESCROW_VERIFIED_ADD
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197731095108657125,0,21.6,14011.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197725793692950203,0,21.6,14032.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197720380859752209,0,21.6,14054.4,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197708755574464187,0,21.6,14076,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197685575333977873,0,21.6,14097.6,,Not Reconciled,SVS_PAYMENT_DEDUCT
+26-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197674940827180726,0,21.6,14119.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197668372748443452,0,21.6,14140.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197662637037723409,0,21.6,14162.4,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250923996PEWR9 | Wallet: shopee_pay | TxnID: 197659845912960699,56.19,0,14184,250923996PEWR9,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197658575240175228,0,21.6,14127.81,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197653429265374907,0,21.6,14149.41,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197648325569158929,0,21.6,14171.01,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509213NRVR237 | Wallet: shopee_pay | TxnID: 197646592667295548,137.59,0,14192.61,2509213NRVR237,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197641950629732022,0,21.6,14055.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509225TTWEH84 | Wallet: shopee_pay | TxnID: 197636938386120465,111.07,0,14076.62,2509225TTWEH84,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197631052804529937,0,21.6,13965.55,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509239RQK4B8A | Wallet: shopee_pay | TxnID: 197626101311217637,194.33,0,13987.15,2509239RQK4B8A,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197621907174989585,0,21.6,13792.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250924ANYJ7JJP | Wallet: shopee_pay | TxnID: 197617857306041980,62.5,0,13814.42,250924ANYJ7JJP,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197611543938997942,0,21.6,13751.92,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250914G6WSPC0U | Wallet: shopee_pay | TxnID: 197603492150386300,140.27,0,13773.52,250914G6WSPC0U,Not Reconciled,ESCROW_VERIFIED_ADD
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197597896529420261,0,21.6,13633.25,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197582786297601660,0,21.6,13654.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197553499066605541,0,21.6,13676.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197530751896395580,0,21.6,13698.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+25-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197525555338288956,0,21.6,13719.65,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509227B0H3QWS | Wallet: shopee_pay | TxnID: 197519079987224246,226.4,0,13741.25,2509227B0H3QWS,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509201ABK2U7F | Wallet: shopee_pay | TxnID: 197510466530975548,191.46,0,13514.85,2509201ABK2U7F,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197510333957414885,0,21.6,13323.39,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197500790875627281,0,21.6,13344.99,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197493942298681105,0,21.6,13366.59,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197481956034748220,0,21.6,13388.19,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509226NBFC36S | Wallet: shopee_pay | TxnID: 197481557542313659,79.9,0,13409.79,2509226NBFC36S,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250922714QWHUB | Wallet: shopee_pay | TxnID: 197474708898193169,56.19,0,13329.89,250922714QWHUB,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197469797720530748,0,21.6,13273.7,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197458409899958076,0,21.6,13295.3,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HGN6V9WQ | Wallet: shopee_pay | TxnID: 197458351129370299,151.02,0,13316.9,250915HGN6V9WQ,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250919VUQ7E105 | Wallet: shopee_pay | TxnID: 197456638477606524,80.86,0,13165.88,250919VUQ7E105,Not Reconciled,ESCROW_VERIFIED_ADD
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197448744562597563,0,21.6,13085.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197441649259847350,0,21.6,13106.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197432421841378998,0,21.6,13128.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197421773896032060,0,21.6,13149.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+24-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197384678498377701,0,21.6,13171.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509213GTVB03C | Wallet: shopee_pay | TxnID: 197378063745425381,232.66,0,13193.02,2509213GTVB03C,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197356978543009462,0,21.6,12960.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509201CFS2H2Y | Wallet: shopee_pay | TxnID: 197347576373059557,135.96,0,12981.96,2509201CFS2H2Y,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509212GWRN6NC | Wallet: shopee_pay | TxnID: 197346847201697765,192.02,0,12846,2509212GWRN6NC,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250918S6JHH0WG | Wallet: shopee_pay | TxnID: 197339467105705788,56.19,0,12653.98,250918S6JHH0WG,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250917Q76SF6C9 | Wallet: shopee_pay | TxnID: 197337664192519862,137.59,0,12597.79,250917Q76SF6C9,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197330821688860645,0,21.6,12460.2,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250918S93V414A | Wallet: shopee_pay | TxnID: 197326404885421884,137.59,0,12481.8,250918S93V414A,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250919V29P1CCW | Wallet: shopee_pay | TxnID: 197324327144660796,112.93,0,12344.21,250919V29P1CCW,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197322966579552060,0,21.6,12231.28,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197317849729998518,0,21.6,12252.88,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197309930481393637,0,21.6,12274.48,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197305321209732732,0,21.6,12296.08,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197301058739904124,0,21.6,12317.68,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197294154881965884,0,21.6,12339.28,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197287020488302565,0,21.6,12360.88,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250919USUKUBKJ | Wallet: shopee_pay | TxnID: 197284830407302972,61.76,0,12382.48,250919USUKUBKJ,Not Reconciled,ESCROW_VERIFIED_ADD
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197277192529387190,0,21.6,12320.72,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197247300462976997,0,21.6,12342.32,,Not Reconciled,SVS_PAYMENT_DEDUCT
+23-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197236244680285820,0,21.6,12363.92,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915JHDECT0J | Wallet: shopee_pay | TxnID: 197226979882180412,118.97,0,12385.52,250915JHDECT0J,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916N0TN8FD1 | Wallet: shopee_pay | TxnID: 197222561149361788,218.66,0,12266.55,250916N0TN8FD1,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915GQYUUS4U | Wallet: shopee_pay | TxnID: 197222390306971260,117.62,0,12047.89,250915GQYUUS4U,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197219627015610129,0,21.6,11930.27,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916MFJNABS5 | Wallet: shopee_pay | TxnID: 197212966410526395,178.72,0,11951.87,250916MFJNABS5,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912AQD2DRQX | Wallet: shopee_pay | TxnID: 197204637999177701,129.8,0,11773.15,250912AQD2DRQX,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916KR6K491A | Wallet: shopee_pay | TxnID: 197204301095968443,50.55,0,11643.35,250916KR6K491A,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912AWCD2TVB | Wallet: shopee_pay | TxnID: 197204151443136485,132.24,0,11592.8,250912AWCD2TVB,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250917Q4UBQAJX | Wallet: shopee_pay | TxnID: 197201734702079973,264.34,0,11460.56,250917Q4UBQAJX,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197194808714862204,0,21.6,11196.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915J49VJWHU | Wallet: shopee_pay | TxnID: 197191918000545596,117.62,0,11217.82,250915J49VJWHU,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916N3M1C579 | Wallet: shopee_pay | TxnID: 197189759662038844,117.62,0,11100.2,250916N3M1C579,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HNBNWBQ8 | Wallet: shopee_pay | TxnID: 197189497182494693,50.55,0,10982.58,250915HNBNWBQ8,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HDHT9WYA | Wallet: shopee_pay | TxnID: 197186645273878203,49.98,0,10932.03,250915HDHT9WYA,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916NAEC045N | Wallet: shopee_pay | TxnID: 197186143651896956,75.67,0,10882.05,250916NAEC045N,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197182770324184758,0,21.6,10806.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197178923862204086,0,21.6,10827.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197174284290891446,0,21.6,10849.58,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197168010048315004,0,21.6,10871.18,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197161684987551419,0,21.6,10892.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197154943684058748,0,21.6,10914.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197148712005279356,0,21.6,10935.98,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913DREM4RQB | Wallet: shopee_pay | TxnID: 197148263785177061,283.11,0,10957.58,250913DREM4RQB,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197136620263055030,0,21.6,10674.47,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197101980697501371,0,21.6,10696.07,,Not Reconciled,SVS_PAYMENT_DEDUCT
+22-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 25090810YXSBQB | Wallet: shopee_pay | TxnID: 197095453370621564,41.29,0,10717.67,25090810YXSBQB,Not Reconciled,ESCROW_VERIFIED_ADD
+22-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197091356156370748,0,21.6,10676.38,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913DHN8XK8Q | Wallet: shopee_pay | TxnID: 197071343521373969,56.23,0,10697.98,250913DHN8XK8Q,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913D4XYG4S8 | Wallet: shopee_pay | TxnID: 197070602136198780,252.53,0,10641.75,250913D4XYG4S8,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913DA3B1K7K | Wallet: shopee_pay | TxnID: 197065849788440246,186.89,0,10389.22,250913DA3B1K7K,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915JH6AFAJ5 | Wallet: shopee_pay | TxnID: 197059165275824101,118.97,0,10202.33,250915JH6AFAJ5,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197058914372558460,0,21.6,10083.36,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250914FPBE2JRH | Wallet: shopee_pay | TxnID: 197055842732744677,56.23,0,10104.96,250914FPBE2JRH,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915H0WC2GRP | Wallet: shopee_pay | TxnID: 197055057877868305,76.53,0,10048.73,250915H0WC2GRP,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250914FARW1AQY | Wallet: shopee_pay | TxnID: 197052484252868369,226.54,0,9972.2,250914FARW1AQY,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913DEJ42AHK | Wallet: shopee_pay | TxnID: 197047870216478390,75.47,0,9745.66,250913DEJ42AHK,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197040181688147729,0,21.6,9670.19,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197035549800800060,0,21.6,9691.79,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197030676707417782,0,21.6,9713.39,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250914EU18UDHC | Wallet: shopee_pay | TxnID: 197028263489445500,132.24,0,9734.99,250914EU18UDHC,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197024027393400444,0,21.6,9602.75,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197018573539909302,0,21.6,9624.35,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197012801103863420,0,21.6,9645.95,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913D5VDR12V | Wallet: shopee_pay | TxnID: 197011370695204625,130.75,0,9667.55,250913D5VDR12V,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 197007794480619324,0,21.6,9536.8,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196997853728480892,0,21.6,9558.4,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250919UKM9P801 | Wallet: shopee_pay | TxnID: 196990338240356022,135.96,0,9580,250919UKM9P801,Not Reconciled,ESCROW_VERIFIED_ADD
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196965305627451067,0,21.6,9444.04,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196952062397783734,0,21.6,9465.64,,Not Reconciled,SVS_PAYMENT_DEDUCT
+21-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509080M3NQ5QQ | Wallet: shopee_pay | TxnID: 196950654118272699,69.78,0,9487.24,2509080M3NQ5QQ,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HA7Q8QCA | Wallet: shopee_pay | TxnID: 196940698333748860,101.65,0,9417.46,250915HA7Q8QCA,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196937313429757627,0,21.6,9315.81,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915JATEDSQ3 | Wallet: shopee_pay | TxnID: 196921660874432187,167.58,0,9337.41,250915JATEDSQ3,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250918TAMA2VTF | Wallet: shopee_pay | TxnID: 196914958192090811,135.96,0,9169.83,250918TAMA2VTF,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250917QV8RV5K5 | Wallet: shopee_pay | TxnID: 196913548788506428,137.59,0,9033.87,250917QV8RV5K5,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196911963224153724,0,21.6,8896.28,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913CRG7A1VM | Wallet: shopee_pay | TxnID: 196911530640416529,196.4,0,8917.88,250913CRG7A1VM,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196900131713326779,0,21.6,8721.48,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250918T3CXPE9G | Wallet: shopee_pay | TxnID: 196898318750588732,55.52,0,8743.08,250918T3CXPE9G,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913CMB82MTM | Wallet: shopee_pay | TxnID: 196896163733970705,224.94,0,8687.56,250913CMB82MTM,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196893416481627921,0,21.6,8462.62,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196888475977391740,0,21.6,8484.22,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196881356884549436,0,21.6,8505.82,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196874619741806267,0,21.6,8527.42,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196867067645796325,0,21.6,8549.02,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916MKFQVKVG | Wallet: shopee_pay | TxnID: 196861993913687734,170.06,0,8570.62,250916MKFQVKVG,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250914E9GS5VKP | Wallet: shopee_pay | TxnID: 196859314256748305,56.23,0,8400.56,250914E9GS5VKP,Not Reconciled,ESCROW_VERIFIED_ADD
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196857358956109585,0,21.6,8344.33,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196837680590364342,0,21.6,8365.93,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196810163103997627,0,21.6,8387.53,,Not Reconciled,SVS_PAYMENT_DEDUCT
+20-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 25090812TBYK3S | Wallet: shopee_pay | TxnID: 196805943399292603,0,10.38,8409.13,25090812TBYK3S,Not Reconciled,ESCROW_VERIFIED_MINUS
+20-09-25,,,,,,ADJUSTMENT_FOR_RR_AFTER_ESCROW_VERIFIED | Order: 250907UUP038N2 | Wallet: shopee_pay | TxnID: 196805771265122277,0,85,8419.51,250907UUP038N2,Not Reconciled,ADJUSTMENT_FOR_RR_AFTER_ESCROW_VERIFIED
+20-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 250913CH7BA23A | Wallet: shopee_pay | TxnID: 196805472110517942,0,10.38,8504.51,250913CH7BA23A,Not Reconciled,ESCROW_VERIFIED_MINUS
+20-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196802740041555580,0,21.6,8514.89,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913D0CUNAYE | Wallet: shopee_pay | TxnID: 196796606358495205,132.24,0,8536.49,250913D0CUNAYE,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916M2T69TJM | Wallet: shopee_pay | TxnID: 196780751570607803,117.62,0,8404.25,250916M2T69TJM,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915J1JTVA46 | Wallet: shopee_pay | TxnID: 196779485226344123,117.62,0,8286.63,250915J1JTVA46,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915J2HNXW20 | Wallet: shopee_pay | TxnID: 196779394797149883,67.1,0,8169.01,250915J2HNXW20,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916MTU6VS0A | Wallet: shopee_pay | TxnID: 196778358820839094,168.14,0,8101.91,250916MTU6VS0A,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913DM3YMVPE | Wallet: shopee_pay | TxnID: 196777576146935569,130.75,0,7933.77,250913DM3YMVPE,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HJBWTXWQ | Wallet: shopee_pay | TxnID: 196771309370220305,144.08,0,7803.02,250915HJBWTXWQ,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196770523760303798,0,21.6,7658.94,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915JMRUGG37 | Wallet: shopee_pay | TxnID: 196768353711300220,157.93,0,7680.54,250915JMRUGG37,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250916M488PF5E | Wallet: shopee_pay | TxnID: 196767345887157947,49.98,0,7522.61,250916M488PF5E,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250915HP9T56X6 | Wallet: shopee_pay | TxnID: 196761052786990865,118.97,0,7472.63,250915HP9T56X6,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196758535382507190,0,21.6,7353.66,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250918RVFCTA1H | Wallet: shopee_pay | TxnID: 196756730623827772,160.34,0,7375.26,250918RVFCTA1H,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196754688266215228,0,21.6,7214.92,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196749472145874748,0,21.6,7236.52,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912B6CCCT08 | Wallet: shopee_pay | TxnID: 196748034506235574,140.27,0,7258.12,250912B6CCCT08,Not Reconciled,ESCROW_VERIFIED_ADD
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196744043105886181,0,21.6,7117.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196736681414499964,0,21.6,7139.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196732829197934267,0,21.6,7161.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196724301322264549,0,21.6,7182.65,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196714832295108581,0,21.6,7204.25,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196699153902870332,0,21.6,7225.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+19-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196667015719558838,0,21.6,7247.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196644228737015483,0,21.6,7269.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196636380439256700,0,21.6,7290.65,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196630142536130364,0,21.6,7312.25,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196618781005455121,0,21.6,7333.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196607305372999350,0,21.6,7355.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196599724285894417,0,21.6,7377.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196590593755848465,0,21.6,7398.65,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196581820916047542,0,21.6,7420.25,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196571073414700726,0,21.6,7441.85,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509117AQVGVD6 | Wallet: shopee_pay | TxnID: 196561466160062076,113,0,7463.45,2509117AQVGVD6,Not Reconciled,ESCROW_VERIFIED_ADD
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196557806009065276,0,21.6,7350.45,,Not Reconciled,SVS_PAYMENT_DEDUCT
+18-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196520404527881915,0,21.6,7372.05,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196499803918573238,0,21.6,7393.65,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250912B81PJMVS | Wallet: shopee_pay | TxnID: 196496374068420581,113,0,7415.25,250912B81PJMVS,Not Reconciled,ESCROW_VERIFIED_ADD
+17-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 250913CURRT59A | Wallet: shopee_pay | TxnID: 196492385805409974,196.4,0,7302.25,250913CURRT59A,Not Reconciled,ESCROW_VERIFIED_ADD
+17-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509117UDRP0TX | Wallet: shopee_pay | TxnID: 196487155491544763,132.24,0,7105.85,2509117UDRP0TX,Not Reconciled,ESCROW_VERIFIED_ADD
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196482491526160357,0,21.6,6973.61,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196476763969167333,0,21.6,6995.21,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196468099929611963,0,21.6,7016.81,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196459781819473681,0,21.6,7038.41,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196454664768593893,0,21.6,7060.01,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196447730711666358,0,21.6,7081.61,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196437979760172860,0,21.6,7103.21,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196426287684788028,0,21.6,7124.81,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196410451620274149,0,21.6,7146.41,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196377383207444284,0,21.6,7168.01,,Not Reconciled,SVS_PAYMENT_DEDUCT
+17-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196368615417585339,0,21.6,7189.61,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196328893882310268,0,21.6,7211.21,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196322431281929910,0,21.6,7232.81,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196314223951748732,0,21.6,7254.41,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196310381918953233,0,21.6,7276.01,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196303615650963126,0,21.6,7297.61,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509118HVP3EAD | Wallet: shopee_pay | TxnID: 196302753771822908,85.1,0,7319.21,2509118HVP3EAD,Not Reconciled,ESCROW_VERIFIED_ADD
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196297634590236347,0,21.6,7234.11,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196289608437210748,0,21.6,7255.71,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196280110737792694,0,21.6,7277.31,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196259469695393462,0,21.6,7298.91,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,ESCROW_VERIFIED_ADD | Order: 2509118P9YGUPH | Wallet: shopee_pay | TxnID: 196259298601344828,111.73,0,7320.51,2509118P9YGUPH,Not Reconciled,ESCROW_VERIFIED_ADD
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196233718380109494,0,21.6,7208.78,,Not Reconciled,SVS_PAYMENT_DEDUCT
+16-09-25,,,,,,ESCROW_VERIFIED_MINUS | Order: 25090809FARM39 | Wallet: shopee_pay | TxnID: 196225680734691089,0,10.38,7230.38,25090809FARM39,Not Reconciled,ESCROW_VERIFIED_MINUS
+16-09-25,,,,,,SVS_PAYMENT_DEDUCT | SPM create wallet transaction | Wallet: shopee_pay | TxnID: 196223470890131217,0,21.6,7240.76,,Not Reconciled,SVS_PAYMENT_DEDUCT

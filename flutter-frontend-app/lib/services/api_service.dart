@@ -1323,4 +1323,745 @@ class ApiService {
       throw Exception('Error comparing evolutionary methods: $e');
     }
   }
+
+  // ============================================================================
+  // CELL-LEVEL EVOLUTIONARY CLEANING ENDPOINTS
+  // ============================================================================
+
+  /// Evolve error cells using evolutionary algorithms
+  /// Each algorithm uses its unique mechanism:
+  /// - GA: Crossover and mutation from healthy cell populations
+  /// - PSO: Velocity-based particle movement towards healthy cell values
+  /// - DE: Differential evolution with vector differences from healthy cells
+  /// - ES: Evolution strategy with self-adaptive mutation
+  /// - Hybrid: PSO for numeric columns, GA for categorical columns
+  Future<Map<String, dynamic>> evolveErrorCells({
+    required String method,
+    bool saveResult = true,
+    List<Map<String, dynamic>>? errorCells,
+    Map<String, dynamic>? config,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Evolving error cells using ${method.toUpperCase()}',
+          function: 'evolveErrorCells');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/clean/evolve-cells'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'method': method,
+              'save_result': saveResult,
+              if (errorCells != null) 'error_cells': errorCells,
+              if (config != null) 'config': config,
+            }),
+          )
+          .timeout(const Duration(minutes: 5));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Cell evolution complete: ${jsonResponse['cells_fixed']}/${jsonResponse['cells_evolved']} cells fixed',
+            function: 'evolveErrorCells');
+        return {
+          'success': true,
+          'method': jsonResponse['method'],
+          'cells_evolved': jsonResponse['cells_evolved'],
+          'cells_fixed': jsonResponse['cells_fixed'],
+          'cells_failed': jsonResponse['cells_failed'],
+          'average_fitness_before': jsonResponse['average_fitness_before'],
+          'average_fitness_after': jsonResponse['average_fitness_after'],
+          'fitness_improvement': jsonResponse['fitness_improvement'],
+          'evolved_cells': jsonResponse['evolved_cells'],
+          'fitness_history': jsonResponse['fitness_history'],
+          'data': jsonResponse['data'] != null
+              ? (jsonResponse['data'] as List)
+                  .map((row) => List<dynamic>.from(row))
+                  .toList()
+              : null,
+          'columns': jsonResponse['columns'] != null
+              ? List<String>.from(jsonResponse['columns'])
+              : null,
+          'shape': jsonResponse['shape'],
+          'error_cells': jsonResponse['error_cells'] ?? [],
+          'ai_modified_cells': jsonResponse['ai_modified_cells'] ?? jsonResponse['evolved_cells'] ?? [],
+          'column_types': jsonResponse['column_types'] ?? {},
+          'warnings': jsonResponse['warnings'] ?? [],
+          'message': jsonResponse['message'],
+          // Algorithm-specific metrics for visualization
+          'algorithm_metrics': jsonResponse['algorithm_metrics'],
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Cell evolution failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'evolveErrorCells');
+        throw Exception(error['error'] ?? 'Failed to evolve cells');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error evolving cells: $e',
+          function: 'evolveErrorCells');
+      throw Exception('Error evolving cells: $e');
+    }
+  }
+
+  /// Compare all cell evolution methods
+  Future<Map<String, dynamic>> compareCellEvolutionMethods({
+    bool quickMode = true,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Comparing cell evolution methods (quick: $quickMode)',
+          function: 'compareCellEvolutionMethods');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/clean/evolve-cells/compare'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'quick_mode': quickMode}),
+          )
+          .timeout(const Duration(minutes: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Comparison complete: Best method is ${jsonResponse['best_method']}',
+            function: 'compareCellEvolutionMethods');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Comparison failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'compareCellEvolutionMethods');
+        throw Exception(error['error'] ?? 'Comparison failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error comparing cell evolution methods: $e',
+          function: 'compareCellEvolutionMethods');
+      throw Exception('Error comparing cell evolution methods: $e');
+    }
+  }
+
+  /// Preview cell evolution without applying changes
+  Future<Map<String, dynamic>> previewCellEvolution({
+    String method = 'hybrid',
+    int maxCells = 10,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Previewing cell evolution using ${method.toUpperCase()}',
+          function: 'previewCellEvolution');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/clean/evolve-cells/preview'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'method': method,
+              'max_cells': maxCells,
+            }),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Preview complete: ${jsonResponse['would_fix']}/${jsonResponse['previewed_cells']} would be fixed',
+            function: 'previewCellEvolution');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Preview failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'previewCellEvolution');
+        throw Exception(error['error'] ?? 'Preview failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error previewing cell evolution: $e',
+          function: 'previewCellEvolution');
+      throw Exception('Error previewing cell evolution: $e');
+    }
+  }
+
+  /// Apply the previewed cell evolution changes
+  /// This ensures the exact same changes shown in preview are applied
+  Future<Map<String, dynamic>> applyPreviewedChanges({
+    bool saveResult = true,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Applying previewed cell evolution changes',
+          function: 'applyPreviewedChanges');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/clean/apply-preview'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'save_result': saveResult,
+            }),
+          )
+          .timeout(const Duration(minutes: 2));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Applied preview: ${jsonResponse['cells_fixed']}/${jsonResponse['cells_evolved']} cells fixed',
+            function: 'applyPreviewedChanges');
+        return {
+          'success': true,
+          'method': jsonResponse['method'],
+          'cells_evolved': jsonResponse['cells_evolved'],
+          'cells_fixed': jsonResponse['cells_fixed'],
+          'cells_failed': jsonResponse['cells_failed'],
+          'average_fitness_before': jsonResponse['average_fitness_before'],
+          'average_fitness_after': jsonResponse['average_fitness_after'],
+          'fitness_improvement': jsonResponse['fitness_improvement'],
+          'evolved_cells': jsonResponse['evolved_cells'],
+          'fitness_history': jsonResponse['fitness_history'],
+          'data': jsonResponse['data'] != null
+              ? (jsonResponse['data'] as List)
+                  .map((row) => List<dynamic>.from(row))
+                  .toList()
+              : null,
+          'columns': jsonResponse['columns'] != null
+              ? List<String>.from(jsonResponse['columns'])
+              : null,
+          'shape': jsonResponse['shape'],
+          'error_cells': jsonResponse['error_cells'] ?? [],
+          'ai_modified_cells': jsonResponse['ai_modified_cells'] ?? [],
+          'column_types': jsonResponse['column_types'] ?? {},
+          'warnings': jsonResponse['warnings'] ?? [],
+          'message': jsonResponse['message'],
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Apply preview failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'applyPreviewedChanges');
+        throw Exception(error['error'] ?? 'Apply preview failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error applying previewed changes: $e',
+          function: 'applyPreviewedChanges');
+      throw Exception('Error applying previewed changes: $e');
+    }
+  }
+
+  // =========================================================================
+  // SECRET DEMO/TEST ENDPOINTS (Development Testing)
+  // =========================================================================
+
+  /// Get available demo algorithms
+  Future<Map<String, dynamic>> getDemoAlgorithms() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/demo/algorithms'),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to get demo algorithms');
+      }
+    } catch (e) {
+      throw Exception('Error getting demo algorithms: $e');
+    }
+  }
+
+  /// Run a demo for an evolutionary algorithm
+  Future<Map<String, dynamic>> runDemo({
+    required String algorithm,
+    required String demoType,
+    required String secretKey,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Running $demoType for ${algorithm.toUpperCase()}',
+          function: 'runDemo');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/demo/run'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'algorithm': algorithm,
+              'demo_type': demoType,
+              'secret_key': secretKey,
+            }),
+          )
+          .timeout(const Duration(minutes: 3));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            '${algorithm.toUpperCase()} $demoType completed',
+            function: 'runDemo');
+        return jsonResponse;
+      } else if (response.statusCode == 403) {
+        throw Exception('Unauthorized: Invalid secret key');
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Demo run failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error running demo: $e', function: 'runDemo');
+      throw Exception('Error running demo: $e');
+    }
+  }
+
+  /// Compare all evolutionary algorithms on the same problem
+  Future<Map<String, dynamic>> compareAlgorithms({
+    required String problem,
+    required String secretKey,
+  }) async {
+    try {
+      _consoleLogService.info('Comparing algorithms on $problem problem',
+          function: 'compareAlgorithms');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/demo/compare'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'problem': problem,
+              'secret_key': secretKey,
+            }),
+          )
+          .timeout(const Duration(minutes: 5));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Algorithm comparison completed. Best: ${jsonResponse['best_algorithm']}',
+            function: 'compareAlgorithms');
+        return jsonResponse;
+      } else if (response.statusCode == 403) {
+        throw Exception('Unauthorized: Invalid secret key');
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Comparison failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error comparing algorithms: $e',
+          function: 'compareAlgorithms');
+      throw Exception('Error comparing algorithms: $e');
+    }
+  }
+
+  /// Run stress test on evolutionary algorithms
+  Future<Map<String, dynamic>> stressTestAlgorithms({
+    required String algorithm,
+    required int iterations,
+    required String secretKey,
+  }) async {
+    try {
+      _consoleLogService.info(
+          'Running stress test: $algorithm ($iterations iterations)',
+          function: 'stressTestAlgorithms');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/demo/stress-test'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'algorithm': algorithm,
+              'iterations': iterations,
+              'secret_key': secretKey,
+            }),
+          )
+          .timeout(const Duration(minutes: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Stress test completed',
+            function: 'stressTestAlgorithms');
+        return jsonResponse;
+      } else if (response.statusCode == 403) {
+        throw Exception('Unauthorized: Invalid secret key');
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Stress test failed');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error in stress test: $e',
+          function: 'stressTestAlgorithms');
+      throw Exception('Error in stress test: $e');
+    }
+  }
+
+  // =========================================================================
+  // AZURE OPENAI CHAT ENDPOINTS
+  // =========================================================================
+
+  /// Check Azure OpenAI configuration status
+  Future<Map<String, dynamic>> checkOpenAIStatus() async {
+    try {
+      _consoleLogService.info('Checking Azure OpenAI configuration',
+          function: 'checkOpenAIStatus');
+
+      final response = await http
+          .get(Uri.parse('$baseUrl/openai/status'))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'OpenAI status: ${jsonResponse['message']}',
+            function: 'checkOpenAIStatus');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        return {
+          'available': false,
+          'configured': false,
+          'message': error['error'] ?? 'Failed to check status',
+        };
+      }
+    } catch (e) {
+      _consoleLogService.warning('Error checking OpenAI status: $e',
+          function: 'checkOpenAIStatus');
+      return {
+        'available': false,
+        'configured': false,
+        'message': 'Backend not reachable: $e',
+      };
+    }
+  }
+
+  /// Send a chat message to Azure OpenAI
+  Future<Map<String, dynamic>> sendOpenAIChat({
+    required String message,
+    bool includeDataContext = true,
+    List<Map<String, dynamic>>? conversationHistory,
+  }) async {
+    try {
+      _consoleLogService.info('Sending chat message to Azure OpenAI',
+          function: 'sendOpenAIChat');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/chat'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'message': message,
+              'include_data_context': includeDataContext,
+              if (conversationHistory != null)
+                'conversation_history': conversationHistory,
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Chat response received',
+            function: 'sendOpenAIChat');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Chat failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'sendOpenAIChat');
+        throw Exception(error['error'] ?? 'Failed to send chat message');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error sending chat: $e',
+          function: 'sendOpenAIChat');
+      throw Exception('Error sending chat: $e');
+    }
+  }
+
+  /// Execute a natural language data modification command
+  Future<Map<String, dynamic>> executeOpenAICommand({
+    required String command,
+    bool preview = false,
+  }) async {
+    try {
+      _consoleLogService.info('Executing AI command: $command',
+          function: 'executeOpenAICommand');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/modify-data'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'command': command,
+              'preview': preview,
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Command executed: ${jsonResponse['operation'] ?? 'unknown'}',
+            function: 'executeOpenAICommand');
+        return {
+          'success': jsonResponse['success'] ?? true,
+          'operation': jsonResponse['operation'],
+          'description': jsonResponse['description'],
+          'column': jsonResponse['column'],
+          'parameters': jsonResponse['parameters'],
+          'report': jsonResponse['report'],
+          'preview': jsonResponse['preview'],
+          'data': jsonResponse['data'] != null
+              ? (jsonResponse['data'] as List)
+                  .map((row) => List<dynamic>.from(row))
+                  .toList()
+              : null,
+          'columns': jsonResponse['columns'] != null
+              ? List<String>.from(jsonResponse['columns'])
+              : null,
+          'shape': jsonResponse['shape'],
+          'message': jsonResponse['message'],
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Command failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'executeOpenAICommand');
+        throw Exception(error['error'] ?? 'Failed to execute command');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error executing command: $e',
+          function: 'executeOpenAICommand');
+      throw Exception('Error executing command: $e');
+    }
+  }
+
+  /// Get AI analysis of the current dataset
+  Future<Map<String, dynamic>> getOpenAIAnalysis({
+    required String analysisType,
+  }) async {
+    try {
+      _consoleLogService.info('Getting AI analysis: $analysisType',
+          function: 'getOpenAIAnalysis');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/analyze'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'analysis_type': analysisType,
+            }),
+          )
+          .timeout(const Duration(seconds: 90));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Analysis received: $analysisType',
+            function: 'getOpenAIAnalysis');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Analysis failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'getOpenAIAnalysis');
+        throw Exception(error['error'] ?? 'Failed to get analysis');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error getting analysis: $e',
+          function: 'getOpenAIAnalysis');
+      throw Exception('Error getting analysis: $e');
+    }
+  }
+
+  // =========================================================================
+  // AI CELL-LEVEL MODIFICATION ENDPOINTS
+  // =========================================================================
+
+  /// Send a chat message that can directly modify cells in the dataframe
+  /// Returns AI response with cell-level modifications tracked
+  Future<Map<String, dynamic>> sendOpenAIChatModify({
+    required String message,
+    bool autoExecute = true,
+  }) async {
+    try {
+      _consoleLogService.info('Sending chat-modify message to Azure OpenAI',
+          function: 'sendOpenAIChatModify');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/chat-modify'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'message': message,
+              'auto_execute': autoExecute,
+            }),
+          )
+          .timeout(const Duration(seconds: 90));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Chat-modify response: ${jsonResponse['total_cells_modified'] ?? 0} cells modified',
+            function: 'sendOpenAIChatModify');
+        return {
+          'success': jsonResponse['success'] ?? true,
+          'message': jsonResponse['message'],
+          'operation_type': jsonResponse['operation_type'],
+          'affected_column': jsonResponse['affected_column'],
+          'modifications': jsonResponse['modifications'] ?? [],
+          'applied_modifications': jsonResponse['applied_modifications'] ?? [],
+          'modifications_applied': jsonResponse['modifications_applied'] ?? false,
+          'total_cells_modified': jsonResponse['total_cells_modified'] ?? 0,
+          'suggestions': jsonResponse['suggestions'] ?? [],
+          'ai_modifications': jsonResponse['ai_modifications'],
+          'data': jsonResponse['data'] != null
+              ? (jsonResponse['data'] as List)
+                  .map((row) => List<dynamic>.from(row))
+                  .toList()
+              : null,
+          'columns': jsonResponse['columns'] != null
+              ? List<String>.from(jsonResponse['columns'])
+              : null,
+          'shape': jsonResponse['shape'],
+          'usage': jsonResponse['usage'],
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Chat-modify failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'sendOpenAIChatModify');
+        throw Exception(error['error'] ?? 'Failed to send chat-modify message');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error in chat-modify: $e',
+          function: 'sendOpenAIChatModify');
+      throw Exception('Error in chat-modify: $e');
+    }
+  }
+
+  /// Get all AI modifications tracked in the current session
+  Future<Map<String, dynamic>> getAIModifications() async {
+    try {
+      _consoleLogService.info('Getting AI modifications',
+          function: 'getAIModifications');
+
+      final response = await http
+          .get(Uri.parse('$baseUrl/openai/modifications'))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'AI modifications: ${jsonResponse['modifications']?['total_modifications'] ?? 0} total',
+            function: 'getAIModifications');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to get AI modifications');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error getting AI modifications: $e',
+          function: 'getAIModifications');
+      throw Exception('Error getting AI modifications: $e');
+    }
+  }
+
+  /// Clear all AI modification tracking
+  Future<Map<String, dynamic>> clearAIModifications() async {
+    try {
+      _consoleLogService.info('Clearing AI modifications',
+          function: 'clearAIModifications');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/modifications/clear'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('AI modifications cleared',
+            function: 'clearAIModifications');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to clear AI modifications');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error clearing AI modifications: $e',
+          function: 'clearAIModifications');
+      throw Exception('Error clearing AI modifications: $e');
+    }
+  }
+
+  /// Apply pending AI modifications after preview confirmation
+  Future<Map<String, dynamic>> applyAIModifications() async {
+    try {
+      _consoleLogService.info('Applying pending AI modifications',
+          function: 'applyAIModifications');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/apply-modifications'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success(
+            'Applied ${jsonResponse['total_cells_modified']} modifications',
+            function: 'applyAIModifications');
+        return {
+          'success': jsonResponse['success'] ?? true,
+          'message': jsonResponse['message'],
+          'total_cells_modified': jsonResponse['total_cells_modified'] ?? 0,
+          'data': jsonResponse['data'] != null
+              ? (jsonResponse['data'] as List)
+                  .map((row) => List<dynamic>.from(row))
+                  .toList()
+              : null,
+          'columns': jsonResponse['columns'] != null
+              ? List<String>.from(jsonResponse['columns'])
+              : null,
+          'error_cells': jsonResponse['error_cells'],
+          'ai_modifications': jsonResponse['ai_modifications'],
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        _consoleLogService.error(
+            'Apply failed: ${error['error'] ?? 'Unknown error'}',
+            function: 'applyAIModifications');
+        throw Exception(error['error'] ?? 'Failed to apply modifications');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error applying modifications: $e',
+          function: 'applyAIModifications');
+      throw Exception('Error applying modifications: $e');
+    }
+  }
+
+  /// Cancel pending AI modifications
+  Future<Map<String, dynamic>> cancelAIModifications() async {
+    try {
+      _consoleLogService.info('Cancelling pending AI modifications',
+          function: 'cancelAIModifications');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/openai/cancel-modifications'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        _consoleLogService.success('Pending modifications cancelled',
+            function: 'cancelAIModifications');
+        return jsonResponse;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['error'] ?? 'Failed to cancel modifications');
+      }
+    } catch (e) {
+      _consoleLogService.error('Error cancelling modifications: $e',
+          function: 'cancelAIModifications');
+      throw Exception('Error cancelling modifications: $e');
+    }
+  }
 }
