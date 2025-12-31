@@ -1,0 +1,223 @@
+test_invalid_coefficients (__main__.TestPSOConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_coefficients
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_inertia_range (__main__.TestPSOConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_inertia_range
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_iterations (__main__.TestPSOConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_iterations
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_swarm_size (__main__.TestPSOConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_swarm_size
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_valid_config (__main__.TestPSOConfig) ... 
+------------------------------------------------------------
+  TEST: test_valid_config
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_basic (__main__.TestSwarmInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_basic
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_with_seed (__main__.TestSwarmInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_with_seed
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_velocity_bounds (__main__.TestSwarmInitialization) ... 
+------------------------------------------------------------
+  TEST: test_velocity_bounds
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_constriction_velocity_update (__main__.TestVelocityUpdate) ... 
+------------------------------------------------------------
+  TEST: test_constriction_velocity_update
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_standard_velocity_update (__main__.TestVelocityUpdate) ... 
+------------------------------------------------------------
+  TEST: test_standard_velocity_update
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_velocity_clamping (__main__.TestVelocityUpdate) ... 
+------------------------------------------------------------
+  TEST: test_velocity_clamping
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_basic_position_update (__main__.TestPositionUpdate) ... 
+------------------------------------------------------------
+  TEST: test_basic_position_update
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_clamp_constraint_handling (__main__.TestPositionUpdate) ... 
+------------------------------------------------------------
+  TEST: test_clamp_constraint_handling
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_reflect_constraint_handling (__main__.TestPositionUpdate) ... 
+------------------------------------------------------------
+  TEST: test_reflect_constraint_handling
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_find_global_best (__main__.TestGlobalBest) ... 
+------------------------------------------------------------
+  TEST: test_find_global_best
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_random_neighborhood (__main__.TestNeighborhoodBest) ... 
+------------------------------------------------------------
+  TEST: test_random_neighborhood
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_ring_neighborhood (__main__.TestNeighborhoodBest) ... 
+------------------------------------------------------------
+  TEST: test_ring_neighborhood
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_von_neumann_neighborhood (__main__.TestNeighborhoodBest) ... 
+------------------------------------------------------------
+  TEST: test_von_neumann_neighborhood
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_final_inertia (__main__.TestInertiaDecay) ... 
+------------------------------------------------------------
+  TEST: test_final_inertia
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initial_inertia (__main__.TestInertiaDecay) ... 
+------------------------------------------------------------
+  TEST: test_initial_inertia
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_mid_inertia (__main__.TestInertiaDecay) ... 
+------------------------------------------------------------
+  TEST: test_mid_inertia
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_converged_swarm (__main__.TestSwarmDiversity) ... 
+------------------------------------------------------------
+  TEST: test_converged_swarm
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_diverse_swarm (__main__.TestSwarmDiversity) ... 
+------------------------------------------------------------
+  TEST: test_diverse_swarm
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_metrics_to_dict (__main__.TestPSOMetrics) ... 
+------------------------------------------------------------
+  TEST: test_metrics_to_dict
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_topologies (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_topologies
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_variants (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_variants
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_convenience_function (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_convenience_function
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_initialization (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_initialization
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_run (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_run
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_with_seed_values (__main__.TestPSOEngine) ... 
+------------------------------------------------------------
+  TEST: test_with_seed_values
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_early_stopping (__main__.TestConvergence) ... 
+------------------------------------------------------------
+  TEST: test_early_stopping
+------------------------------------------------------------
+ok
+  Result: PASSED
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.312s
+
+OK
+
+======================================================================
+RUNNING COMPREHENSIVE PSO UNIT TESTS
+======================================================================
+Mode: VERBOSE (showing detailed test information)
+======================================================================
+
+Test Classes:
+  - TestPSOConfig: Configuration validation tests
+  - TestSwarmInitialization: Swarm initialization tests
+  - TestVelocityUpdate: Standard and constriction velocity update
+  - TestPositionUpdate: Position update with constraint handling
+  - TestGlobalBest: Global best finding
+  - TestNeighborhoodBest: Ring, random, von Neumann topologies
+  - TestInertiaDecay: Inertia weight decay calculation
+  - TestSwarmDiversity: Swarm diversity calculation
+  - TestPSOMetrics: Metrics dataclass tests
+  - TestPSOEngine: Complete PSO engine integration tests
+  - TestConvergence: Early stopping and convergence tests
+
+======================================================================
+
+
+======================================================================
+TEST SUMMARY
+======================================================================
+Tests run: 31
+Successes: 31
+Failures: 0
+Errors: 0
+======================================================================
+

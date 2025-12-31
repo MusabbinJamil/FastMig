@@ -3,12 +3,19 @@ Comprehensive Unit Tests for GA System
 =======================================
 Tests for all GA operators, engine, and components.
 Can be run individually from command prompt.
+
+Usage:
+    python3 test_ga_system.py           # Basic output
+    python3 test_ga_system.py -v        # Verbose output with detailed data
+    python3 test_ga_system.py --verbose # Same as -v
 """
 
 import numpy as np
 import unittest
 import logging
+import sys
 from typing import List
+from io import StringIO
 
 from ga_operators import (
     GAOperators, GAMetrics, GAConfig, SelectionMethod,
@@ -22,6 +29,51 @@ from ga_engine import GeneticAlgorithmEngine, GAResult
 # Configure logging
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+# Global verbose flag
+VERBOSE = '-v' in sys.argv or '--verbose' in sys.argv
+
+
+class VerboseTestResult(unittest.TextTestResult):
+    """Custom test result class for verbose output"""
+
+    def __init__(self, stream, descriptions, verbosity):
+        super().__init__(stream, descriptions, verbosity)
+        self.test_details = []
+
+    def startTest(self, test):
+        super().startTest(test)
+        if VERBOSE:
+            self.stream.write("\n" + "-"*60 + "\n")
+            self.stream.write(f"  TEST: {test._testMethodName}\n")
+            self.stream.write("-"*60 + "\n")
+            if test._testMethodDoc:
+                self.stream.write(f"  Description: {test._testMethodDoc.strip()}\n")
+
+    def addSuccess(self, test):
+        super().addSuccess(test)
+        if VERBOSE:
+            self.stream.write(f"  Result: PASSED\n")
+
+    def addFailure(self, test, err):
+        super().addFailure(test, err)
+        if VERBOSE:
+            self.stream.write(f"  Result: FAILED\n")
+            self.stream.write(f"  Error: {err[1]}\n")
+
+    def addError(self, test, err):
+        super().addError(test, err)
+        if VERBOSE:
+            self.stream.write(f"  Result: ERROR\n")
+            self.stream.write(f"  Error: {err[1]}\n")
+
+
+class VerboseTestRunner(unittest.TextTestRunner):
+    """Custom test runner for verbose output"""
+
+    def __init__(self, **kwargs):
+        kwargs['resultclass'] = VerboseTestResult
+        super().__init__(**kwargs)
 
 
 class TestGAConfig(unittest.TestCase):
@@ -398,11 +450,30 @@ def run_all_tests():
     """Run all tests and print results"""
     print("\n" + "="*70)
     print("RUNNING COMPREHENSIVE GA UNIT TESTS")
+    print("="*70)
+    if VERBOSE:
+        print("Mode: VERBOSE (showing detailed test information)")
+    else:
+        print("Mode: Standard (use -v or --verbose for detailed output)")
     print("="*70 + "\n")
-    
+
+    # Print test configuration in verbose mode
+    if VERBOSE:
+        print("Test Classes:")
+        print("  - TestGAConfig: Configuration validation tests")
+        print("  - TestSelectionOperators: Tournament, roulette wheel, rank-based selection")
+        print("  - TestCrossoverOperators: Single-point, two-point, uniform, arithmetic crossover")
+        print("  - TestMutationOperators: Gaussian, uniform, adaptive mutation")
+        print("  - TestMetrics: Convergence rate, population diversity metrics")
+        print("  - TestRealValuedMapper: Real-valued genotype-phenotype mapping")
+        print("  - TestBinaryMapper: Binary genotype-phenotype mapping")
+        print("  - TestGrammarMapper: Grammar-based genotype-phenotype mapping")
+        print("  - TestGAEngine: Complete GA engine integration tests")
+        print("\n" + "="*70 + "\n")
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    
+
     # Add all test classes
     suite.addTests(loader.loadTestsFromTestCase(TestGAConfig))
     suite.addTests(loader.loadTestsFromTestCase(TestSelectionOperators))
@@ -413,10 +484,15 @@ def run_all_tests():
     suite.addTests(loader.loadTestsFromTestCase(TestBinaryMapper))
     suite.addTests(loader.loadTestsFromTestCase(TestGrammarMapper))
     suite.addTests(loader.loadTestsFromTestCase(TestGAEngine))
-    
-    runner = unittest.TextTestRunner(verbosity=2)
+
+    # Use verbose runner if verbose mode is enabled
+    if VERBOSE:
+        runner = VerboseTestRunner(verbosity=2)
+    else:
+        runner = unittest.TextTestRunner(verbosity=2)
+
     result = runner.run(suite)
-    
+
     print("\n" + "="*70)
     print("TEST SUMMARY")
     print("="*70)
@@ -424,8 +500,25 @@ def run_all_tests():
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")
+
+    if VERBOSE and result.failures:
+        print("\n" + "-"*70)
+        print("FAILURE DETAILS:")
+        print("-"*70)
+        for test, traceback in result.failures:
+            print(f"\n  Test: {test}")
+            print(f"  Traceback:\n{traceback}")
+
+    if VERBOSE and result.errors:
+        print("\n" + "-"*70)
+        print("ERROR DETAILS:")
+        print("-"*70)
+        for test, traceback in result.errors:
+            print(f"\n  Test: {test}")
+            print(f"  Traceback:\n{traceback}")
+
     print("="*70 + "\n")
-    
+
     return result.wasSuccessful()
 
 

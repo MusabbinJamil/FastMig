@@ -28,6 +28,9 @@ class _EvolutionaryCleaningSectionState
   Map<String, dynamic>? _sensitiveColumns;
   Map<String, dynamic>? _previewResults;
 
+  // Column selection for column-level cleaning
+  Set<String> _selectedColumns = {};
+
   // GA Configuration State
   GAConfigModel _gaConfig = GAConfigModel();
 
@@ -134,10 +137,12 @@ class _EvolutionaryCleaningSectionState
     try {
       if (_useCellLevelEvolution) {
         // Use new cell-level evolution with method-specific config
+        // Pass selected columns if any are selected, otherwise clean all columns
         final result = await migrationData.evolveErrorCells(
           method: _selectedMethod,
           saveResult: true,
           config: _getMethodConfig(),
+          columns: _selectedColumns.isNotEmpty ? _selectedColumns.toList() : null,
         );
 
         setState(() {
@@ -162,10 +167,11 @@ class _EvolutionaryCleaningSectionState
           );
         }
       } else {
-        // Use original column-level cleaning
+        // Use original column-level cleaning with selected columns
         final report = await migrationData.cleanDataEvolutionary(
           method: _selectedMethod,
           trackModifications: _trackModifications,
+          columns: _selectedColumns.toList(),
         );
 
         setState(() {
@@ -174,10 +180,12 @@ class _EvolutionaryCleaningSectionState
         });
 
         if (mounted) {
+          final improvement = report['improvement']?['fitness_increase'] ??
+                              report['fitness_improvement'] ?? 0.0;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Data cleaned successfully! Fitness improved by ${report['improvement']['fitness_increase'].toStringAsFixed(2)}%',
+                'Data cleaned successfully! Fitness improved by ${(improvement * 100).toStringAsFixed(2)}%',
               ),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 4),
@@ -855,6 +863,10 @@ class _EvolutionaryCleaningSectionState
                     ),
                   ),
 
+                  // Column selection only for column-level mode
+                  if (!_useCellLevelEvolution)
+                    _buildColumnSelectionSection(migrationData),
+
                   const Text(
                     'Select Evolution Algorithm',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -978,7 +990,9 @@ class _EvolutionaryCleaningSectionState
                     runSpacing: 12,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: hasData && !_isCleaning && errorCellCount > 0
+                        onPressed: hasData &&
+                                !_isCleaning &&
+                                errorCellCount > 0
                             ? _cleanData
                             : null,
                         icon: _isCleaning
@@ -997,8 +1011,12 @@ class _EvolutionaryCleaningSectionState
                         label: Text(_isCleaning
                             ? 'Evolving...'
                             : _useCellLevelEvolution
-                                ? 'Evolve Error Cells'
-                                : 'Clean Data'),
+                                ? _selectedColumns.isEmpty
+                                    ? 'Evolve All Error Cells'
+                                    : 'Evolve ${_selectedColumns.length} Column(s)'
+                                : _selectedColumns.isEmpty
+                                    ? 'Clean All Columns'
+                                    : 'Clean ${_selectedColumns.length} Columns'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple.shade700,
                           foregroundColor: Colors.white,
@@ -1073,6 +1091,91 @@ class _EvolutionaryCleaningSectionState
           ),
         );
       },
+    );
+  }
+
+  /// Build Column Selection Section for column-level cleaning
+  Widget _buildColumnSelectionSection(MigrationData migrationData) {
+    final columns = migrationData.columns ?? [];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Compact header row
+          Row(
+            children: [
+              Icon(Icons.view_column, color: Colors.grey.shade700, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                _selectedColumns.isEmpty
+                    ? 'All columns'
+                    : '${_selectedColumns.length} column(s) selected',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              const Spacer(),
+              if (_selectedColumns.isNotEmpty)
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedColumns.clear();
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Clear', style: TextStyle(fontSize: 12)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Simple chip wrap for all columns
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: columns.map((col) {
+              final isSelected = _selectedColumns.contains(col);
+              return FilterChip(
+                label: Text(
+                  col,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isSelected ? Colors.white : Colors.grey.shade800,
+                  ),
+                ),
+                selected: isSelected,
+                selectedColor: Colors.blue.shade600,
+                checkmarkColor: Colors.white,
+                backgroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedColumns.add(col);
+                    } else {
+                      _selectedColumns.remove(col);
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2298,10 +2401,46 @@ class _EvolutionaryCleaningSectionState
   }
 
   Widget _buildCleaningReport(Map<String, dynamic> report) {
-    final before = report['before'] as Map<String, dynamic>;
-    final after = report['after'] as Map<String, dynamic>;
-    final improvement = report['improvement'] as Map<String, dynamic>;
+    // Safely extract report sections with null checks
+    final before = report['before'] as Map<String, dynamic>?;
+    final after = report['after'] as Map<String, dynamic>?;
+    final improvement = report['improvement'] as Map<String, dynamic>?;
     final modifications = report['modifications'] as Map<String, dynamic>?;
+
+    // If essential data is missing, show a simple summary
+    if (before == null || after == null || improvement == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Cleaning Report',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Data cleaning completed successfully. '
+                    '${report['records_fixed'] ?? report['cells_fixed'] ?? 0} records fixed.',
+                    style: TextStyle(color: Colors.green.shade700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

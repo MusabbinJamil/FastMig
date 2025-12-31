@@ -385,6 +385,7 @@ class ApiService {
     bool saveResult = true,
     bool trackModifications = true,
     Map<String, dynamic>? parameters,
+    List<String>? columns,
   }) async {
     try {
       final response = await http.post(
@@ -395,6 +396,7 @@ class ApiService {
           'save_result': saveResult,
           'track_modifications': trackModifications,
           if (parameters != null) 'parameters': parameters,
+          if (columns != null && columns.isNotEmpty) 'columns': columns,
         }),
       );
 
@@ -410,6 +412,8 @@ class ApiService {
           'columns': List<String>.from(jsonResponse['columns']),
           'shape': jsonResponse['shape'],
           'message': jsonResponse['message'],
+          'ai_modified_cells': jsonResponse['ai_modified_cells'],
+          'error_cells': jsonResponse['error_cells'] ?? [],
         };
       } else {
         final error = jsonDecode(response.body);
@@ -1340,10 +1344,11 @@ class ApiService {
     bool saveResult = true,
     List<Map<String, dynamic>>? errorCells,
     Map<String, dynamic>? config,
+    List<String>? columns, // NEW: Column filter for targeted cleaning
   }) async {
     try {
       _consoleLogService.info(
-          'Evolving error cells using ${method.toUpperCase()}',
+          'Evolving error cells using ${method.toUpperCase()}${columns != null && columns.isNotEmpty ? " (columns: ${columns.join(", ")})" : " (all columns)"}',
           function: 'evolveErrorCells');
 
       final response = await http
@@ -1355,6 +1360,7 @@ class ApiService {
               'save_result': saveResult,
               if (errorCells != null) 'error_cells': errorCells,
               if (config != null) 'config': config,
+              if (columns != null && columns.isNotEmpty) 'columns': columns,
             }),
           )
           .timeout(const Duration(minutes: 5));

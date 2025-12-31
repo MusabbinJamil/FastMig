@@ -298,6 +298,7 @@ class MigrationData with ChangeNotifier {
     bool saveResult = true,
     bool trackModifications = true,
     Map<String, dynamic>? parameters,
+    List<String>? columns,
   }) async {
     try {
       _isLoading = true;
@@ -309,6 +310,7 @@ class MigrationData with ChangeNotifier {
         saveResult: saveResult,
         trackModifications: trackModifications,
         parameters: parameters,
+        columns: columns,
       );
 
       if (result['success'] == true && saveResult) {
@@ -316,9 +318,33 @@ class MigrationData with ChangeNotifier {
         _columns = result['columns'];
         _shape =
             result['shape'] != null ? List<int>.from(result['shape']) : null;
+        // Update error cells with remaining errors (exclude fixed cells)
+        _errorCells = result['error_cells'] != null
+            ? List<Map<String, dynamic>>.from(result['error_cells'])
+            : [];
+        // APPEND new AI-modified cells to existing list (preserve previously cleaned cells)
+        final newAiModifiedCells = result['ai_modified_cells'] != null
+            ? List<Map<String, dynamic>>.from(result['ai_modified_cells'])
+            : <Map<String, dynamic>>[];
+        if (newAiModifiedCells.isNotEmpty) {
+          _aiModifiedCells ??= [];
+          for (final cell in newAiModifiedCells) {
+            // Avoid duplicates by checking row/col
+            final exists = _aiModifiedCells!.any((existing) =>
+                existing['row'] == cell['row'] && existing['col'] == cell['col']);
+            if (!exists) {
+              _aiModifiedCells!.add(cell);
+            }
+          }
+        }
+        debugPrint(
+            '✅ DEBUG: Column-level cleaning - ${newAiModifiedCells.length} new cells modified, ${_aiModifiedCells?.length ?? 0} total AI-modified');
+        debugPrint(
+            '🔍 DEBUG: After column-level cleaning - ${_errorCells?.length ?? 0} error cells remaining');
       }
 
-      return result['report'];
+      // Ensure we always return a Map, even if report is null
+      return result['report'] ?? result;
     } catch (e) {
       _errorMessage = e.toString();
       debugPrint('Error cleaning data: $e');
@@ -386,6 +412,7 @@ class MigrationData with ChangeNotifier {
     required String method,
     bool saveResult = true,
     Map<String, dynamic>? config,
+    List<String>? columns, // NEW: Column filter for targeted cleaning
   }) async {
     try {
       _isLoading = true;
@@ -397,6 +424,7 @@ class MigrationData with ChangeNotifier {
         saveResult: saveResult,
         errorCells: _errorCells,
         config: config,
+        columns: columns,
       );
 
       if (result['success'] == true && saveResult) {
@@ -408,14 +436,25 @@ class MigrationData with ChangeNotifier {
         _errorCells = result['error_cells'] != null
             ? List<Map<String, dynamic>>.from(result['error_cells'])
             : [];
-        // Store AI-modified cells for green highlighting
-        _aiModifiedCells = result['ai_modified_cells'] != null
+        // APPEND new AI-modified cells to existing list (preserve previously cleaned cells)
+        final newAiModifiedCells = result['ai_modified_cells'] != null
             ? List<Map<String, dynamic>>.from(result['ai_modified_cells'])
-            : [];
+            : <Map<String, dynamic>>[];
+        if (newAiModifiedCells.isNotEmpty) {
+          _aiModifiedCells ??= [];
+          for (final cell in newAiModifiedCells) {
+            // Avoid duplicates by checking row/col
+            final exists = _aiModifiedCells!.any((existing) =>
+                existing['row'] == cell['row'] && existing['col'] == cell['col']);
+            if (!exists) {
+              _aiModifiedCells!.add(cell);
+            }
+          }
+        }
         debugPrint(
             '🔍 DEBUG: After evolution - ${_errorCells?.length ?? 0} error cells remaining');
         debugPrint(
-            '✅ DEBUG: ${_aiModifiedCells?.length ?? 0} cells modified by AI');
+            '✅ DEBUG: ${newAiModifiedCells.length} new cells modified, ${_aiModifiedCells?.length ?? 0} total AI-modified');
       }
 
       return result;
@@ -493,14 +532,25 @@ class MigrationData with ChangeNotifier {
         _errorCells = result['error_cells'] != null
             ? List<Map<String, dynamic>>.from(result['error_cells'])
             : [];
-        // Store AI-modified cells for green highlighting
-        _aiModifiedCells = result['ai_modified_cells'] != null
+        // APPEND new AI-modified cells to existing list (preserve previously cleaned cells)
+        final newAiModifiedCells = result['ai_modified_cells'] != null
             ? List<Map<String, dynamic>>.from(result['ai_modified_cells'])
-            : [];
+            : <Map<String, dynamic>>[];
+        if (newAiModifiedCells.isNotEmpty) {
+          _aiModifiedCells ??= [];
+          for (final cell in newAiModifiedCells) {
+            // Avoid duplicates by checking row/col
+            final exists = _aiModifiedCells!.any((existing) =>
+                existing['row'] == cell['row'] && existing['col'] == cell['col']);
+            if (!exists) {
+              _aiModifiedCells!.add(cell);
+            }
+          }
+        }
         debugPrint(
             '🔍 DEBUG: After applying preview - ${_errorCells?.length ?? 0} error cells remaining');
         debugPrint(
-            '✅ DEBUG: ${_aiModifiedCells?.length ?? 0} cells modified by AI');
+            '✅ DEBUG: ${newAiModifiedCells.length} new cells modified, ${_aiModifiedCells?.length ?? 0} total AI-modified');
       }
 
       return result;

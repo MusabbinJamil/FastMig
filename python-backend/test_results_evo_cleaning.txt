@@ -1,0 +1,1441 @@
+
+======================================================================
+  Evolutionary Cell Cleaning Test Suite
+======================================================================
+
+  Running in VERBOSE mode
+  Command: python3 test_evolutionary_cleaning.py -v
+
+  Test Classes:
+    1. TestNumericCellEvolution - Tests for numeric columns
+    2. TestCategoricalCellEvolution - Tests for categorical columns
+    3. TestDatetimeCellEvolution - Tests for datetime columns
+    4. TestHybridMethodSelection - Tests hybrid algorithm selection
+    5. TestEvolutionConfiguration - Tests config parameters
+    6. TestEvolutionaryMethods - Tests all evolution methods
+    7. TestEdgeCases - Tests edge cases and error handling
+    8. TestFitnessTracking - Tests fitness history tracking
+    9. TestRealDataEvolution - Tests with real data (test_data_unclean.xlsx)
+test_de_numeric_evolution (__main__.TestNumericCellEvolution)
+Test Differential Evolution for numeric cells ... 
+----------------------------------------------------------------------
+  TEST: test_de_numeric_evolution
+----------------------------------------------------------------------
+  Description: Test Differential Evolution for numeric cells
+
+------------------------------------------------------------
+  Test Setup: Numeric Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with numeric errors:
+  Shape: (10, 4)
+  Columns: ['id', 'price', 'quantity', 'score']
+
+   id    price quantity score
+0   1    100.0       10  85.5
+1   2    150.0       20  90.0
+2   3  invalid       30  88.5
+3   4    200.0     -999  92.0
+4   5    175.0       25   N/A
+5   6     None       15  87.0
+6   7    125.0      abc  89.5
+7   8    180.0       35  91.0
+8   9    160.0       22  86.5
+9  10    140.0       18  88.0
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  5      3      non_numeric, mixed_content, null_string 
+  6      1      missing_value                           
+  7      2      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing DE Evolution on Numeric Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. DE should use differential mutation (F) and crossover (CR)
+    2. Population should evolve through vector differences
+    3. Best fitness should track across generations
+
+  DE Evolution Result:
+    Method Used: de
+    Cells Evolved: 4
+    Cells Fixed: 4
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 99.21%
+    Fitness Improvement: 99.21%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    3      price           invalid         155.4140433676  0.00%     98.36%
+    6      price           None            152.8743716937  0.00%     99.13%
+    5      score           N/A             88.68271716551  0.00%     99.76%
+    7      quantity        abc             -87.1902526177  0.00%     99.59%
+ok
+
+  [PASS] test_de_numeric_evolution
+test_es_numeric_evolution (__main__.TestNumericCellEvolution)
+Test Evolution Strategy for numeric cells ... 
+----------------------------------------------------------------------
+  TEST: test_es_numeric_evolution
+----------------------------------------------------------------------
+  Description: Test Evolution Strategy for numeric cells
+
+------------------------------------------------------------
+  Test Setup: Numeric Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with numeric errors:
+  Shape: (10, 4)
+  Columns: ['id', 'price', 'quantity', 'score']
+
+   id    price quantity score
+0   1    100.0       10  85.5
+1   2    150.0       20  90.0
+2   3  invalid       30  88.5
+3   4    200.0     -999  92.0
+4   5    175.0       25   N/A
+5   6     None       15  87.0
+6   7    125.0      abc  89.5
+7   8    180.0       35  91.0
+8   9    160.0       22  86.5
+9  10    140.0       18  88.0
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  5      3      non_numeric, mixed_content, null_string 
+  6      1      missing_value                           
+  7      2      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing ES Evolution on Numeric Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. ES should use (mu, lambda) selection strategy
+    2. Self-adaptive mutation sigma should adjust over generations
+    3. Best offspring should be selected as new parents
+
+  ES Evolution Result:
+    Method Used: es
+    Cells Evolved: 4
+    Cells Fixed: 4
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 99.15%
+    Fitness Improvement: 99.15%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    3      price           invalid         156.7989439964  0.00%     97.03%
+    6      price           None            153.7508445998  0.00%     100.00%
+    5      score           N/A             88.66223265913  0.00%     99.93%
+    7      quantity        abc             -95.3706480883  0.00%     99.64%
+ok
+
+  [PASS] test_es_numeric_evolution
+test_ga_numeric_evolution (__main__.TestNumericCellEvolution)
+Test GA evolution for numeric cells ... 
+----------------------------------------------------------------------
+  TEST: test_ga_numeric_evolution
+----------------------------------------------------------------------
+  Description: Test GA evolution for numeric cells
+
+------------------------------------------------------------
+  Test Setup: Numeric Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with numeric errors:
+  Shape: (10, 4)
+  Columns: ['id', 'price', 'quantity', 'score']
+
+   id    price quantity score
+0   1    100.0       10  85.5
+1   2    150.0       20  90.0
+2   3  invalid       30  88.5
+3   4    200.0     -999  92.0
+4   5    175.0       25   N/A
+5   6     None       15  87.0
+6   7    125.0      abc  89.5
+7   8    180.0       35  91.0
+8   9    160.0       22  86.5
+9  10    140.0       18  88.0
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  5      3      non_numeric, mixed_content, null_string 
+  6      1      missing_value                           
+  7      2      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing GA Evolution on Numeric Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. GA should evolve error cells in numeric columns
+    2. Evolved values should be within the range of healthy values
+    3. Fitness should improve after evolution
+    4. Number of fixed cells should be > 0
+
+  GA Evolution Result:
+    Method Used: ga
+    Cells Evolved: 4
+    Cells Fixed: 4
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 97.18%
+    Fitness Improvement: 97.18%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    3      price           invalid         152.8234951685  0.00%     99.08%
+    6      price           None            148.9115025896  0.00%     95.36%
+    5      score           N/A             88.88015774273  0.00%     96.92%
+    7      quantity        abc             -62.4654844395  0.00%     97.34%
+
+  Assertions Passed:
+    - Cells evolved: 4 > 0
+    - Fitness maintained or improved: 97.18% >= 0.00%
+ok
+
+  [PASS] test_ga_numeric_evolution
+test_pso_numeric_evolution (__main__.TestNumericCellEvolution)
+Test PSO evolution for numeric cells ... 
+----------------------------------------------------------------------
+  TEST: test_pso_numeric_evolution
+----------------------------------------------------------------------
+  Description: Test PSO evolution for numeric cells
+
+------------------------------------------------------------
+  Test Setup: Numeric Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with numeric errors:
+  Shape: (10, 4)
+  Columns: ['id', 'price', 'quantity', 'score']
+
+   id    price quantity score
+0   1    100.0       10  85.5
+1   2    150.0       20  90.0
+2   3  invalid       30  88.5
+3   4    200.0     -999  92.0
+4   5    175.0       25   N/A
+5   6     None       15  87.0
+6   7    125.0      abc  89.5
+7   8    180.0       35  91.0
+8   9    160.0       22  86.5
+9  10    140.0       18  88.0
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  5      3      non_numeric, mixed_content, null_string 
+  6      1      missing_value                           
+  7      2      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing PSO Evolution on Numeric Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. PSO should use particle swarm optimization for numeric data
+    2. Particles should converge towards healthy value ranges
+    3. Global best fitness should improve over iterations
+
+  PSO Evolution Result:
+    Method Used: pso
+    Cells Evolved: 4
+    Cells Fixed: 4
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 99.42%
+    Fitness Improvement: 99.42%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    3      price           invalid         154.2320516941  0.00%     99.52%
+    6      price           None            154.3898970171  0.00%     99.37%
+    5      score           N/A             88.63615273878  0.00%     99.55%
+    7      quantity        abc             -83.4284736455  0.00%     99.25%
+
+  Assertions Passed:
+    - Method used: pso == 'pso'
+    - Cells evolved: 4 > 0
+ok
+
+  [PASS] test_pso_numeric_evolution
+test_ga_categorical_evolution (__main__.TestCategoricalCellEvolution)
+Test GA evolution for categorical cells ... 
+----------------------------------------------------------------------
+  TEST: test_ga_categorical_evolution
+----------------------------------------------------------------------
+  Description: Test GA evolution for categorical cells
+
+------------------------------------------------------------
+  Test Setup: Categorical Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with categorical errors:
+  Shape: (10, 4)
+  Columns: ['id', 'status', 'category', 'region']
+
+   id    status  category region
+0   1    Active         A  North
+1   2    Active         B  South
+2   3  Inactive         A   East
+3   4    xyz123         C   West
+4   5    Active       ###  North
+5   6  Inactive         B  12345
+6   7      None         A   East
+7   8    Active         B   West
+8   9  Inactive  Invalid!  South
+9  10    Active         C  North
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  6      3      suspicious_numeric_in_string            
+  7      1      missing_value                           
+
+------------------------------------------------------------
+  Testing GA Evolution on Categorical Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. GA should select from healthy categorical values
+    2. Frequency-based fitness should favor common values
+    3. Evolved values should be valid categories
+
+  GA Categorical Evolution Result:
+    Method Used: ga
+    Cells Evolved: 2
+    Cells Fixed: 2
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 44.44%
+    Fitness Improvement: 44.44%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    6      region          12345           North           0.00%     33.33%
+    7      status          None            Active          0.00%     55.56%
+    Column 'region': evolved to 'North'
+    Column 'status': evolved to 'Active'
+ok
+
+  [PASS] test_ga_categorical_evolution
+test_hybrid_categorical_evolution (__main__.TestCategoricalCellEvolution)
+Test Hybrid method on categorical data (should use GA) ... 
+----------------------------------------------------------------------
+  TEST: test_hybrid_categorical_evolution
+----------------------------------------------------------------------
+  Description: Test Hybrid method on categorical data (should use GA)
+
+------------------------------------------------------------
+  Test Setup: Categorical Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with categorical errors:
+  Shape: (10, 4)
+  Columns: ['id', 'status', 'category', 'region']
+
+   id    status  category region
+0   1    Active         A  North
+1   2    Active         B  South
+2   3  Inactive         A   East
+3   4    xyz123         C   West
+4   5    Active       ###  North
+5   6  Inactive         B  12345
+6   7      None         A   East
+7   8    Active         B   West
+8   9  Inactive  Invalid!  South
+9  10    Active         C  North
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  6      3      suspicious_numeric_in_string            
+  7      1      missing_value                           
+
+------------------------------------------------------------
+  Testing Hybrid Evolution on Categorical Cells
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Hybrid method should automatically select GA for categorical data
+    2. Method selection based on column type detection
+
+  Hybrid (Categorical) Evolution Result:
+    Method Used: hybrid
+    Cells Evolved: 2
+    Cells Fixed: 2
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 44.44%
+    Fitness Improvement: 44.44%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    6      region          12345           North           0.00%     33.33%
+    7      status          None            Active          0.00%     55.56%
+ok
+
+  [PASS] test_hybrid_categorical_evolution
+test_datetime_column_detection (__main__.TestDatetimeCellEvolution)
+Test datetime column detection ... 
+----------------------------------------------------------------------
+  TEST: test_datetime_column_detection
+----------------------------------------------------------------------
+  Description: Test datetime column detection
+
+------------------------------------------------------------
+  Test Setup: Datetime Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with datetime errors:
+  Shape: (10, 3)
+  Columns: ['id', 'created_at', 'updated_at']
+
+   id           created_at  updated_at
+0   1  2024-06-15 10:30:00  2024-06-15
+1   2  2024-06-16 10:30:00  2024-06-16
+2   3         invalid_date  06/17/2024
+3   4  2024-06-18 10:30:00  not a date
+4   5  2024-06-19 10:30:00  2024-06-19
+5   6                 None  2024-06-20
+6   7  2024-06-21 10:30:00        None
+7   8  2024-06-22 10:30:00  2024-06-22
+8   9           2024/06/23  2024-06-23
+9  10  2024-06-24 10:30:00  2024-06-24
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      invalid_datetime                        
+  4      2      invalid_datetime                        
+  6      1      missing_value                           
+  7      2      missing_value                           
+
+------------------------------------------------------------
+  Testing Datetime Column Detection
+------------------------------------------------------------
+
+  Column Type Detection:
+    Datetime strings: detected=True, expected=True [PASS]
+    Numeric values: detected=False, expected=False [PASS]
+    Plain strings: detected=False, expected=False [PASS]
+ok
+
+  [PASS] test_datetime_column_detection
+test_datetime_evolution (__main__.TestDatetimeCellEvolution)
+Test evolution of datetime error cells ... 
+----------------------------------------------------------------------
+  TEST: test_datetime_evolution
+----------------------------------------------------------------------
+  Description: Test evolution of datetime error cells
+
+------------------------------------------------------------
+  Test Setup: Datetime Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with datetime errors:
+  Shape: (10, 3)
+  Columns: ['id', 'created_at', 'updated_at']
+
+   id           created_at  updated_at
+0   1  2024-06-15 10:30:00  2024-06-15
+1   2  2024-06-16 10:30:00  2024-06-16
+2   3         invalid_date  06/17/2024
+3   4  2024-06-18 10:30:00  not a date
+4   5  2024-06-19 10:30:00  2024-06-19
+5   6                 None  2024-06-20
+6   7  2024-06-21 10:30:00        None
+7   8  2024-06-22 10:30:00  2024-06-22
+8   9           2024/06/23  2024-06-23
+9  10  2024-06-24 10:30:00  2024-06-24
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      invalid_datetime                        
+  4      2      invalid_datetime                        
+  6      1      missing_value                           
+  7      2      missing_value                           
+
+------------------------------------------------------------
+  Testing Datetime Cell Evolution
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Invalid dates should be evolved to valid dates
+    2. Evolved dates should be within the range of healthy dates
+    3. Date format should be standardized after evolution
+
+  Datetime Evolution Result:
+    Method Used: hybrid
+    Cells Evolved: 4
+    Cells Fixed: 4
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 98.81%
+    Fitness Improvement: 98.81%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    3      created_at      invalid_date    2024-06-19 22:  0.00%     97.82%
+    6      created_at      None            2024-06-20 04:  0.00%     99.56%
+    4      updated_at      not a date      2024-06-19 12:  0.00%     99.83%
+    7      updated_at      None            2024-06-19 16:  0.00%     98.05%
+    Evolved date: '2024-06-19 22:35:58' -> parsed: True
+    Evolved date: '2024-06-20 04:05:59' -> parsed: True
+    Evolved date: '2024-06-19 12:21:58' -> parsed: True
+    Evolved date: '2024-06-19 16:14:01' -> parsed: True
+ok
+
+  [PASS] test_datetime_evolution
+test_datetime_parsing (__main__.TestDatetimeCellEvolution)
+Test datetime parsing utilities ... /home/musab/FastMig/FastMig/python-backend/evolutionary_cell_cleaner.py:120: UserWarning: Parsing dates in %d-%m-%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  parsed = pd.to_datetime(value_str)
+
+----------------------------------------------------------------------
+  TEST: test_datetime_parsing
+----------------------------------------------------------------------
+  Description: Test datetime parsing utilities
+
+------------------------------------------------------------
+  Test Setup: Datetime Column Evolution
+------------------------------------------------------------
+
+  Input DataFrame with datetime errors:
+  Shape: (10, 3)
+  Columns: ['id', 'created_at', 'updated_at']
+
+   id           created_at  updated_at
+0   1  2024-06-15 10:30:00  2024-06-15
+1   2  2024-06-16 10:30:00  2024-06-16
+2   3         invalid_date  06/17/2024
+3   4  2024-06-18 10:30:00  not a date
+4   5  2024-06-19 10:30:00  2024-06-19
+5   6                 None  2024-06-20
+6   7  2024-06-21 10:30:00        None
+7   8  2024-06-22 10:30:00  2024-06-22
+8   9           2024/06/23  2024-06-23
+9  10  2024-06-24 10:30:00  2024-06-24
+
+  Detected Error Cells: 4 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      invalid_datetime                        
+  4      2      invalid_datetime                        
+  6      1      missing_value                           
+  7      2      missing_value                           
+
+------------------------------------------------------------
+  Testing Datetime Parsing Functions
+------------------------------------------------------------
+
+  Datetime Parsing Tests:
+  Input                     Expected   Actual     Status    
+  ------------------------- ---------- ---------- ----------
+  2024-06-15                True       True       PASS      
+  2024-06-15 10:30:00       True       True       PASS      
+  06/15/2024                True       True       PASS      
+  15-06-2024                True       True       PASS      
+  invalid                   False      False      PASS      
+                            False      False      PASS      
+  None                      False      False      PASS      
+  2024-06-15 00:00:00       True       True       PASS      
+ok
+
+  [PASS] test_datetime_parsing
+test_hybrid_selects_pso_for_numeric (__main__.TestHybridMethodSelection)
+Test that Hybrid selects PSO for numeric columns ... 
+----------------------------------------------------------------------
+  TEST: test_hybrid_selects_pso_for_numeric
+----------------------------------------------------------------------
+  Description: Test that Hybrid selects PSO for numeric columns
+
+------------------------------------------------------------
+  Test Setup: Hybrid Method Selection
+------------------------------------------------------------
+
+  Mixed-type DataFrame:
+  Shape: (5, 4)
+  Columns: ['id', 'price', 'status', 'date']
+
+   id    price    status        date
+0   1    100.0    Active  2024-06-15
+1   2  invalid       ###    bad_date
+2   3    150.0  Inactive  2024-06-17
+3   4    175.0    Active  2024-06-18
+4   5    200.0  Inactive  2024-06-19
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      1      non_numeric, mixed_content              
+  2      3      invalid_datetime                        
+
+------------------------------------------------------------
+  Testing Hybrid Method Selection
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Hybrid should use PSO for numeric columns
+    2. Hybrid should use GA for categorical columns
+    3. Hybrid should use GA for datetime columns (temporal proximity)
+
+  Hybrid Evolution Result:
+    Method Used: hybrid
+    Cells Evolved: 2
+    Cells Fixed: 2
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 99.21%
+    Fitness Improvement: 99.21%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      price           invalid         154.8268943990  0.00%     98.86%
+    2      date            bad_date        2024-06-17 05:  0.00%     99.56%
+
+  Hybrid method processed 2 cells
+  Algorithm selection per column type is handled internally
+ok
+
+  [PASS] test_hybrid_selects_pso_for_numeric
+test_early_stopping (__main__.TestEvolutionConfiguration)
+Test early stopping configuration ... 
+----------------------------------------------------------------------
+  TEST: test_early_stopping
+----------------------------------------------------------------------
+  Description: Test early stopping configuration
+
+------------------------------------------------------------
+  Test Setup: Configuration Parameters
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (10, 2)
+  Columns: ['id', 'value']
+
+   id  value
+0   1    100
+1   2  error
+2   3    150
+3   4    175
+4   5    200
+5   6    125
+6   7    bad
+7   8    180
+8   9    160
+9  10    140
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      1      non_numeric, mixed_content              
+  7      1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing Early Stopping
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Early stopping should halt evolution when no improvement
+    2. Patience parameter controls generations without improvement
+
+  Early Stopping Result:
+    Method Used: ga
+    Cells Evolved: 2
+    Cells Fixed: 2
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 98.56%
+    Fitness Improvement: 98.56%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      value           error           153.0561907543  0.00%     99.31%
+    7      value           bad             155.9966590690  0.00%     97.80%
+
+  Early stopping may have triggered before 100 generations
+ok
+
+  [PASS] test_early_stopping
+test_fitness_threshold (__main__.TestEvolutionConfiguration)
+Test fitness threshold configuration ... 
+----------------------------------------------------------------------
+  TEST: test_fitness_threshold
+----------------------------------------------------------------------
+  Description: Test fitness threshold configuration
+
+------------------------------------------------------------
+  Test Setup: Configuration Parameters
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (10, 2)
+  Columns: ['id', 'value']
+
+   id  value
+0   1    100
+1   2  error
+2   3    150
+3   4    175
+4   5    200
+5   6    125
+6   7    bad
+7   8    180
+8   9    160
+9  10    140
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      1      non_numeric, mixed_content              
+  7      1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing Fitness Threshold
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Evolution should stop when fitness threshold is reached
+    2. Higher threshold requires more evolution effort
+
+  Fitness Threshold Result:
+    Method Used: pso
+    Cells Evolved: 2
+    Cells Fixed: 2
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 98.92%
+    Fitness Improvement: 98.92%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      value           error           155.4586567282  0.00%     98.32%
+    7      value           bad             153.2691329880  0.00%     99.52%
+ok
+
+  [PASS] test_fitness_threshold
+test_population_size_impact (__main__.TestEvolutionConfiguration)
+Test impact of population size on evolution ... 
+----------------------------------------------------------------------
+  TEST: test_population_size_impact
+----------------------------------------------------------------------
+  Description: Test impact of population size on evolution
+
+------------------------------------------------------------
+  Test Setup: Configuration Parameters
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (10, 2)
+  Columns: ['id', 'value']
+
+   id  value
+0   1    100
+1   2  error
+2   3    150
+3   4    175
+4   5    200
+5   6    125
+6   7    bad
+7   8    180
+8   9    160
+9  10    140
+
+  Detected Error Cells: 2 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      1      non_numeric, mixed_content              
+  7      1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing Population Size Impact
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Larger populations provide more genetic diversity
+    2. Smaller populations evolve faster but may converge prematurely
+
+  Population size 10:
+    Fitness after: 96.22%
+    Cells fixed: 2
+
+  Population size 30:
+    Fitness after: 99.45%
+    Cells fixed: 2
+ok
+
+  [PASS] test_population_size_impact
+test_all_methods_produce_results (__main__.TestEvolutionaryMethods)
+Test that all methods produce valid results ... 
+----------------------------------------------------------------------
+  TEST: test_all_methods_produce_results
+----------------------------------------------------------------------
+  Description: Test that all methods produce valid results
+
+------------------------------------------------------------
+  Test Setup: All Evolutionary Methods
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (20, 3)
+  Columns: ['id', 'amount', 'code']
+
+   id amount     code
+0   1    100        A
+1   2    200        B
+2   3      X        A
+3   4    150      ###
+4   5    175        B
+5   6    125        A
+6   7   None        C
+7   8    180        B
+8   9    160  invalid
+9  10    140        A
+
+  Detected Error Cells: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  7      1      missing_value                           
+  13     1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing All Methods Produce Results
+------------------------------------------------------------
+
+  Test Criteria:
+    1. All 5 methods should produce valid results
+    2. Each method should evolve cells without errors
+    3. Results should contain required fields
+
+  Testing method: GA
+    Cells evolved: 3
+    Cells fixed: 3
+    Fitness: 0.00% -> 97.79%
+
+  Testing method: PSO
+    Cells evolved: 3
+    Cells fixed: 3
+    Fitness: 0.00% -> 99.17%
+
+  Testing method: DE
+    Cells evolved: 3
+    Cells fixed: 3
+    Fitness: 0.00% -> 98.73%
+
+  Testing method: ES
+    Cells evolved: 3
+    Cells fixed: 3
+    Fitness: 0.00% -> 96.61%
+
+  Testing method: HYBRID
+    Cells evolved: 3
+    Cells fixed: 3
+    Fitness: 0.00% -> 99.63%
+
+  Method Comparison Summary:
+  Method     Evolved    Fixed      Before       After       
+  ---------- ---------- ---------- ------------ ------------
+  GA         3          3          0.00%       97.79%
+  PSO        3          3          0.00%       99.17%
+  DE         3          3          0.00%       98.73%
+  ES         3          3          0.00%       96.61%
+  HYBRID     3          3          0.00%       99.63%
+ok
+
+  [PASS] test_all_methods_produce_results
+test_all_error_cells (__main__.TestEdgeCases)
+Test evolution when all cells are errors ... 
+----------------------------------------------------------------------
+  TEST: test_all_error_cells
+----------------------------------------------------------------------
+  Description: Test evolution when all cells are errors
+
+------------------------------------------------------------
+  Testing All Error Cells
+------------------------------------------------------------
+
+  All-error DataFrame:
+  Shape: (3, 2)
+  Columns: ['id', 'value']
+
+   id   value
+0   1  error1
+1   2  error2
+2   3  error3
+
+  All cells are errors: 0 cells
+
+  Cells failed: 0
+  (Expected: evolution may fail when no healthy template cells)
+ok
+
+  [PASS] test_all_error_cells
+test_empty_error_cells (__main__.TestEdgeCases)
+Test evolution with no error cells ... 
+----------------------------------------------------------------------
+  TEST: test_empty_error_cells
+----------------------------------------------------------------------
+  Description: Test evolution with no error cells
+
+------------------------------------------------------------
+  Testing Empty Error Cells
+------------------------------------------------------------
+
+  Clean DataFrame:
+  Shape: (3, 2)
+  Columns: ['id', 'value']
+
+   id  value
+0   1    100
+1   2    200
+2   3    300
+
+  Result: 0 cells evolved (as expected for clean data)
+ok
+
+  [PASS] test_empty_error_cells
+test_single_row (__main__.TestEdgeCases)
+Test evolution with single row DataFrame ... 
+----------------------------------------------------------------------
+  TEST: test_single_row
+----------------------------------------------------------------------
+  Description: Test evolution with single row DataFrame
+
+------------------------------------------------------------
+  Testing Single Row DataFrame
+------------------------------------------------------------
+
+  Single Row DataFrame:
+  Shape: (1, 2)
+  Columns: ['id', 'value']
+
+   id  value
+0   1  error
+
+  Result: 0 cells failed
+  (Single row has no healthy templates for comparison)
+ok
+
+  [PASS] test_single_row
+test_fitness_history_recorded (__main__.TestFitnessTracking)
+Test that fitness history is properly recorded ... 
+----------------------------------------------------------------------
+  TEST: test_fitness_history_recorded
+----------------------------------------------------------------------
+  Description: Test that fitness history is properly recorded
+
+------------------------------------------------------------
+  Test Setup: Fitness Tracking
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (15, 2)
+  Columns: ['id', 'score']
+
+   id score
+0   1    85
+1   2    90
+2   3     X
+3   4    88
+4   5    92
+5   6    87
+6   7  None
+7   8    91
+8   9    86
+9  10    89
+
+  Detected Error Cells: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  7      1      missing_value                           
+  13     1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing Fitness History Recording
+------------------------------------------------------------
+
+  Fitness History Entries: 3
+
+  Sample History Entries (first 5):
+  Gen    Best Fitness    Method         
+  ------ --------------- ---------------
+  0      0.9927          GA             
+  0      0.9993          GA             
+  0      0.9805          GA             
+ok
+
+  [PASS] test_fitness_history_recorded
+test_fitness_improvement_metric (__main__.TestFitnessTracking)
+Test fitness improvement calculation ... 
+----------------------------------------------------------------------
+  TEST: test_fitness_improvement_metric
+----------------------------------------------------------------------
+  Description: Test fitness improvement calculation
+
+------------------------------------------------------------
+  Test Setup: Fitness Tracking
+------------------------------------------------------------
+
+  Test DataFrame:
+  Shape: (15, 2)
+  Columns: ['id', 'score']
+
+   id score
+0   1    85
+1   2    90
+2   3     X
+3   4    88
+4   5    92
+5   6    87
+6   7  None
+7   8    91
+8   9    86
+9  10    89
+
+  Detected Error Cells: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  3      1      non_numeric, mixed_content              
+  7      1      missing_value                           
+  13     1      non_numeric, mixed_content              
+
+------------------------------------------------------------
+  Testing Fitness Improvement Calculation
+------------------------------------------------------------
+
+  Fitness Before: 0.0000
+  Fitness After: 0.9970
+  Improvement: 0.9970
+  Calculated: 0.9970
+ok
+
+  [PASS] test_fitness_improvement_metric
+test_real_data_all_methods_comparison (__main__.TestRealDataEvolution)
+Compare all 5 methods on real data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_all_methods_comparison
+----------------------------------------------------------------------
+  Description: Compare all 5 methods on real data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Comparing All 5 Methods on Real Data
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Run GA, PSO, DE, ES, Hybrid on same real data
+    2. Compare fitness improvements across methods
+    3. All methods should produce valid results
+
+  Method Comparison on Real Data (test_data_unclean.xlsx):
+  Method     Evolved    Fixed      Before       After        Improvement 
+  ---------- ---------- ---------- ------------ ------------ ------------
+  GA         3          3          0.00%       70.59%       70.59%
+  PSO        3          3          0.00%       70.66%       70.66%
+  DE         3          3          0.00%       70.30%       70.30%
+  ES         3          3          0.00%       70.24%       70.24%
+  HYBRID     3          3          0.00%       69.15%       69.15%
+ok
+
+  [PASS] test_real_data_all_methods_comparison
+test_real_data_de_evolution (__main__.TestRealDataEvolution)
+Test DE evolution on real unclean data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_de_evolution
+----------------------------------------------------------------------
+  Description: Test DE evolution on real unclean data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Testing DE on Real Data (test_data_unclean.xlsx)
+------------------------------------------------------------
+
+  Test Criteria:
+    1. DE should use differential mutation on error cells
+    2. Population should evolve through vector differences
+
+  DE Evolution on Real Data:
+    Method Used: de
+    Cells Evolved: 3
+    Cells Fixed: 3
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 70.48%
+    Fitness Improvement: 70.48%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      Procurement     NaT             2024-01-13 13:  0.00%     99.90%
+    4      Prices          abc             23.18601982808  0.00%     99.05%
+    6      Product         12              Avacado         0.00%     12.50%
+ok
+
+  [PASS] test_real_data_de_evolution
+test_real_data_es_evolution (__main__.TestRealDataEvolution)
+Test ES evolution on real unclean data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_es_evolution
+----------------------------------------------------------------------
+  Description: Test ES evolution on real unclean data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Testing ES on Real Data (test_data_unclean.xlsx)
+------------------------------------------------------------
+
+  Test Criteria:
+    1. ES should use (mu,lambda) selection on error cells
+    2. Self-adaptive mutation should adjust sigma
+
+  ES Evolution on Real Data:
+    Method Used: es
+    Cells Evolved: 3
+    Cells Fixed: 3
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 70.48%
+    Fitness Improvement: 70.48%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      Procurement     NaT             2024-01-13 12:  0.00%     99.23%
+    4      Prices          abc             22.96799591130  0.00%     99.71%
+    6      Product         12              Plum            0.00%     12.50%
+ok
+
+  [PASS] test_real_data_es_evolution
+test_real_data_ga_evolution (__main__.TestRealDataEvolution)
+Test GA evolution on real unclean data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_ga_evolution
+----------------------------------------------------------------------
+  Description: Test GA evolution on real unclean data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Testing GA on Real Data (test_data_unclean.xlsx)
+------------------------------------------------------------
+
+  Test Criteria:
+    1. GA should detect and fix errors in real dataset
+    2. Prices column: 'abc' should be evolved to a valid number
+    3. Product column: '12' should be evolved to a valid product name
+    4. Procurement column: NaT should be evolved to a valid date
+
+  GA Evolution on Real Data:
+    Method Used: ga
+    Cells Evolved: 3
+    Cells Fixed: 3
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 70.00%
+    Fitness Improvement: 70.00%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      Procurement     NaT             2024-01-13 15:  0.00%     99.22%
+    4      Prices          abc             22.30525082243  0.00%     98.27%
+    6      Product         12              Worm            0.00%     12.50%
+
+  Before vs After Comparison:
+    Row 2, Procurement: 'NaT' -> '2024-01-13 15:20:17'
+    Row 4, Prices: 'abc' -> '22.30525082243724'
+    Row 6, Product: '12' -> 'Worm'
+ok
+
+  [PASS] test_real_data_ga_evolution
+test_real_data_hybrid_evolution (__main__.TestRealDataEvolution)
+Test Hybrid evolution on real unclean data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_hybrid_evolution
+----------------------------------------------------------------------
+  Description: Test Hybrid evolution on real unclean data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Testing Hybrid on Real Data (test_data_unclean.xlsx)
+------------------------------------------------------------
+
+  Test Criteria:
+    1. Hybrid should auto-select best method per column type
+    2. PSO for numeric (Prices), GA for categorical (Product), GA for datetime (Procurement)
+
+  Hybrid Evolution on Real Data:
+    Method Used: hybrid
+    Cells Evolved: 3
+    Cells Fixed: 3
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 70.46%
+    Fitness Improvement: 70.46%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      Procurement     NaT             2024-01-13 13:  0.00%     99.92%
+    4      Prices          abc             22.53632515483  0.00%     98.97%
+    6      Product         12              Apple           0.00%     12.50%
+
+  Hybrid automatically selected algorithms based on column types
+ok
+
+  [PASS] test_real_data_hybrid_evolution
+test_real_data_pso_evolution (__main__.TestRealDataEvolution)
+Test PSO evolution on real unclean data ... 
+----------------------------------------------------------------------
+  TEST: test_real_data_pso_evolution
+----------------------------------------------------------------------
+  Description: Test PSO evolution on real unclean data
+
+------------------------------------------------------------
+  Test Setup: Real Data from test_data_unclean.xlsx
+------------------------------------------------------------
+
+  Real Test Data:
+  Shape: (9, 3)
+  Columns: ['Prices', 'Product', 'Procurement']
+
+  Prices  Product Procurement
+0     10    Apple  2024-01-09
+1     25   Orange         NaT
+2     23    Mango  2024-01-11
+3    abc   Banana  2024-01-12
+4     32  Avacado  2024-01-13
+5     42       12  2024-01-14
+6     22     Plum  2024-01-15
+7     14   Grapes  2024-01-16
+8     15     Worm  2024-01-17
+
+  Detected Error Cells in Real Data: 3 cells
+  Row    Col    Issues                                  
+  ------ ------ ----------------------------------------
+  2      2      missing_value                           
+  4      0      non_numeric, mixed_content              
+  6      1      suspicious_numeric_in_string            
+
+  Column Types Detected:
+    Prices: numeric
+    Product: string
+    Procurement: datetime
+
+------------------------------------------------------------
+  Testing PSO on Real Data (test_data_unclean.xlsx)
+------------------------------------------------------------
+
+  Test Criteria:
+    1. PSO should optimize numeric error cells
+    2. Particle swarm should converge to healthy value ranges
+
+  PSO Evolution on Real Data:
+    Method Used: pso
+    Cells Evolved: 3
+    Cells Fixed: 3
+    Cells Failed: 0
+    Avg Fitness Before: 0.00%
+    Avg Fitness After: 70.67%
+    Fitness Improvement: 70.67%
+
+    Evolved Cells Detail (first 5):
+    Row    Col             Original        Evolved         Before     After     
+    ------ --------------- --------------- --------------- ---------- ----------
+    2      Procurement     NaT             2024-01-13 13:  0.00%     99.85%
+    4      Prices          abc             22.98736456661  0.00%     99.66%
+    6      Product         12              Orange          0.00%     12.50%
+ok
+
+  [PASS] test_real_data_pso_evolution
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.936s
+
+OK
+
+======================================================================
+  Test Summary
+======================================================================
+
+  Tests Run: 25
+  Passed: 25
+  Failed: 0
+  Errors: 0
+  Skipped: 0

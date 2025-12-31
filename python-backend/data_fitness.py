@@ -111,15 +111,30 @@ class DataFitnessEvaluator:
                 non_null = self.df[col].dropna()
                 if len(non_null) > 0:
                     try:
+                        # Filter to only valid numeric values (handle mixed content)
+                        numeric_values = []
+                        for val in non_null:
+                            try:
+                                numeric_values.append(float(val))
+                            except (ValueError, TypeError):
+                                pass  # Skip non-numeric values
+
+                        if len(numeric_values) == 0:
+                            distributions[col] = None
+                            logger.warning(f"  ⚠️  '{col}': No valid numeric values found")
+                            continue
+
+                        numeric_series = pd.Series(numeric_values)
+
                         # Store statistics for the distribution
                         distributions[col] = {
-                            'mean': float(non_null.mean()),
-                            'std': float(non_null.std()),
-                            'median': float(non_null.median()),
-                            'min': float(non_null.min()),
-                            'max': float(non_null.max()),
-                            'quartiles': [float(q) for q in non_null.quantile([0.25, 0.5, 0.75])],
-                            'mode': float(non_null.mode()[0]) if len(non_null.mode()) > 0 else float(non_null.mean())
+                            'mean': float(numeric_series.mean()),
+                            'std': float(numeric_series.std()) if len(numeric_series) > 1 else 0.0,
+                            'median': float(numeric_series.median()),
+                            'min': float(numeric_series.min()),
+                            'max': float(numeric_series.max()),
+                            'quartiles': [float(q) for q in numeric_series.quantile([0.25, 0.5, 0.75])],
+                            'mode': float(numeric_series.mode()[0]) if len(numeric_series.mode()) > 0 else float(numeric_series.mean())
                         }
                         logger.debug(f"  ✓ '{col}': μ={distributions[col]['mean']:.2f}, σ={distributions[col]['std']:.2f}")
                     except Exception as e:
@@ -513,13 +528,18 @@ class EvolutionaryDataCleaner:
                     avg_fitness = np.mean(fitness_scores)
                     logger.info(f"       Gen {gen + 1}: Best={best_fitness:.4f}, Avg={avg_fitness:.4f}, Crossovers={crossovers_performed}, Mutations={mutations_performed}")
             
-            # Apply best solution
-            for idx, value in zip(missing_idx, best_solution):
+            # Apply best solution (convert back to original type if needed)
+            if col_type == 'datetime':
+                final_values = self._convert_from_numeric(best_solution, col_type)
+            else:
+                final_values = best_solution
+
+            for idx, value in zip(missing_idx, final_values):
                 df_cleaned.loc[idx, col] = value
                 self._mark_record_as_modified(idx, df_cleaned)
-            
+
             logger.info(f"  ✓ '{col}' completed: final_fitness={best_fitness:.4f}, {len(missing_idx)} values imputed")
-        
+
         logger.info(f"✓ Genetic Algorithm imputation completed for {len(cols_with_missing)} columns")
         return df_cleaned
     
@@ -531,7 +551,7 @@ class EvolutionaryDataCleaner:
                                    social: float = 1.5) -> pd.DataFrame:
         """
         Particle Swarm Optimization for data imputation
-        
+
         Each particle represents a set of imputed values
         Particles move through solution space guided by:
         - Personal best position
@@ -539,106 +559,127 @@ class EvolutionaryDataCleaner:
         """
         logger.info("🐝 Starting PSO imputation...")
         logger.info(f"  Config: particles={n_particles}, iter={iterations}, w={inertia}, c1={cognitive}, c2={social}")
-        
+
         df_cleaned = self.df.copy()
-        cols_with_missing = [col for col in df_cleaned.columns 
+        cols_with_missing = [col for col in df_cleaned.columns
                             if col != 'Modified_by_AI' and df_cleaned[col].isna().any()]
-        
+
         logger.info(f"  Found {len(cols_with_missing)} columns with missing values")
-        
+
         for col_num, col in enumerate(cols_with_missing, 1):
             logger.info(f"🔧 [{col_num}/{len(cols_with_missing)}] Imputing column: '{col}'")
-            
+
             missing_idx = df_cleaned[df_cleaned[col].isna()].index.tolist()
             if len(missing_idx) == 0:
                 logger.debug(f"  ⚠️  No missing values found, skipping")
                 continue
-            
+
             non_missing = df_cleaned[col].dropna().values
             if len(non_missing) == 0:
                 logger.warning(f"  ⚠️  No non-missing values available, skipping")
                 continue
-            
+
             col_type = self.evaluator.column_types.get(col, 'unknown')
             logger.info(f"  Type: {col_type}, Missing: {len(missing_idx)}, Available: {len(non_missing)}")
-            
-            # Initialize particles (positions)
+
+            # Convert non_missing to numeric for datetime/numeric columns
+            if col_type in ['datetime', 'integer', 'float', 'numeric']:
+                numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                if len(numeric_non_missing) == 0:
+                    logger.warning(f"  ⚠️  No valid numeric values found, using fallback")
+                    if col_type == 'datetime':
+                        numeric_non_missing = np.array([pd.Timestamp.now().timestamp()])
+                    else:
+                        numeric_non_missing = np.array([0.0])
+            else:
+                numeric_non_missing = non_missing
+
+            # Initialize particles (positions) - always numeric for datetime/numeric
             particles = self._initialize_population(non_missing, missing_idx, n_particles, col_type)
             logger.debug(f"  ✓ Swarm initialized with {len(particles)} particles")
-            
-            # Initialize velocities
-            velocities = [np.random.randn(len(missing_idx)) * 0.1 for _ in range(n_particles)]
-            
+
+            # Initialize velocities - scale based on data range for datetime/numeric
+            if col_type in ['datetime', 'integer', 'float', 'numeric']:
+                std_val = np.std(numeric_non_missing) if len(numeric_non_missing) > 1 else 1.0
+                velocities = [np.random.randn(len(missing_idx)) * std_val * 0.1 for _ in range(n_particles)]
+            else:
+                velocities = [np.random.randn(len(missing_idx)) * 0.1 for _ in range(n_particles)]
+
             # Personal best positions and fitness
-            personal_best = particles.copy()
+            personal_best = [p.copy() for p in particles]
             personal_best_fitness = [
                 self._evaluate_imputation_fitness(df_cleaned, col, p, non_missing)
                 for p in particles
             ]
-            
+
             # Global best
             global_best_idx = np.argmax(personal_best_fitness)
             global_best = personal_best[global_best_idx].copy()
             global_best_fitness = personal_best_fitness[global_best_idx]
-            
+
             # PSO iterations
             for iteration in range(iterations):
                 logger.debug(f"    🐝 Iteration {iteration + 1}/{iterations}")
-                
+
                 personal_updates = 0
                 global_updates = 0
-                
+
                 for i in range(n_particles):
+                    # Ensure particles are float arrays for arithmetic
+                    particles[i] = np.array(particles[i], dtype=float)
+                    personal_best[i] = np.array(personal_best[i], dtype=float)
+                    global_best = np.array(global_best, dtype=float)
+
                     # Update velocity
-                    logger.debug(f"       🌀 Updating velocity for particle {i + 1}/{n_particles}")
                     r1, r2 = np.random.random(2)
-                    
+
                     cognitive_velocity = cognitive * r1 * (personal_best[i] - particles[i])
                     social_velocity = social * r2 * (global_best - particles[i])
-                    
-                    velocities[i] = (inertia * velocities[i] + 
-                                   cognitive_velocity + 
+
+                    velocities[i] = (inertia * velocities[i] +
+                                   cognitive_velocity +
                                    social_velocity)
-                    
+
                     # Update position
-                    logger.debug(f"       📍 Updating position for particle {i + 1}")
                     particles[i] = particles[i] + velocities[i]
-                    
+
                     # Apply bounds (keep values similar to existing data)
                     particles[i] = self._apply_bounds(particles[i], non_missing, col_type)
-                    
+
                     # Evaluate fitness
-                    logger.debug(f"       📊 Evaluating fitness for particle {i + 1}")
                     fitness = self._evaluate_imputation_fitness(
                         df_cleaned, col, particles[i], non_missing
                     )
-                    
+
                     # Update personal best
                     if fitness > personal_best_fitness[i]:
                         personal_best[i] = particles[i].copy()
                         personal_best_fitness[i] = fitness
                         personal_updates += 1
-                        logger.debug(f"       ⭐ Particle {i + 1} found new personal best: {fitness:.4f}")
-                    
+
                     # Update global best
                     if fitness > global_best_fitness:
                         global_best = particles[i].copy()
                         global_best_fitness = fitness
                         global_updates += 1
-                        logger.debug(f"       🏆 New global best found: {global_best_fitness:.4f}")
-                
+
                 # Log progress every 20 iterations
                 if (iteration + 1) % 20 == 0:
                     avg_fitness = np.mean(personal_best_fitness)
                     logger.info(f"       Iter {iteration + 1}: Global={global_best_fitness:.4f}, Avg={avg_fitness:.4f}, PersonalUpdates={personal_updates}, GlobalUpdates={global_updates}")
-            
-            # Apply global best solution
-            for idx, value in zip(missing_idx, global_best):
+
+            # Apply global best solution (convert back to original type if needed)
+            if col_type == 'datetime':
+                final_values = self._convert_from_numeric(global_best, col_type)
+            else:
+                final_values = global_best
+
+            for idx, value in zip(missing_idx, final_values):
                 df_cleaned.loc[idx, col] = value
                 self._mark_record_as_modified(idx, df_cleaned)
-            
+
             logger.info(f"  ✓ '{col}' completed: final_fitness={global_best_fitness:.4f}, {len(missing_idx)} values imputed")
-        
+
         logger.info(f"✓ PSO imputation completed for {len(cols_with_missing)} columns")
         return df_cleaned
     
@@ -647,95 +688,126 @@ class EvolutionaryDataCleaner:
                                          max_iter: int = 100) -> pd.DataFrame:
         """
         Differential Evolution for data imputation
-        
+
         Uses mutation and crossover operations to evolve solutions
         """
         logger.info("🧪 Starting Differential Evolution imputation...")
         logger.info(f"  Config: pop_size={pop_size}, max_iter={max_iter}")
-        
+
         df_cleaned = self.df.copy()
-        cols_with_missing = [col for col in df_cleaned.columns 
+        cols_with_missing = [col for col in df_cleaned.columns
                             if col != 'Modified_by_AI' and df_cleaned[col].isna().any()]
-        
+
         logger.info(f"  Found {len(cols_with_missing)} columns with missing values")
-        
+
         for col_num, col in enumerate(cols_with_missing, 1):
             logger.info(f"🔧 [{col_num}/{len(cols_with_missing)}] Imputing column: '{col}'")
-            
+
             missing_idx = df_cleaned[df_cleaned[col].isna()].index.tolist()
             if len(missing_idx) == 0:
                 logger.debug(f"  ⚠️  No missing values found, skipping")
                 continue
-            
+
             non_missing = df_cleaned[col].dropna().values
             if len(non_missing) == 0:
                 logger.warning(f"  ⚠️  No non-missing values available, skipping")
                 continue
-            
+
             col_type = self.evaluator.column_types.get(col, 'unknown')
             n_missing = len(missing_idx)
             logger.info(f"  Type: {col_type}, Missing: {n_missing}, Available: {len(non_missing)}")
-            
+
+            # Convert to numeric representation for datetime/numeric columns
+            if col_type == 'datetime':
+                numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                if len(numeric_non_missing) == 0:
+                    logger.warning(f"  ⚠️  No valid datetime values found, using fallback")
+                    numeric_non_missing = np.array([pd.Timestamp.now().timestamp()])
+            elif col_type in ['integer', 'float', 'numeric']:
+                numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                if len(numeric_non_missing) == 0:
+                    logger.warning(f"  ⚠️  No valid numeric values found, using fallback")
+                    numeric_non_missing = np.array([0.0])
+            else:
+                numeric_non_missing = non_missing
+
             # Define objective function (minimize negative fitness)
             evaluation_count = [0]  # Use list to allow modification in nested function
-            
+
             def objective(x):
                 evaluation_count[0] += 1
                 x_bounded = self._apply_bounds(x, non_missing, col_type)
                 fitness = self._evaluate_imputation_fitness(df_cleaned, col, x_bounded, non_missing)
-                
+
                 # Log every 50 evaluations
                 if evaluation_count[0] % 50 == 0:
                     logger.debug(f"       📊 Evaluation {evaluation_count[0]}: fitness={fitness:.4f}")
-                
+
                 return -fitness  # Minimize negative fitness = maximize fitness
-            
+
             # Define bounds based on data range
-            if col_type in ['integer', 'float', 'numeric']:
-                min_val = float(non_missing.min())
-                max_val = float(non_missing.max())
+            if col_type == 'datetime':
+                min_val = float(np.min(numeric_non_missing))
+                max_val = float(np.max(numeric_non_missing))
+                bounds = [(min_val, max_val) for _ in range(n_missing)]
+                logger.debug(f"    🎯 Bounds set: [{pd.Timestamp.fromtimestamp(min_val)} - {pd.Timestamp.fromtimestamp(max_val)}]")
+            elif col_type in ['integer', 'float', 'numeric']:
+                min_val = float(np.min(numeric_non_missing))
+                max_val = float(np.max(numeric_non_missing))
                 bounds = [(min_val, max_val) for _ in range(n_missing)]
                 logger.debug(f"    🎯 Bounds set: [{min_val:.2f}, {max_val:.2f}]")
             else:
                 # For non-numeric, use indices to select from existing values
                 bounds = [(0, len(non_missing) - 1) for _ in range(n_missing)]
                 logger.debug(f"    🎯 Bounds set: [0, {len(non_missing) - 1}] (index-based)")
-            
+
             try:
                 logger.debug(f"    🧪 Running scipy.differential_evolution...")
                 logger.debug(f"       Config: maxiter={max_iter}, popsize={pop_size // n_missing if n_missing > 0 else 15}")
-                
+
                 # Run differential evolution
                 result = differential_evolution(
                     objective,
                     bounds,
                     maxiter=max_iter,
-                    popsize=pop_size // n_missing if n_missing > 0 else 15,
+                    popsize=max(pop_size // n_missing, 3) if n_missing > 0 else 15,
                     seed=42,
                     workers=1,
                     disp=False
                 )
-                
+
                 solution = result.x
                 solution = self._apply_bounds(solution, non_missing, col_type)
-                
+
                 logger.debug(f"    ✅ DE converged after {evaluation_count[0]} evaluations")
-                
-                # Apply solution
-                for idx, value in zip(missing_idx, solution):
+
+                # Apply solution (convert back to original type if needed)
+                if col_type == 'datetime':
+                    final_values = self._convert_from_numeric(solution, col_type)
+                else:
+                    final_values = solution
+
+                for idx, value in zip(missing_idx, final_values):
                     df_cleaned.loc[idx, col] = value
                     self._mark_record_as_modified(idx, df_cleaned)
-                
+
                 logger.info(f"  ✓ '{col}' completed: fitness={-result.fun:.4f}, {n_missing} values imputed, evaluations={evaluation_count[0]}")
-                    
+
             except Exception as e:
                 logger.warning(f"  ⚠️  DE failed for column '{col}': {e}. Using fallback method.")
                 # Fallback to simple imputation
-                for idx in missing_idx:
-                    df_cleaned.loc[idx, col] = np.random.choice(non_missing)
-                    self._mark_record_as_modified(idx, df_cleaned)
+                if col_type == 'datetime':
+                    for idx in missing_idx:
+                        random_val = np.random.choice(numeric_non_missing)
+                        dt_val = pd.Timestamp.fromtimestamp(random_val).strftime('%Y-%m-%d %H:%M:%S')
+                        df_cleaned.loc[idx, col] = dt_val
+                        self._mark_record_as_modified(idx, df_cleaned)
+                else:
+                    for idx in missing_idx:
+                        df_cleaned.loc[idx, col] = np.random.choice(non_missing)
+                        self._mark_record_as_modified(idx, df_cleaned)
                 logger.info(f"  ✓ '{col}' completed with fallback: {n_missing} values imputed")
-        
+
         logger.info(f"✓ Differential Evolution imputation completed for {len(cols_with_missing)} columns")
         return df_cleaned
     
@@ -745,34 +817,46 @@ class EvolutionaryDataCleaner:
                                      generations: int = 100) -> pd.DataFrame:
         """
         Evolution Strategy (μ, λ) for data imputation
-        
+
         Generate λ offspring from μ parents
         Select μ best offspring as new parents
         """
         logger.info("🎯 Starting Evolution Strategy imputation...")
         logger.info(f"  Config: μ={mu}, λ={lambda_}, generations={generations}")
-        
+
         df_cleaned = self.df.copy()
-        cols_with_missing = [col for col in df_cleaned.columns 
+        cols_with_missing = [col for col in df_cleaned.columns
                             if col != 'Modified_by_AI' and df_cleaned[col].isna().any()]
-        
+
         logger.info(f"  Found {len(cols_with_missing)} columns with missing values")
-        
+
         for col_num, col in enumerate(cols_with_missing, 1):
             logger.info(f"🔧 [{col_num}/{len(cols_with_missing)}] Imputing column: '{col}'")
-            
+
             missing_idx = df_cleaned[df_cleaned[col].isna()].index.tolist()
             if len(missing_idx) == 0:
                 logger.debug(f"  ⚠️  No missing values found, skipping")
                 continue
-            
+
             non_missing = df_cleaned[col].dropna().values
             if len(non_missing) == 0:
                 logger.warning(f"  ⚠️  No non-missing values available, skipping")
                 continue
-            
+
             col_type = self.evaluator.column_types.get(col, 'unknown')
             logger.info(f"  Type: {col_type}, Missing: {len(missing_idx)}, Available: {len(non_missing)}")
+
+            # Convert to numeric for datetime/numeric columns
+            if col_type == 'datetime':
+                numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                if len(numeric_non_missing) == 0:
+                    numeric_non_missing = np.array([pd.Timestamp.now().timestamp()])
+            elif col_type in ['integer', 'float', 'numeric']:
+                numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                if len(numeric_non_missing) == 0:
+                    numeric_non_missing = np.array([0.0])
+            else:
+                numeric_non_missing = None
             
             # Initialize parent population
             parents = self._initialize_population(non_missing, missing_idx, mu, col_type)
@@ -781,22 +865,28 @@ class EvolutionaryDataCleaner:
             best_solution = None
             best_fitness = -np.inf
             
+            # Calculate proper sigma scaling for the data
+            if col_type in ['datetime', 'integer', 'float', 'numeric'] and numeric_non_missing is not None:
+                data_std = np.std(numeric_non_missing) if len(numeric_non_missing) > 1 else 1.0
+            else:
+                data_std = 1.0
+
             for gen in range(generations):
                 logger.debug(f"    🎯 Generation {gen + 1}/{generations}")
-                
+
                 # Generate offspring
                 logger.debug(f"       👶 Generating {lambda_} offspring from {mu} parents")
                 offspring = []
                 for offspring_idx in range(lambda_):
                     # Select random parent
                     parent_idx = np.random.randint(len(parents))
-                    parent = parents[parent_idx].copy()
-                    
-                    # Mutate (self-adaptive mutation)
-                    sigma = 0.1 * (1 - gen / generations)  # Decrease mutation over time
+                    parent = np.array(parents[parent_idx], dtype=float).copy()
+
+                    # Mutate (self-adaptive mutation) - scale by data standard deviation
+                    sigma = 0.1 * (1 - gen / generations) * data_std  # Decrease mutation over time
                     mutated = parent + np.random.randn(len(parent)) * sigma
                     mutated = self._apply_bounds(mutated, non_missing, col_type)
-                    
+
                     offspring.append(mutated)
                 
                 logger.debug(f"       ✓ {len(offspring)} offspring generated with σ={sigma:.4f}")
@@ -825,12 +915,17 @@ class EvolutionaryDataCleaner:
                     avg_fitness = np.mean(fitness_scores)
                     logger.info(f"       Gen {gen + 1}: Best={best_fitness:.4f}, Avg={avg_fitness:.4f}, σ={sigma:.4f}")
             
-            # Apply best solution
+            # Apply best solution (convert back to original type if needed)
             if best_solution is not None:
-                for idx, value in zip(missing_idx, best_solution):
+                if col_type == 'datetime':
+                    final_values = self._convert_from_numeric(best_solution, col_type)
+                else:
+                    final_values = best_solution
+
+                for idx, value in zip(missing_idx, final_values):
                     df_cleaned.loc[idx, col] = value
                     self._mark_record_as_modified(idx, df_cleaned)
-                
+
                 logger.info(f"  ✓ '{col}' completed: final_fitness={best_fitness:.4f}, {len(missing_idx)} values imputed")
             else:
                 logger.warning(f"  ⚠️  No solution found for '{col}'")
@@ -905,21 +1000,46 @@ class EvolutionaryDataCleaner:
     def _initialize_population(self, non_missing, missing_idx, pop_size, col_type):
         """Initialize population with random samples from existing data"""
         logger.debug(f"    Initializing population: pop_size={pop_size}, missing={len(missing_idx)}, type={col_type}")
-        population = []
-        for _ in range(pop_size):
-            if col_type in ['integer', 'float', 'numeric']:
-                # Sample with small random variations
+
+        # Convert to numeric representation for datetime/numeric columns
+        if col_type == 'datetime':
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                # Fallback: use current timestamp
+                numeric_non_missing = np.array([pd.Timestamp.now().timestamp()])
+            population = []
+            for _ in range(pop_size):
+                individual = np.random.choice(numeric_non_missing, size=len(missing_idx))
+                individual = individual.astype(float)
+                # Add small variation (a few days)
+                std_val = np.std(numeric_non_missing) if len(numeric_non_missing) > 1 else 86400.0  # 1 day
+                individual = individual + np.random.randn(len(missing_idx)) * std_val * 0.1
+                population.append(individual)
+            return population
+
+        elif col_type in ['integer', 'float', 'numeric']:
+            # Filter to only valid numeric values
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                logger.warning(f"    No valid numeric values found, using default [0]")
+                numeric_non_missing = np.array([0.0])
+
+            population = []
+            for _ in range(pop_size):
+                individual = np.random.choice(numeric_non_missing, size=len(missing_idx))
+                individual = individual.astype(float)
+                std_val = np.std(numeric_non_missing) if len(numeric_non_missing) > 1 else 1.0
+                individual = individual + np.random.randn(len(missing_idx)) * std_val * 0.1
+                population.append(individual)
+            return population
+
+        else:
+            # Sample directly for categorical - keep as array of original type
+            population = []
+            for _ in range(pop_size):
                 individual = np.random.choice(non_missing, size=len(missing_idx))
-                # Convert to numeric array
-                individual = np.array([float(x) for x in individual])
-                individual = individual + np.random.randn(len(missing_idx)) * np.std([float(x) for x in non_missing]) * 0.1
-            else:
-                # Sample directly for categorical - keep as array of original type
-                individual = np.random.choice(non_missing, size=len(missing_idx))
-            
-            population.append(individual)
-        
-        return population
+                population.append(individual)
+            return population
     
     def _evaluate_imputation_fitness(self, df, col, imputed_values, non_missing):
         """
@@ -927,38 +1047,90 @@ class EvolutionaryDataCleaner:
         1. Distribution similarity (KS test)
         2. Statistical properties preservation
         """
-        # Combine imputed with existing
-        combined = np.concatenate([non_missing, imputed_values])
-        
         col_type = self.evaluator.column_types.get(col, 'unknown')
-        
-        if col_type in ['integer', 'float', 'numeric']:
+
+        if col_type == 'datetime':
+            # Convert to numeric timestamps for evaluation
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                return 0.5
+
+            # Ensure imputed_values are numeric
+            try:
+                imputed_numeric = np.array(imputed_values, dtype=float)
+            except (ValueError, TypeError):
+                return 0.5
+
+            combined = np.concatenate([numeric_non_missing, imputed_numeric])
+
+            try:
+                # Distribution similarity
+                ks_stat, _ = stats.ks_2samp(numeric_non_missing, combined)
+                distribution_score = 1 - ks_stat
+            except:
+                distribution_score = 0.5
+
+            # Range check - penalize if outside existing range
+            min_ts = np.min(numeric_non_missing)
+            max_ts = np.max(numeric_non_missing)
+            in_range = np.mean((imputed_numeric >= min_ts) & (imputed_numeric <= max_ts))
+            range_score = in_range
+
+            fitness = 0.5 * distribution_score + 0.5 * range_score
+            return fitness
+
+        elif col_type in ['integer', 'float', 'numeric']:
+            # Filter to only valid numeric values
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                return 0.5
+
+            # Ensure imputed_values are numeric
+            try:
+                imputed_numeric = np.array(imputed_values, dtype=float)
+            except (ValueError, TypeError):
+                return 0.5
+
+            combined = np.concatenate([numeric_non_missing, imputed_numeric])
+
             # Statistical similarity
             try:
                 # Kolmogorov-Smirnov test for distribution similarity
-                ks_stat, _ = stats.ks_2samp(non_missing, combined)
+                ks_stat, _ = stats.ks_2samp(numeric_non_missing, combined)
                 distribution_score = 1 - ks_stat  # Lower KS stat = more similar
             except:
                 distribution_score = 0.5
-            
+
             # Mean and std preservation
-            mean_diff = abs(np.mean(non_missing) - np.mean(combined)) / (np.std(non_missing) + 1e-6)
-            std_diff = abs(np.std(non_missing) - np.std(combined)) / (np.std(non_missing) + 1e-6)
-            
-            stat_score = 1 / (1 + mean_diff + std_diff)
-            
+            try:
+                orig_std = np.std(numeric_non_missing)
+                if orig_std > 0:
+                    mean_diff = abs(np.mean(numeric_non_missing) - np.mean(combined)) / (orig_std + 1e-6)
+                    std_diff = abs(orig_std - np.std(combined)) / (orig_std + 1e-6)
+                    stat_score = 1 / (1 + mean_diff + std_diff)
+                else:
+                    stat_score = 0.5
+            except:
+                stat_score = 0.5
+
             fitness = 0.6 * distribution_score + 0.4 * stat_score
+            return fitness
+
         else:
             # For categorical: check value frequencies
-            original_unique = len(np.unique(non_missing))
-            combined_unique = len(np.unique(combined))
-            
-            # Penalize if introducing too many new unique values
-            uniqueness_score = min(1.0, original_unique / (combined_unique + 1))
-            
-            fitness = uniqueness_score
-        
-        return fitness
+            try:
+                original_unique = len(np.unique(non_missing))
+                combined = np.concatenate([non_missing.astype(str), np.array(imputed_values).astype(str)])
+                combined_unique = len(np.unique(combined))
+
+                # Penalize if introducing too many new unique values
+                uniqueness_score = min(1.0, original_unique / (combined_unique + 1))
+
+                fitness = uniqueness_score
+            except:
+                fitness = 0.5
+
+            return fitness
     
     def _tournament_selection(self, population, fitness_scores, n_selected):
         """Tournament selection"""
@@ -972,6 +1144,14 @@ class EvolutionaryDataCleaner:
     
     def _crossover(self, parent1, parent2):
         """Single-point crossover"""
+        # Handle edge case when parent length is 1
+        if len(parent1) <= 1:
+            # For single-element arrays, just swap with some probability
+            if np.random.random() < 0.5:
+                return parent1.copy(), parent2.copy()
+            else:
+                return parent2.copy(), parent1.copy()
+
         point = np.random.randint(1, len(parent1))
         child1 = np.concatenate([parent1[:point], parent2[point:]])
         child2 = np.concatenate([parent2[:point], parent1[point:]])
@@ -979,12 +1159,26 @@ class EvolutionaryDataCleaner:
     
     def _mutate(self, individual, non_missing, mutation_rate, col_type):
         """Mutation operation"""
-        mutated = individual.copy()
+        mutated = np.array(individual, dtype=float).copy() if col_type in ['integer', 'float', 'numeric', 'datetime'] else individual.copy()
+
         for i in range(len(mutated)):
             if np.random.random() < mutation_rate:
-                if col_type in ['integer', 'float', 'numeric']:
-                    # Add Gaussian noise
-                    mutated[i] += np.random.randn() * np.std(non_missing) * 0.2
+                if col_type == 'datetime':
+                    # Convert non_missing to timestamps for proper scaling
+                    numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                    if len(numeric_non_missing) > 1:
+                        std_val = np.std(numeric_non_missing)
+                    else:
+                        std_val = 86400.0  # 1 day in seconds
+                    mutated[i] += np.random.randn() * std_val * 0.2
+                elif col_type in ['integer', 'float', 'numeric']:
+                    # Filter to only valid numeric values
+                    numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+                    if len(numeric_non_missing) > 1:
+                        std_val = np.std(numeric_non_missing)
+                    else:
+                        std_val = 1.0
+                    mutated[i] += np.random.randn() * std_val * 0.2
                 else:
                     # Replace with random existing value
                     mutated[i] = np.random.choice(non_missing)
@@ -992,22 +1186,111 @@ class EvolutionaryDataCleaner:
     
     def _apply_bounds(self, values, non_missing, col_type):
         """Apply bounds to keep values within reasonable range"""
-        if col_type == 'integer':
-            min_val = np.min(non_missing)
-            max_val = np.max(non_missing)
+        # Ensure values is a numpy array of floats for numeric operations
+        values = np.array(values, dtype=float) if col_type in ['integer', 'float', 'numeric', 'datetime'] else values
+
+        if col_type == 'datetime':
+            # Convert non_missing to timestamps for bounds calculation
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                return values
+            min_val = np.min(numeric_non_missing)
+            max_val = np.max(numeric_non_missing)
+            values = np.clip(values, min_val, max_val)
+
+        elif col_type == 'integer':
+            # Filter to only valid numeric values for bounds
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                return np.zeros(len(values), dtype=int)
+            min_val = np.min(numeric_non_missing)
+            max_val = np.max(numeric_non_missing)
             values = np.clip(values, min_val, max_val)
             values = np.round(values).astype(int)
+
         elif col_type in ['float', 'numeric']:
-            min_val = np.min(non_missing)
-            max_val = np.max(non_missing)
+            # Filter to only valid numeric values for bounds
+            numeric_non_missing, _ = self._convert_to_numeric(non_missing, col_type)
+            if len(numeric_non_missing) == 0:
+                return values
+            min_val = np.min(numeric_non_missing)
+            max_val = np.max(numeric_non_missing)
             values = np.clip(values, min_val, max_val)
+
         else:
             # For categorical, select nearest existing value
-            values = [non_missing[int(np.clip(i, 0, len(non_missing) - 1))] 
-                     for i in np.round(values).astype(int)]
-            values = np.array(values)
-        
+            try:
+                values = [non_missing[int(np.clip(i, 0, len(non_missing) - 1))]
+                         for i in np.round(values).astype(int)]
+                values = np.array(values)
+            except (ValueError, TypeError):
+                # If values can't be converted to indices, sample randomly
+                values = np.random.choice(non_missing, size=len(values))
+
         return values
+
+    def _convert_to_numeric(self, values: np.ndarray, col_type: str) -> Tuple[np.ndarray, Any]:
+        """
+        Convert values to numeric format for evolutionary operations.
+        Returns (numeric_array, metadata_for_reverse_conversion)
+        """
+        if col_type == 'datetime':
+            # Convert datetime values to timestamps (seconds since epoch)
+            numeric_values = []
+            for val in values:
+                try:
+                    if pd.isna(val):
+                        numeric_values.append(np.nan)
+                    elif isinstance(val, pd.Timestamp):
+                        numeric_values.append(val.timestamp())
+                    elif isinstance(val, (int, float)) and abs(float(val)) > 1e9:
+                        # Already a timestamp (numeric)
+                        numeric_values.append(float(val))
+                    else:
+                        ts = pd.Timestamp(str(val))
+                        numeric_values.append(ts.timestamp())
+                except:
+                    numeric_values.append(np.nan)
+
+            numeric_array = np.array([v for v in numeric_values if not np.isnan(v)])
+            return numeric_array, {'type': 'datetime'}
+
+        elif col_type in ['integer', 'float', 'numeric']:
+            # Filter to only valid numeric values
+            numeric_values = []
+            for val in values:
+                try:
+                    if pd.notna(val):
+                        numeric_values.append(float(val))
+                except (ValueError, TypeError):
+                    pass  # Skip non-numeric values
+
+            return np.array(numeric_values), {'type': 'numeric'}
+
+        else:
+            # For categorical/string, return as-is
+            return values, {'type': 'categorical'}
+
+    def _convert_from_numeric(self, values: np.ndarray, col_type: str, metadata: Any = None) -> np.ndarray:
+        """
+        Convert numeric values back to original type.
+        """
+        if col_type == 'datetime':
+            # Convert timestamps back to datetime strings
+            result = []
+            for val in values:
+                try:
+                    dt = pd.Timestamp.fromtimestamp(float(val))
+                    result.append(dt.strftime('%Y-%m-%d %H:%M:%S'))
+                except:
+                    result.append(val)
+            return np.array(result)
+
+        elif col_type == 'integer':
+            return np.round(values).astype(int)
+
+        else:
+            return values
 
 
 def evaluate_data_fitness(df: pd.DataFrame) -> Dict[str, Any]:

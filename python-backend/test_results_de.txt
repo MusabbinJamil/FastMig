@@ -1,0 +1,271 @@
+test_invalid_crossover_rate (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_crossover_rate
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_generations (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_generations
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_population_size (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_population_size
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_scale_factor (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_scale_factor
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_strategy_population_requirements (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_strategy_population_requirements
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_valid_config (__main__.TestDEConfig) ... 
+------------------------------------------------------------
+  TEST: test_valid_config
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_basic (__main__.TestPopulationInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_basic
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_with_seed (__main__.TestPopulationInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_with_seed
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_mutation_dispatcher (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_apply_mutation_dispatcher
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_best_1 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_best_1
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_best_2 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_best_2
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_current_to_best_1 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_current_to_best_1
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_current_to_rand_1 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_current_to_rand_1
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_rand_1 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_rand_1
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_rand_2 (__main__.TestMutationStrategies) ... 
+------------------------------------------------------------
+  TEST: test_rand_2
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_crossover_dispatcher (__main__.TestCrossover) ... 
+------------------------------------------------------------
+  TEST: test_apply_crossover_dispatcher
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_binomial_crossover (__main__.TestCrossover) ... 
+------------------------------------------------------------
+  TEST: test_binomial_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_exponential_crossover (__main__.TestCrossover) ... 
+------------------------------------------------------------
+  TEST: test_exponential_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_target_wins (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_target_wins
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_tie_goes_to_target (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_tie_goes_to_target
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_trial_wins (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_trial_wins
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_clamp (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_clamp
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_in_bounds (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_in_bounds
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_random (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_random
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_reflect (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_reflect
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_adapt_cr (__main__.TestAdaptiveParameters) ... 
+------------------------------------------------------------
+  TEST: test_adapt_cr
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_adapt_f_high_success (__main__.TestAdaptiveParameters) ... 
+------------------------------------------------------------
+  TEST: test_adapt_f_high_success
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_adapt_f_low_success (__main__.TestAdaptiveParameters) ... 
+------------------------------------------------------------
+  TEST: test_adapt_f_low_success
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_converged_population (__main__.TestDiversity) ... 
+------------------------------------------------------------
+  TEST: test_converged_population
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_diverse_population (__main__.TestDiversity) ... 
+------------------------------------------------------------
+  TEST: test_diverse_population
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_metrics_to_dict (__main__.TestDEMetrics) ... 
+------------------------------------------------------------
+  TEST: test_metrics_to_dict
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_adaptive_parameters (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_adaptive_parameters
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_crossover_types (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_crossover_types
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_strategies (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_strategies
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_convenience_function (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_convenience_function
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_initialization (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_initialization
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_run (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_run
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_with_seed_values (__main__.TestDEEngine) ... 
+------------------------------------------------------------
+  TEST: test_with_seed_values
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_early_stopping (__main__.TestConvergence) ... 
+------------------------------------------------------------
+  TEST: test_early_stopping
+------------------------------------------------------------
+ok
+  Result: PASSED
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.455s
+
+OK
+
+======================================================================
+RUNNING COMPREHENSIVE DE UNIT TESTS
+======================================================================
+Mode: VERBOSE (showing detailed test information)
+======================================================================
+
+Test Classes:
+  - TestDEConfig: Configuration validation tests
+  - TestPopulationInitialization: Population initialization tests
+  - TestMutationStrategies: rand/1, rand/2, best/1, best/2, current-to-best
+  - TestCrossover: Binomial and exponential crossover
+  - TestSelection: Greedy selection mechanism
+  - TestConstraintHandling: Clamp, reflect, random constraint handling
+  - TestAdaptiveParameters: Adaptive F and CR parameters
+  - TestDiversity: Population diversity calculation
+  - TestDEMetrics: Metrics dataclass tests
+  - TestDEEngine: Complete DE engine integration tests
+  - TestConvergence: Early stopping and convergence tests
+
+======================================================================
+
+
+======================================================================
+TEST SUMMARY
+======================================================================
+Tests run: 39
+Successes: 39
+Failures: 0
+Errors: 0
+======================================================================
+

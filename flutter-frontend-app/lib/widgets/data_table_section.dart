@@ -315,16 +315,6 @@ class _DataTableSectionState extends State<DataTableSection> {
                         ],
                       ),
                     const Spacer(),
-                    if (migrationData.selectedColumn != null)
-                      Chip(
-                        label:
-                            Text('Selected: ${migrationData.selectedColumn}'),
-                        backgroundColor: Colors.blue[100],
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () {
-                          // Clear selection (you might want to add this method)
-                        },
-                      ),
                   ],
                 ),
               ),
@@ -406,22 +396,19 @@ class _DataTableSectionState extends State<DataTableSection> {
                           if (migrationData.aiModifiedCells != null) {
                             for (final modified
                                 in migrationData.aiModifiedCells!) {
-                              // Handle both old format (row/col indices) and new format (row/column name)
+                              // Backend sends: row (1-indexed), col (column index), col_name (column name)
                               final modRow = modified['row'];
                               final modCol = modified['col'];
-                              final modColumnName = modified['column'];
+                              final modColumnName = modified['col_name'] ?? modified['column']; // Backend uses col_name
 
-                              // Check if this modification applies to this row
                               // rowIndex is 0-indexed for data rows
-                              // Old format: row is 1-indexed, New format: row is 0-indexed
-                              final rowMatch = modRow == rowIndex + 1 || modRow == rowIndex;
-
-                              if (rowMatch) {
+                              // Backend row is 1-indexed, so we match with rowIndex + 1
+                              if (modRow == rowIndex + 1) {
                                 if (modCol != null) {
-                                  // Old format: use column index directly
+                                  // Use column index directly
                                   aiModifiedCells.add(modCol);
                                 } else if (modColumnName != null && columns.isNotEmpty) {
-                                  // New format: find column index by name
+                                  // Fallback: find column index by name
                                   final colIdx = columns.indexOf(modColumnName);
                                   if (colIdx >= 0) {
                                     aiModifiedCells.add(colIdx);
@@ -458,13 +445,25 @@ class _DataTableSectionState extends State<DataTableSection> {
                                     fontWeight = FontWeight.w600;
 
                                     // Try to get modification details for tooltip
+                                    // First check if we have detailed info from AI chat, then from evolutionary cleaning
                                     final modDetails = migrationData.getCellModificationDetails(rowIndex, columns[colIndex]);
                                     if (modDetails != null && modDetails['modified_by'] == 'AI') {
                                       final oldVal = modDetails['old_value'] ?? 'null';
                                       final operation = modDetails['operation'] ?? 'modification';
                                       tooltipMessage = '✅ Modified by AI Chat\nOperation: $operation\nOld value: $oldVal';
                                     } else {
-                                      tooltipMessage = '✅ Fixed by AI';
+                                      // Check if we have evolution details
+                                      final evoDetails = migrationData.aiModifiedCells?.firstWhere(
+                                        (m) => m['row'] == rowIndex + 1 && m['col'] == colIndex,
+                                        orElse: () => {},
+                                      );
+                                      if (evoDetails != null && evoDetails.isNotEmpty) {
+                                        final oldVal = evoDetails['original_value'] ?? 'N/A';
+                                        final newVal = evoDetails['evolved_value'] ?? 'N/A';
+                                        tooltipMessage = '✅ Fixed by Evolutionary AI\nOld: $oldVal\nNew: $newVal';
+                                      } else {
+                                        tooltipMessage = '✅ Fixed by AI';
+                                      }
                                     }
                                   } else if (isProblematic) {
                                     // Problem cells: red styling

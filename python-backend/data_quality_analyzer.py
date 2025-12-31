@@ -139,33 +139,37 @@ class DataQualityAnalyzer:
         """Check if series can be converted to datetime"""
         if len(series) < 2:
             return False
-        
+
+        sample_size = min(10, len(series))
         convertible_count = 0
-        for val in series.head(10):  # Check first 10 values
+        for val in series.head(sample_size):
             try:
                 if pd.notna(val) and val != '':
                     pd.to_datetime(str(val))
                     convertible_count += 1
             except:
                 pass
-        
-        return convertible_count >= 5  # At least 50% convertible
+
+        # At least 50% of sampled values must be convertible
+        return convertible_count >= (sample_size / 2)
 
     def _is_numeric_convertible(self, series: pd.Series) -> bool:
         """Check if series can be converted to numeric"""
         if len(series) < 2:
             return False
-        
+
+        sample_size = min(10, len(series))
         convertible_count = 0
-        for val in series.head(10):  # Check first 10 values
+        for val in series.head(sample_size):
             try:
                 if pd.notna(val) and val != '':
                     float(str(val))
                     convertible_count += 1
             except:
                 pass
-        
-        return convertible_count >= 5  # At least 50% convertible
+
+        # At least 50% of sampled values must be convertible
+        return convertible_count >= (sample_size / 2)
 
     def _validate_cell(self, row_idx: int, col_idx: int, col_name: str, value: Any) -> None:
         """Validate individual cell and add issues if found"""
@@ -331,6 +335,9 @@ class DataQualityAnalyzer:
                             row_data.append(str(val))
                     except (ValueError, OSError, OverflowError):
                         row_data.append(str(val))
+                elif isinstance(val, float) and val.is_integer():
+                    # Format whole numbers without decimal point (e.g., 10.0 -> '10')
+                    row_data.append(str(int(val)))
                 else:
                     row_data.append(str(val))
             data_list.append(row_data)

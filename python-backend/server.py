@@ -36,6 +36,10 @@ from ga_genotype_phenotype import RealValuedMapper
 from ga_data_cleaning_pipeline import DataCleaningPipeline
 from data_quality_analyzer import DataQualityAnalyzer
 from evolutionary_cell_cleaner import evolve_error_cells, EvolutionMethod, CellEvolutionConfig
+from ai_chat import (
+    AIChat, AIChatConfig, AIResponse, AIOperation,
+    DataContext, OperationType, AZURE_OPENAI_AVAILABLE as AI_CHAT_AVAILABLE
+)
 
 # Configure logging with custom handler to store logs
 class LogCapture(logging.Handler):
@@ -1671,13 +1675,20 @@ def detect_sensitive_columns():
 @app.route('/clean/evolutionary', methods=['POST'])
 def clean_evolutionary():
     """
-    Clean data using evolutionary algorithms
-    
+    Clean data using evolutionary algorithms.
+
+    When specific columns are provided, uses cell-level evolution (evolve_error_cells)
+    which handles all error types (missing, non_numeric, mixed_content, etc.).
+
+    When no columns are specified, uses record-level cleaning (clean_data_evolutionary)
+    which focuses on missing value imputation.
+
     Request body:
     {
         "method": "ga|pso|de|es|hybrid",
         "save_result": true/false,
         "track_modifications": true/false,
+        "columns": ["col1", "col2", ...],  // Optional: specific columns to clean
         "parameters": {
             // Algorithm-specific parameters
         }
@@ -1686,16 +1697,17 @@ def clean_evolutionary():
     try:
         if 'df' not in current_data:
             return jsonify({'error': 'No data loaded. Please upload a file first.'}), 400
-        
+
         data = request.get_json()
         if not data:
             return jsonify({'error': 'Request body is required'}), 400
-        
+
         method = data.get('method', 'hybrid').lower()
         save_result = data.get('save_result', True)
         track_modifications = data.get('track_modifications', True)
         parameters = data.get('parameters', {})
-        
+        selected_columns = data.get('columns', None)  # Optional: specific columns to clean
+
         # Validate method
         valid_methods = ['ga', 'pso', 'de', 'es', 'hybrid']
         if method not in valid_methods:
@@ -1703,53 +1715,239 @@ def clean_evolutionary():
                 'error': f"Invalid method: {method}",
                 'valid_methods': valid_methods
             }), 400
-        
+
         df = current_data['df'].copy()
-        
-        logger.info(f"Starting evolutionary cleaning with method: {method.upper()}")
-        
-        # Clean data
-        cleaned_df, report = clean_data_evolutionary(
-            df, 
-            method=method, 
-            track_modifications=track_modifications,
-            **parameters
-        )
-        
-        # Optionally save the cleaned data
-        if save_result:
-            current_data['df'] = cleaned_df
-            current_data['df_original'] = df  # Keep backup
-        
-        # Convert cleaned data to list format (first 100 rows)
-        data_list = []
-        data_list.append(cleaned_df.columns.tolist())
-        for _, row in cleaned_df.head(100).iterrows():
-            row_data = []
-            for val in row:
-                if pd.isna(val):
-                    row_data.append(None)
-                elif isinstance(val, pd.Timestamp):
-                    row_data.append(val.isoformat())
-                else:
-                    row_data.append(val)
-            data_list.append(row_data)
-        
-        logger.info(f"Cleaning complete. Fitness improvement: {report['improvement']['fitness_increase']:.2f}%")
-        
-        return jsonify({
-            'success': True,
-            'method': method.upper(),
-            'report': report,
-            'data': data_list,
-            'columns': cleaned_df.columns.tolist(),
-            'shape': cleaned_df.shape,
-            'message': f"Data cleaned using {method.upper()}. "
-                      f"Fitness improved by {report['improvement']['fitness_increase']:.2f}%. "
-                      f"{report['improvement']['records_fixed']} records fixed. "
-                      f"{report['modifications']['records_modified'] or 0} records modified by AI."
-        })
-    
+        original_df = df.copy()  # Keep a copy for comparison
+
+        logger.info(f"🚀 Starting evolutionary cleaning with method: {method.upper()}")
+
+        # ============================================================================
+        # COLUMN-BASED CLEANING: Use evolve_error_cells for specific columns
+        # This handles ALL error types (missing, non_numeric, mixed_content, etc.)
+        # ============================================================================
+        if selected_columns and len(selected_columns) > 0:
+            logger.info(f"📌 Column-based cleaning mode for columns: {selected_columns}")
+
+            # Validate columns exist
+            invalid_cols = [c for c in selected_columns if c not in df.columns]
+            if invalid_cols:
+                return jsonify({
+                    'error': f"Invalid columns: {invalid_cols}",
+                    'valid_columns': df.columns.tolist()
+                }), 400
+
+            # Get column indices for selected columns
+            selected_col_indices = [df.columns.get_loc(col) for col in selected_columns]
+            logger.info(f"📊 Selected column indices: {selected_col_indices}")
+
+            # Auto-detect error cells using DataQualityAnalyzer
+            logger.info("🔍 Detecting error cells using DataQualityAnalyzer...")
+            analyzer = DataQualityAnalyzer()
+            quality_report = analyzer.analyze(df)
+            all_error_cells = quality_report.get('error_cells', [])
+            logger.info(f"📋 Total error cells detected: {len(all_error_cells)}")
+            logger.info(f"📋 All error cells: {all_error_cells}")
+
+            # Filter error cells to only include those from selected columns
+            filtered_error_cells = [
+                cell for cell in all_error_cells
+                if cell['col'] in selected_col_indices
+            ]
+            logger.info(f"🎯 Error cells in selected columns: {len(filtered_error_cells)}")
+            logger.info(f"🎯 Filtered error cells: {filtered_error_cells}")
+
+            if not filtered_error_cells:
+                logger.info("✅ No error cells found in selected columns - data is already clean!")
+
+                # Re-analyze for updated quality report
+                data_list = _dataframe_to_list(df, max_rows=100)
+
+                return jsonify({
+                    'success': True,
+                    'method': method.upper(),
+                    'cells_evolved': 0,
+                    'cells_fixed': 0,
+                    'average_fitness_before': 1.0,
+                    'average_fitness_after': 1.0,
+                    'fitness_improvement': 0.0,
+                    'ai_modified_cells': [],
+                    'evolved_cells': [],
+                    'data': data_list,
+                    'columns': df.columns.tolist(),
+                    'shape': df.shape,
+                    'error_cells': all_error_cells,
+                    'column_types': quality_report.get('column_types', {}),
+                    'warnings': quality_report.get('warnings', []),
+                    'message': f"No error cells found in selected columns {selected_columns} - data is already clean!"
+                })
+
+            # Build config from parameters
+            config = {
+                'population_size': parameters.get('population_size', 30),
+                'generations': parameters.get('generations', 50),
+                'mutation_rate': parameters.get('mutation_rate', 0.1),
+                'crossover_rate': parameters.get('crossover_rate', 0.8),
+                'early_stopping': parameters.get('early_stopping', True),
+                'patience': parameters.get('patience', 10),
+                'fitness_threshold': parameters.get('fitness_threshold', 0.95),
+                # PSO specific
+                'inertia_weight': parameters.get('inertia_weight', 0.7),
+                'cognitive_coeff': parameters.get('cognitive_coeff', 1.5),
+                'social_coeff': parameters.get('social_coeff', 1.5),
+                'pso_topology': parameters.get('pso_topology', 'gbest'),
+                'pso_variant': parameters.get('pso_variant', 'standard'),
+                # DE specific
+                'differential_weight': parameters.get('differential_weight', 0.8),
+                'crossover_prob': parameters.get('crossover_prob', 0.9),
+                'de_mutation_strategy': parameters.get('de_mutation_strategy', 'DE/rand/1'),
+            }
+
+            logger.info(f"🧬 Running evolve_error_cells with {method.upper()} on {len(filtered_error_cells)} error cells...")
+
+            # Run cell-level evolution using evolve_error_cells from evolutionary_cell_cleaner.py
+            evolved_df, result = evolve_error_cells(
+                df=df,
+                error_cells=filtered_error_cells,
+                method=method,
+                config=config
+            )
+
+            logger.info(f"✅ Evolution complete: {result['cells_fixed']}/{result['cells_evolved']} cells fixed")
+            logger.info(f"📈 Fitness: {result['average_fitness_before']:.2%} → {result['average_fitness_after']:.2%}")
+
+            # Save result if requested
+            if save_result:
+                current_data['df'] = evolved_df
+                current_data['df_original'] = original_df
+
+            # Convert evolved data to list format
+            data_list = _dataframe_to_list(evolved_df, max_rows=100)
+
+            # Re-analyze data quality after evolution
+            updated_quality_report = analyzer.analyze(evolved_df)
+            updated_error_cells = updated_quality_report.get('error_cells', [])
+            logger.info(f"📊 After evolution: {len(updated_error_cells)} error cells remaining")
+
+            # Extract AI-modified cells for green highlighting on frontend
+            # These are cells that were successfully evolved/fixed
+            ai_modified_cells = []
+            for cell in result.get('evolved_cells', []):
+                # Check if fitness improved (cell was fixed)
+                if cell.get('fitness_after', 0) > cell.get('fitness_before', 0):
+                    ai_modified_cells.append({
+                        'row': cell['row'],  # 1-indexed for frontend display
+                        'col': cell['col'],
+                        'col_name': cell.get('col_name', ''),
+                        'original_value': cell.get('original_value'),
+                        'evolved_value': cell.get('evolved_value'),
+                        'fitness_before': cell.get('fitness_before', 0),
+                        'fitness_after': cell.get('fitness_after', 0)
+                    })
+
+            logger.info(f"🟢 {len(ai_modified_cells)} cells marked as AI-modified for green highlighting")
+
+            return jsonify({
+                'success': True,
+                'method': method.upper(),
+                'cells_evolved': result['cells_evolved'],
+                'cells_fixed': result['cells_fixed'],
+                'cells_failed': result.get('cells_failed', 0),
+                'average_fitness_before': result['average_fitness_before'],
+                'average_fitness_after': result['average_fitness_after'],
+                'fitness_improvement': result['fitness_improvement'],
+                'evolved_cells': result['evolved_cells'],
+                'ai_modified_cells': ai_modified_cells,
+                'fitness_history': result.get('fitness_history', []),
+                'data': data_list,
+                'columns': evolved_df.columns.tolist(),
+                'shape': evolved_df.shape,
+                'error_cells': updated_error_cells,
+                'column_types': updated_quality_report.get('column_types', {}),
+                'warnings': updated_quality_report.get('warnings', []),
+                'message': f"Evolved {result['cells_evolved']} cells in columns {selected_columns} using {method.upper()}. "
+                          f"{result['cells_fixed']} cells fixed. "
+                          f"Fitness improved by {result['fitness_improvement']:.2%}."
+            })
+
+        # ============================================================================
+        # FULL DATASET CLEANING: Use clean_data_evolutionary for all columns
+        # This focuses on missing value imputation across all columns
+        # ============================================================================
+        else:
+            logger.info("📊 Full dataset cleaning mode (all columns)")
+
+            # Clean data using record-level evolutionary cleaning
+            cleaned_df, report = clean_data_evolutionary(
+                df,
+                method=method,
+                track_modifications=track_modifications,
+                **parameters
+            )
+
+            # Track modified cells by comparing original and cleaned DataFrames
+            ai_modified_cells = []
+            columns_to_check = [c for c in df.columns if c != 'Modified_by_AI']
+
+            for col in columns_to_check:
+                if col not in cleaned_df.columns or col not in original_df.columns:
+                    continue
+                col_idx = df.columns.get_loc(col)
+                for row_idx in range(len(original_df)):
+                    original_val = original_df.iloc[row_idx][col]
+                    cleaned_val = cleaned_df.iloc[row_idx][col]
+
+                    # Check if value changed (was null/missing and is now filled)
+                    if pd.isna(original_val) and not pd.isna(cleaned_val):
+                        ai_modified_cells.append({
+                            'row': row_idx + 1,  # 1-indexed for frontend display
+                            'col': col_idx,
+                            'col_name': col,
+                            'original_value': None,
+                            'evolved_value': str(cleaned_val) if not isinstance(cleaned_val, (int, float)) else cleaned_val,
+                            'fitness_before': 0.0,
+                            'fitness_after': 1.0
+                        })
+
+            logger.info(f"🟢 Tracked {len(ai_modified_cells)} AI-modified cells")
+
+            # Optionally save the cleaned data
+            if save_result:
+                current_data['df'] = cleaned_df
+                current_data['df_original'] = original_df  # Keep backup
+
+            # Convert cleaned data to list format (first 100 rows)
+            data_list = _dataframe_to_list(cleaned_df, max_rows=100)
+
+            # Re-analyze for updated error cells
+            analyzer = DataQualityAnalyzer()
+            updated_quality_report = analyzer.analyze(cleaned_df)
+            updated_error_cells = updated_quality_report.get('error_cells', [])
+
+            logger.info(f"✅ Cleaning complete. Fitness improvement: {report['improvement']['fitness_increase']:.2f}%")
+
+            return jsonify({
+                'success': True,
+                'method': method.upper(),
+                'report': report,
+                'cells_evolved': report['modifications'].get('records_modified', 0),
+                'cells_fixed': report['improvement'].get('records_fixed', 0),
+                'average_fitness_before': report['before']['average_fitness'] / 100,
+                'average_fitness_after': report['after']['average_fitness'] / 100,
+                'fitness_improvement': report['improvement']['fitness_increase'] / 100,
+                'ai_modified_cells': ai_modified_cells,
+                'evolved_cells': [],
+                'data': data_list,
+                'columns': cleaned_df.columns.tolist(),
+                'shape': cleaned_df.shape,
+                'error_cells': updated_error_cells,
+                'column_types': updated_quality_report.get('column_types', {}),
+                'warnings': updated_quality_report.get('warnings', []),
+                'message': f"Data cleaned using {method.upper()}. "
+                          f"Fitness improved by {report['improvement']['fitness_increase']:.2f}%. "
+                          f"{report['improvement']['records_fixed']} records fixed. "
+                          f"{report['modifications']['records_modified'] or 0} records modified by AI."
+            })
+
     except Exception as e:
         logger.error(f"Error in /clean/evolutionary endpoint: {str(e)}", exc_info=True)
         return jsonify({
@@ -1900,6 +2098,9 @@ def evolve_error_cells_endpoint():
 
         df = current_data['df'].copy()
 
+        # Get selected columns for filtering (NEW: column-based cleaning support)
+        selected_columns = data.get('columns', [])
+
         # Get error cells - either from request or auto-detect
         error_cells = data.get('error_cells')
         if error_cells is None:
@@ -1909,6 +2110,29 @@ def evolve_error_cells_endpoint():
             quality_report = analyzer.analyze(df)
             error_cells = quality_report.get('error_cells', [])
             logger.info(f"Detected {len(error_cells)} error cells")
+
+        # Filter error cells by selected columns if specified
+        if selected_columns:
+            logger.info(f"🎯 Column-based cleaning mode: filtering for columns {selected_columns}")
+            # Get column indices for selected columns
+            selected_col_indices = []
+            for col_name in selected_columns:
+                if col_name in df.columns:
+                    selected_col_indices.append(df.columns.get_loc(col_name))
+                else:
+                    logger.warning(f"⚠️ Column '{col_name}' not found in dataframe")
+
+            logger.info(f"📊 Selected column indices: {selected_col_indices}")
+
+            # Filter error cells to only include those in selected columns
+            original_count = len(error_cells)
+            error_cells = [
+                cell for cell in error_cells
+                if cell.get('col') in selected_col_indices
+            ]
+            logger.info(f"🔍 Filtered error cells: {original_count} -> {len(error_cells)} (only in selected columns)")
+        else:
+            logger.info(f"📊 Full dataset cleaning mode (all columns)")
 
         if not error_cells:
             return jsonify({
@@ -3192,7 +3416,7 @@ def openai_status():
 @app.route('/openai/chat', methods=['POST'])
 def openai_chat():
     """
-    Send a chat message to Azure OpenAI with data context.
+    Send a chat message to Azure OpenAI with JSON-based communication.
 
     Request body:
     {
@@ -3204,34 +3428,53 @@ def openai_chat():
         ]
     }
 
-    Returns: AI response with optional suggested actions
+    Returns: AI response with structured operations in JSON format
+    {
+        "success": true,
+        "response": "AI message text",
+        "operations": [
+            {
+                "operation": "fill_nulls",
+                "column": "age",
+                "parameters": {"method": "mean"},
+                "description": "Fill missing ages with mean value",
+                "confidence": 0.95,
+                "reasoning": "Mean is appropriate for numeric data"
+            }
+        ],
+        "analysis": {...},
+        "has_data_context": true,
+        "usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
+    }
     """
     try:
-        logger.info("=== /openai/chat endpoint called ===")
-        logger.info(f"AZURE_OPENAI_AVAILABLE: {AZURE_OPENAI_AVAILABLE}")
+        logger.info("=== /openai/chat endpoint called (JSON mode) ===")
+        logger.info(f"AI_CHAT_AVAILABLE: {AI_CHAT_AVAILABLE}")
         logger.info(f"API Key present: {bool(os.getenv('AZURE_OPENAI_API_KEY'))}")
         logger.info(f"Endpoint present: {bool(os.getenv('AZURE_OPENAI_ENDPOINT'))}")
         logger.info(f"Deployment present: {bool(os.getenv('AZURE_OPENAI_DEPLOYMENT'))}")
 
-        if not AZURE_OPENAI_AVAILABLE:
+        if not AI_CHAT_AVAILABLE:
             logger.error("OpenAI package not available")
             return jsonify({
                 'error': 'OpenAI package not installed. Run: pip install openai',
                 'configured': False
             }), 400
 
-        client = get_azure_openai_client()
-        logger.info(f"Client created: {client is not None}")
-        if not client:
+        # Initialize AI Chat with JSON-based communication
+        config = AIChatConfig()
+        is_valid, errors = config.validate()
+
+        if not is_valid:
             return jsonify({
-                'error': 'Azure OpenAI not configured. Set AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT in environment.',
+                'error': f'Azure OpenAI not configured: {", ".join(errors)}',
                 'configured': False
             }), 400
 
-        deployment = os.getenv('AZURE_OPENAI_DEPLOYMENT')
-        if not deployment:
+        ai_chat = AIChat(config)
+        if not ai_chat.is_available():
             return jsonify({
-                'error': 'AZURE_OPENAI_DEPLOYMENT not set in environment',
+                'error': 'Failed to initialize AI Chat client',
                 'configured': False
             }), 400
 
@@ -3243,79 +3486,54 @@ def openai_chat():
         if not user_message:
             return jsonify({'error': 'Message is required'}), 400
 
-        # Build system message with data context
-        system_message = """You are a helpful data assistant for the FastMig data migration tool.
-You help users understand, clean, and transform their data.
+        # Get DataFrame if available
+        df = current_data.get('df') if include_context else None
 
-When users ask about their data, provide clear and concise answers.
-When users want to modify data, explain what the operation will do and suggest the best approach.
+        logger.info(f"Sending chat message (JSON mode): {user_message[:100]}...")
 
-Available operations you can suggest:
-- fill_nulls: Fill missing values (methods: mean, median, mode, constant)
-- remove_nulls: Remove rows with null values
-- remove_duplicates: Remove duplicate rows
-- remove_column: Remove a column
-- rename_column: Rename a column
-- change_case: Change text case (upper, lower, title)
-- find_replace: Find and replace values
-- filter_rows: Filter rows by condition
-- trim_whitespace: Remove leading/trailing whitespace
-
-When suggesting an operation, be specific about:
-1. Which column to apply it to
-2. What method or parameters to use
-3. Why this approach is recommended
-"""
-
-        # Add data context if available and requested
-        if include_context and 'df' in current_data:
-            df = current_data['df']
-            data_context = build_data_context(df)
-            system_message += f"\n\nCurrent Dataset Context:\n{data_context}"
-
-        # Build messages array
-        messages = [{"role": "system", "content": system_message}]
-
-        # Add conversation history
-        for msg in conversation_history[-10:]:  # Limit to last 10 messages
-            messages.append({
-                "role": msg.get('role', 'user'),
-                "content": msg.get('content', '')
-            })
-
-        # Add current user message
-        messages.append({"role": "user", "content": user_message})
-
-        logger.info(f"Sending chat message to Azure OpenAI: {user_message[:100]}...")
-
-        # Call Azure OpenAI
-        response = client.chat.completions.create(
-            model=deployment,
-            messages=messages,
-            max_completion_tokens=1000
+        # Call AI Chat with JSON-based communication
+        response: AIResponse = ai_chat.chat(
+            user_message=user_message,
+            df=df,
+            conversation_history=conversation_history,
+            include_data_context=include_context
         )
 
-        ai_response = response.choices[0].message.content
+        if not response.success:
+            logger.error(f"AI Chat error: {response.error}")
+            return jsonify({
+                'error': f"AI response failed: {response.error}",
+                'type': 'AIError'
+            }), 500
 
-        # Parse for suggested actions
+        logger.info(f"AI Chat response received ({len(response.message)} chars, {len(response.operations)} operations)")
+
+        # Convert operations to legacy format for backward compatibility
         suggested_actions = []
-        if 'df' in current_data:
-            parsed = parse_ai_modification_command(ai_response, current_data['df'])
-            if parsed['type'] != 'none':
-                suggested_actions.append(parsed)
-
-        logger.info(f"Azure OpenAI response received ({len(ai_response)} chars)")
+        for op in response.operations:
+            if op.operation != OperationType.NONE and op.operation != OperationType.ANALYZE:
+                action = {
+                    'type': op.operation.value,
+                    'column': op.column,
+                    'parameters': op.parameters,
+                    'description': op.description,
+                    'confidence': op.confidence,
+                    'reasoning': op.reasoning
+                }
+                # Add method parameter for fill_nulls compatibility
+                if op.operation == OperationType.FILL_NULLS and 'method' in op.parameters:
+                    action['method'] = op.parameters['method']
+                suggested_actions.append(action)
 
         return jsonify({
             'success': True,
-            'response': ai_response,
+            'response': response.message,
             'suggested_actions': suggested_actions,
-            'has_data_context': include_context and 'df' in current_data,
-            'usage': {
-                'prompt_tokens': response.usage.prompt_tokens,
-                'completion_tokens': response.usage.completion_tokens,
-                'total_tokens': response.usage.total_tokens
-            }
+            'operations': [op.to_dict() for op in response.operations],
+            'analysis': response.analysis,
+            'has_data_context': include_context and df is not None,
+            'usage': response.usage,
+            'raw_response': response.raw_response if logger.isEnabledFor(logging.DEBUG) else None
         })
 
     except Exception as e:

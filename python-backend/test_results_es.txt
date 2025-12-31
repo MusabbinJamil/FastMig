@@ -1,0 +1,259 @@
+test_comma_selection_requires_large_lambda (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_comma_selection_requires_large_lambda
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_get_tau_values (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_get_tau_values
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_lambda (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_lambda
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_mu (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_mu
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_rho (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_rho
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_sigma (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_sigma
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_valid_config (__main__.TestESConfig) ... 
+------------------------------------------------------------
+  TEST: test_valid_config
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_basic (__main__.TestPopulationInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_basic
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_initialize_with_seed (__main__.TestPopulationInitialization) ... 
+------------------------------------------------------------
+  TEST: test_initialize_with_seed
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_recombination_dispatcher (__main__.TestRecombination) ... 
+------------------------------------------------------------
+  TEST: test_apply_recombination_dispatcher
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_discrete_recombination (__main__.TestRecombination) ... 
+------------------------------------------------------------
+  TEST: test_discrete_recombination
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_global_discrete_recombination (__main__.TestRecombination) ... 
+------------------------------------------------------------
+  TEST: test_global_discrete_recombination
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_intermediate_recombination (__main__.TestRecombination) ... 
+------------------------------------------------------------
+  TEST: test_intermediate_recombination
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_mutation_adaptive (__main__.TestMutation) ... 
+------------------------------------------------------------
+  TEST: test_apply_mutation_adaptive
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_mutation_fixed (__main__.TestMutation) ... 
+------------------------------------------------------------
+  TEST: test_apply_mutation_fixed
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_gaussian_mutation (__main__.TestMutation) ... 
+------------------------------------------------------------
+  TEST: test_gaussian_mutation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_sigma_self_adaptive (__main__.TestMutation) ... 
+------------------------------------------------------------
+  TEST: test_sigma_self_adaptive
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_apply_selection_dispatcher (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_apply_selection_dispatcher
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_comma_selection (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_comma_selection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_comma_selection_requires_enough_offspring (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_comma_selection_requires_enough_offspring
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_plus_selection (__main__.TestSelection) ... 
+------------------------------------------------------------
+  TEST: test_plus_selection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_clamp (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_clamp
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_in_bounds (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_in_bounds
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_random (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_random
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_reflect (__main__.TestConstraintHandling) ... 
+------------------------------------------------------------
+  TEST: test_reflect
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_converged_population (__main__.TestDiversity) ... 
+------------------------------------------------------------
+  TEST: test_converged_population
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_diverse_population (__main__.TestDiversity) ... 
+------------------------------------------------------------
+  TEST: test_diverse_population
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_sigma_stats (__main__.TestSigmaStats) ... 
+------------------------------------------------------------
+  TEST: test_sigma_stats
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_metrics_to_dict (__main__.TestESMetrics) ... 
+------------------------------------------------------------
+  TEST: test_metrics_to_dict
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_recombination_types (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_recombination_types
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_all_selection_types (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_all_selection_types
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_convenience_function (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_convenience_function
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_initialization (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_initialization
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_run (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_run
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_self_adaptive_mutation (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_self_adaptive_mutation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_with_seed_values (__main__.TestESEngine) ... 
+------------------------------------------------------------
+  TEST: test_with_seed_values
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_early_stopping (__main__.TestConvergence) ... 
+------------------------------------------------------------
+  TEST: test_early_stopping
+------------------------------------------------------------
+ok
+  Result: PASSED
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.996s
+
+OK
+
+======================================================================
+RUNNING COMPREHENSIVE ES UNIT TESTS
+======================================================================
+Mode: VERBOSE (showing detailed test information)
+======================================================================
+
+Test Classes:
+  - TestESConfig: Configuration validation tests
+  - TestPopulationInitialization: Population initialization tests
+  - TestRecombination: Discrete, intermediate, global discrete recombination
+  - TestMutation: Gaussian mutation and self-adaptive sigma
+  - TestSelection: (mu+lambda) and (mu,lambda) selection
+  - TestConstraintHandling: Clamp, reflect, random constraint handling
+  - TestDiversity: Population diversity calculation
+  - TestSigmaStats: Sigma statistics calculation
+  - TestESMetrics: Metrics dataclass tests
+  - TestESEngine: Complete ES engine integration tests
+  - TestConvergence: Early stopping and convergence tests
+
+======================================================================
+
+
+======================================================================
+TEST SUMMARY
+======================================================================
+Tests run: 37
+Successes: 37
+Failures: 0
+Errors: 0
+======================================================================
+

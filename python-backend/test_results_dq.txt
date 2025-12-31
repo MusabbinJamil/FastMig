@@ -1,0 +1,333 @@
+
+============================================================
+Running DataQualityAnalyzer Test Suite
+============================================================
+Mode: VERBOSE (showing detailed test data and results)
+============================================================
+
+
+────────────────────────────────────────────────────────────
+  TEST: Missing Values Detection
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices Product Procurement
+  0    10.0   Apple  2024-01-09
+  1    25.0  Orange  2024-01-10
+  2     NaN   Mango  2024-01-11
+  3    40.0  Banana        None
+
+  🎯 Test Criteria:
+     • Should detect None in Prices column (row 3, col 0)
+     • Should detect None in Procurement column (row 4, col 2)
+     • Should find exactly 2 error cells
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'Procurement': 'datetime'}
+     Errors Found: 2
+
+  🔍 Error Details:
+     Row 3, Col 0: ['missing_value']
+     Row 4, Col 2: ['missing_value']
+✓ Missing values test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Non-Numeric in Numeric Column
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+  Prices Product  Quantity
+  0     10   Apple         5
+  1     25  Orange        10
+  2    abc   Mango        15
+  3     40  Banana        20
+
+  🎯 Test Criteria:
+     • Prices column should be inferred as 'numeric'
+     • Should detect 'abc' as non-numeric in Prices (row 3, col 0)
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'Quantity': 'numeric'}
+     Errors Found: 1
+
+  🔍 Error Details:
+     Row 3, Col 0: ['non_numeric', 'mixed_content']
+✓ Non-numeric in numeric column test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Automatic Type Inference
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices Product       Dates
+  0      10   Apple  2024-01-09
+  1      25  Orange  2024-01-10
+  2      23   Mango  2024-01-11
+  3      40  Banana  2024-01-12
+
+  🎯 Test Criteria:
+     • Prices should be inferred as 'numeric' (all integers)
+     • Product should be inferred as 'string' (all text)
+     • Dates should be inferred as 'datetime' (date format strings)
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'Dates': 'datetime'}
+     Errors Found: 0
+✓ Type inference test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Mixed Content Detection
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices Product MixedCol
+  0      10   Apple      100
+  1      25  Orange      200
+  2      23   Mango    300px
+  3      40  Banana      400
+
+  🎯 Test Criteria:
+     • MixedCol has '300px' mixed with numbers
+     • Should detect mixed_content or non_numeric issue
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'MixedCol': 'numeric'}
+     Errors Found: 1
+
+  🔍 Error Details:
+     Row 3, Col 2: ['non_numeric', 'mixed_content']
+✓ Mixed content test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Null-Like Strings Detection
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices Product  Notes
+  0      10   Apple   Good
+  1      25     n/a   null
+  2      23   Mango  Great
+  3      40     N/A   none
+
+  🎯 Test Criteria:
+     • Should detect 'n/a' and 'N/A' in Product column
+     • Should detect 'null' and 'none' in Notes column
+     • All should be flagged as 'null_string'
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'Notes': 'string'}
+     Errors Found: 4
+
+  🔍 Error Details:
+     Row 2, Col 1: ['null_string']
+     Row 2, Col 2: ['null_string']
+     Row 4, Col 1: ['null_string']
+     Row 4, Col 2: ['null_string']
+✓ Null-like strings test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Numeric Values in String Columns
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+  Product  Description  Quantity
+  0   Apple  Fresh fruit        10
+  1  Banana       Yellow        20
+  2      12    iPhone 12        30
+  3  Orange       Citrus        40
+  4     456         Good        50
+  5   Grape       Purple        60
+
+  🎯 Test Criteria:
+     • Should detect '12' in Product (row 3) as suspicious_numeric_in_string
+     • Should detect '456' in Product (row 5) as suspicious_numeric_in_string
+     • Should NOT flag 'iPhone 12' - it contains text, not purely numeric
+
+  📋 Analysis Results:
+     Shape: 6 rows × 3 columns
+     Column Types: {'Product': 'string', 'Description': 'string', 'Quantity': 'numeric'}
+     Errors Found: 2
+
+  🔍 Error Details:
+     Row 3, Col 0: ['suspicious_numeric_in_string']
+     Row 5, Col 0: ['suspicious_numeric_in_string']
+✓ Numeric in string column test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Empty DataFrame Handling
+────────────────────────────────────────────────────────────
+
+  📊 Empty DataFrame:
+Empty DataFrame
+  Columns: []
+  Index: []
+
+  🎯 Test Criteria:
+     • Should not crash on empty input
+     • Should return success=True
+     • Should return shape=(0, 0)
+
+  📋 Analysis Results:
+     Shape: 0 rows × 0 columns
+     Column Types: {}
+     Errors Found: 0
+✓ Empty dataframe test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Single Column DataFrame
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+  Prices
+  0     10
+  1     25
+  2    abc
+  3     40
+
+  🎯 Test Criteria:
+     • Should handle single-column DataFrame
+     • Prices should be inferred as 'numeric'
+     • Should detect 'abc' as an error
+
+  📋 Analysis Results:
+     Shape: 4 rows × 1 columns
+     Column Types: {'Prices': 'numeric'}
+     Errors Found: 1
+
+  🔍 Error Details:
+     Row 3, Col 0: ['non_numeric', 'mixed_content']
+✓ Single column test passed
+
+────────────────────────────────────────────────────────────
+  TEST: All-Null Column Handling
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices EmptyCol Product
+  0      10     None   Apple
+  1      25     None  Orange
+  2      23     None   Mango
+  3      40     None  Banana
+
+  🎯 Test Criteria:
+     • EmptyCol should be inferred as 'unknown' type
+     • All 4 cells in EmptyCol should be marked as missing_value
+
+  📋 Analysis Results:
+     Shape: 4 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'EmptyCol': 'unknown', 'Product': 'string'}
+     Errors Found: 4
+
+  🔍 Error Details:
+     Row 1, Col 1: ['missing_value']
+     Row 2, Col 1: ['missing_value']
+     Row 3, Col 1: ['missing_value']
+     Row 4, Col 1: ['missing_value']
+✓ All-null column test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Realistic Messy Data
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+  Prices  Product          Procurement
+  0     10    Apple  2024-01-09 00:00:00
+  1     25   Orange                     
+  2     23    Mango  2024-01-11 00:00:00
+  3    abc   Banana  2024-01-12 00:00:00
+  4     32  Avacado  2024-01-13 00:00:00
+  5     42       12  2024-01-14 00:00:00
+  6     22     Plum  2024-01-15 00:00:00
+  7     14   Grapes  2024-01-16 00:00:00
+  8     15     Worm  2024-01-17 00:00:00
+
+  🎯 Test Criteria:
+     • Prices='numeric', Product='string', Procurement='datetime'
+     • Row 2, Col 2: Empty Procurement → missing_value
+     • Row 4, Col 0: 'abc' in Prices → non_numeric
+     • Row 6, Col 1: '12' in Product → suspicious_numeric_in_string
+
+  📋 Analysis Results:
+     Shape: 9 rows × 3 columns
+     Column Types: {'Prices': 'numeric', 'Product': 'string', 'Procurement': 'datetime'}
+     Errors Found: 3
+
+  🔍 Error Details:
+     Row 2, Col 2: ['missing_value', 'invalid_datetime']
+     Row 4, Col 0: ['non_numeric', 'mixed_content']
+     Row 6, Col 1: ['suspicious_numeric_in_string']
+✓ Realistic data test passed
+
+────────────────────────────────────────────────────────────
+  TEST: DataFrame to List Conversion
+────────────────────────────────────────────────────────────
+
+  📊 Input Data:
+   Prices Product       Date
+  0    10.0   Apple 2024-01-09
+  1    25.0  Orange 2024-01-10
+  2     NaN   Mango 2024-01-11
+
+  🎯 Test Criteria:
+     • Output should have 4 rows (1 header + 3 data)
+     • Header row: ['Prices', 'Product', 'Date']
+     • Integers formatted without decimals: 10 not 10.0
+     • Dates in ISO format: 2024-01-09T00:00:00
+     • None values preserved as None
+
+  📤 Converted Data:
+     Row 0: ['Prices', 'Product', 'Date']
+     Row 1: ['10', 'Apple', '2024-01-09T00:00:00']
+     Row 2: ['25', 'Orange', '2024-01-10T00:00:00']
+     Row 3: [None, 'Mango', '2024-01-11T00:00:00']
+✓ Data to list conversion test passed
+
+────────────────────────────────────────────────────────────
+  TEST: Large Dataset (10,000 rows)
+────────────────────────────────────────────────────────────
+
+  📊 Large Dataset Preview (first 5 rows):
+   ID  Value   Name Corrupted
+  0   0     76  Name0         0
+  1   1     28  Name1         1
+  2   2      2  Name2         2
+  3   3     93  Name3         3
+  4   4     94  Name4         4
+
+  ... and 9995 more rows
+
+  📊 Last 5 rows (with errors):
+        ID  Value    Name Corrupted
+  9995  9995     99  Name95     ERROR
+  9996  9996     61  Name96     ERROR
+  9997  9997     97  Name97     ERROR
+  9998  9998     80  Name98     ERROR
+  9999  9999     36  Name99     ERROR
+
+  🎯 Test Criteria:
+     • Should handle 10000 rows efficiently
+     • Last 100 rows have 'ERROR' in Corrupted column
+     • Should detect ~100 non_numeric errors
+
+  📋 Analysis Results:
+     Shape: 10000 rows × 4 columns
+     Column Types: {'ID': 'numeric', 'Value': 'numeric', 'Name': 'string', 'Corrupted': 'numeric'}
+     Total Errors Found: 100
+
+  🔍 Sample Errors (first 5):
+     Row 9901, Col 3: ['non_numeric', 'mixed_content']
+     Row 9902, Col 3: ['non_numeric', 'mixed_content']
+     Row 9903, Col 3: ['non_numeric', 'mixed_content']
+     Row 9904, Col 3: ['non_numeric', 'mixed_content']
+     Row 9905, Col 3: ['non_numeric', 'mixed_content']
+✓ Large dataset test passed (10000 rows, 100 errors found)
+
+============================================================
+Test Results: 12 passed, 0 failed out of 12 total
+============================================================
+

@@ -1,0 +1,260 @@
+test_invalid_crossover_rate (__main__.TestGAConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_crossover_rate
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_mutation_rate (__main__.TestGAConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_mutation_rate
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_invalid_population_size (__main__.TestGAConfig) ... 
+------------------------------------------------------------
+  TEST: test_invalid_population_size
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_valid_config (__main__.TestGAConfig) ... 
+------------------------------------------------------------
+  TEST: test_valid_config
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_rank_based_selection (__main__.TestSelectionOperators) ... 
+------------------------------------------------------------
+  TEST: test_rank_based_selection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_roulette_wheel_negative_fitness (__main__.TestSelectionOperators) ... 
+------------------------------------------------------------
+  TEST: test_roulette_wheel_negative_fitness
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_roulette_wheel_selection (__main__.TestSelectionOperators) ... 
+------------------------------------------------------------
+  TEST: test_roulette_wheel_selection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_tournament_selection (__main__.TestSelectionOperators) ... 
+------------------------------------------------------------
+  TEST: test_tournament_selection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_arithmetic_crossover (__main__.TestCrossoverOperators) ... 
+------------------------------------------------------------
+  TEST: test_arithmetic_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_crossover_mismatched_length (__main__.TestCrossoverOperators) ... 
+------------------------------------------------------------
+  TEST: test_crossover_mismatched_length
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_single_point_crossover (__main__.TestCrossoverOperators) ... 
+------------------------------------------------------------
+  TEST: test_single_point_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_two_point_crossover (__main__.TestCrossoverOperators) ... 
+------------------------------------------------------------
+  TEST: test_two_point_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_uniform_crossover (__main__.TestCrossoverOperators) ... 
+------------------------------------------------------------
+  TEST: test_uniform_crossover
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_adaptive_mutation (__main__.TestMutationOperators) ... 
+------------------------------------------------------------
+  TEST: test_adaptive_mutation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_gaussian_mutation (__main__.TestMutationOperators) ... 
+------------------------------------------------------------
+  TEST: test_gaussian_mutation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_mutation_rate_zero (__main__.TestMutationOperators) ... 
+------------------------------------------------------------
+  TEST: test_mutation_rate_zero
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_uniform_mutation (__main__.TestMutationOperators) ... 
+------------------------------------------------------------
+  TEST: test_uniform_mutation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_convergence_rate (__main__.TestMetrics) ... 
+------------------------------------------------------------
+  TEST: test_convergence_rate
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_ga_metrics_to_dict (__main__.TestMetrics) ... 
+------------------------------------------------------------
+  TEST: test_ga_metrics_to_dict
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_population_diversity (__main__.TestMetrics) ... 
+------------------------------------------------------------
+  TEST: test_population_diversity
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_inverse_mapping (__main__.TestRealValuedMapper) ... 
+------------------------------------------------------------
+  TEST: test_inverse_mapping
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_mapping_range (__main__.TestRealValuedMapper) ... 
+------------------------------------------------------------
+  TEST: test_mapping_range
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_random_genotype_generation (__main__.TestRealValuedMapper) ... 
+------------------------------------------------------------
+  TEST: test_random_genotype_generation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_validate_out_of_range_phenotype (__main__.TestRealValuedMapper) ... 
+------------------------------------------------------------
+  TEST: test_validate_out_of_range_phenotype
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_validate_valid_phenotype (__main__.TestRealValuedMapper) ... 
+------------------------------------------------------------
+  TEST: test_validate_valid_phenotype
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_binary_to_decimal (__main__.TestBinaryMapper) ... 
+------------------------------------------------------------
+  TEST: test_binary_to_decimal
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_bits_interpretation (__main__.TestBinaryMapper) ... 
+------------------------------------------------------------
+  TEST: test_bits_interpretation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_validate_binary_phenotype (__main__.TestBinaryMapper) ... 
+------------------------------------------------------------
+  TEST: test_validate_binary_phenotype
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_grammar_derivation (__main__.TestGrammarMapper) ... 
+------------------------------------------------------------
+  TEST: test_grammar_derivation
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_validate_error_phenotype (__main__.TestGrammarMapper) ... 
+------------------------------------------------------------
+  TEST: test_validate_error_phenotype
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_validate_valid_phenotype (__main__.TestGrammarMapper) ... 
+------------------------------------------------------------
+  TEST: test_validate_valid_phenotype
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_different_crossover_methods (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_different_crossover_methods
+------------------------------------------------------------
+WARNING:ga_genotype_phenotype:Genotype not in [0,1], clipping to valid range
+ok
+  Result: PASSED
+test_different_mutation_methods (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_different_mutation_methods
+------------------------------------------------------------
+WARNING:ga_genotype_phenotype:Genotype not in [0,1], clipping to valid range
+ok
+  Result: PASSED
+test_different_selection_methods (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_different_selection_methods
+------------------------------------------------------------
+WARNING:ga_genotype_phenotype:Genotype not in [0,1], clipping to valid range
+ok
+  Result: PASSED
+test_engine_convergence_detection (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_convergence_detection
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_initialization (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_initialization
+------------------------------------------------------------
+ok
+  Result: PASSED
+test_engine_run (__main__.TestGAEngine) ... 
+------------------------------------------------------------
+  TEST: test_engine_run
+------------------------------------------------------------
+ok
+  Result: PASSED
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.101s
+
+OK
+
+======================================================================
+RUNNING COMPREHENSIVE GA UNIT TESTS
+======================================================================
+Mode: VERBOSE (showing detailed test information)
+======================================================================
+
+Test Classes:
+  - TestGAConfig: Configuration validation tests
+  - TestSelectionOperators: Tournament, roulette wheel, rank-based selection
+  - TestCrossoverOperators: Single-point, two-point, uniform, arithmetic crossover
+  - TestMutationOperators: Gaussian, uniform, adaptive mutation
+  - TestMetrics: Convergence rate, population diversity metrics
+  - TestRealValuedMapper: Real-valued genotype-phenotype mapping
+  - TestBinaryMapper: Binary genotype-phenotype mapping
+  - TestGrammarMapper: Grammar-based genotype-phenotype mapping
+  - TestGAEngine: Complete GA engine integration tests
+
+======================================================================
+
+
+======================================================================
+TEST SUMMARY
+======================================================================
+Tests run: 37
+Successes: 37
+Failures: 0
+Errors: 0
+======================================================================
+
