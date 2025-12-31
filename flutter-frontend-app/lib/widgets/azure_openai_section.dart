@@ -3,32 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/migration_data.dart';
 
-/// Chat message model
-class ChatMessage {
-  final String content;
-  final bool isUser;
+/// AI Fix Result model - tracks the result of AI data fixing
+class AIFixResult {
+  final String message;
+  final int cellsFixed;
+  final int cellsEvolved;
+  final double fitnessImprovement;
+  final List<Map<String, dynamic>> modifiedCells;
+  final bool success;
+  final String method;
   final DateTime timestamp;
-  final List<Map<String, dynamic>>? suggestedActions;
-  final List<Map<String, dynamic>>? appliedModifications;
-  final int? cellsModified;
-  final bool needsConfirmation;
-  final int? fixesCount;
 
-  ChatMessage({
-    required this.content,
-    required this.isUser,
+  AIFixResult({
+    required this.message,
+    required this.cellsFixed,
+    required this.cellsEvolved,
+    required this.fitnessImprovement,
+    required this.modifiedCells,
+    required this.success,
+    required this.method,
     DateTime? timestamp,
-    this.suggestedActions,
-    this.appliedModifications,
-    this.cellsModified,
-    this.needsConfirmation = false,
-    this.fixesCount,
   }) : timestamp = timestamp ?? DateTime.now();
-
-  Map<String, dynamic> toJson() => {
-        'role': isUser ? 'user' : 'assistant',
-        'content': content,
-      };
 }
 
 class AzureOpenAISection extends StatefulWidget {
@@ -39,39 +34,21 @@ class AzureOpenAISection extends StatefulWidget {
 }
 
 class _AzureOpenAISectionState extends State<AzureOpenAISection> {
-  final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final List<ChatMessage> _messages = [];
 
   bool _isLoading = false;
   bool _isConfigured = false;
   bool _isChecking = true;
   String? _configMessage;
-  bool _hasPendingModifications = false;
+  AIFixResult? _lastResult;
+  String? _analysisResult;
+  String? _currentOperation;
 
   @override
   void initState() {
     super.initState();
     debugPrint('🔵 [AzureOpenAISection] initState called');
     _checkConfiguration();
-    _addWelcomeMessage();
-    debugPrint('🔵 [AzureOpenAISection] initState complete, messages count: ${_messages.length}');
-  }
-
-  void _addWelcomeMessage() {
-    _messages.add(ChatMessage(
-      content: '''Hello! I'm your AI Data Assistant powered by Azure OpenAI.
-
-I can help you:
-- Analyze your data and identify quality issues
-- Fill missing values with smart suggestions
-- Remove duplicates and clean data
-- Transform columns (rename, change case, etc.)
-- Answer questions about your dataset
-
-Just type your request or question below!''',
-      isUser: false,
-    ));
   }
 
   Future<void> _checkConfiguration() async {
@@ -104,27 +81,12 @@ Just type your request or question below!''',
 
   @override
   void dispose() {
-    _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  Future<void> _sendMessage() async {
-    final message = _messageController.text.trim();
-    if (message.isEmpty) return;
-
+  /// Fix data using AI (LLM-powered cell fixing)
+  Future<void> _fixDataWithAI() async {
     final migrationData = Provider.of<MigrationData>(context, listen: false);
 
     // Check if data is loaded
@@ -138,155 +100,65 @@ Just type your request or question below!''',
       return;
     }
 
-    // Add user message
     setState(() {
-      _messages.add(ChatMessage(content: message, isUser: true));
       _isLoading = true;
+      _currentOperation = 'Fixing data with AI...';
+      _analysisResult = null;
     });
-    _messageController.clear();
-    _scrollToBottom();
 
     try {
-      // Use preview mode (autoExecute: false) - user must confirm changes
+      // Use the AI chat-modify endpoint to fix data
       final response = await migrationData.sendOpenAIChatModify(
-        message: message,
-        autoExecute: false,  // Preview mode
+        message: 'fix my data',
+        autoExecute: true, // Auto-execute the fixes
       );
 
       if (mounted) {
-        final needsConfirmation = response['needs_confirmation'] ?? false;
+        // Get the count of modified cells - try multiple response keys
         final fixesCount = response['fixes_count'] as int? ?? 0;
-        final modifications = (response['modifications'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>();
+        final totalCellsModified = response['total_cells_modified'] as int? ?? 0;
+        final cellsModified = totalCellsModified > 0 ? totalCellsModified : fixesCount;
 
-        String responseContent = response['message'] ?? 'No response received';
+        // Get modifications list - try multiple response keys
+        final appliedMods = response['applied_modifications'] as List<dynamic>?;
+        final mods = response['modifications'] as List<dynamic>?;
+        final aiModCells = response['ai_modified_cells'] as List<dynamic>?;
+        final modifications = (appliedMods ?? mods ?? aiModCells ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+
+        debugPrint('🟢 AI Fix Response: cellsModified=$cellsModified, modifications=${modifications.length}');
+        debugPrint('🟢 Response keys: ${response.keys.toList()}');
 
         setState(() {
-          _messages.add(ChatMessage(
-            content: responseContent,
-            isUser: false,
-            appliedModifications: modifications,
-            needsConfirmation: needsConfirmation,
-            fixesCount: fixesCount,
-          ));
+          _lastResult = AIFixResult(
+            message: response['message'] ?? 'Data fixing completed',
+            cellsFixed: cellsModified,
+            cellsEvolved: modifications.length,
+            fitnessImprovement: 0.0, // LLM doesn't report this
+            modifiedCells: modifications,
+            success: response['success'] ?? true,
+            method: 'AI (LLM)',
+          );
           _isLoading = false;
-          _hasPendingModifications = needsConfirmation;
+          _currentOperation = null;
         });
-        _scrollToBottom();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            content: 'Error: ${e.toString()}',
-            isUser: false,
-          ));
-          _isLoading = false;
-        });
-        _scrollToBottom();
-      }
-    }
-  }
 
-  Future<void> _applyModifications() async {
-    final migrationData = Provider.of<MigrationData>(context, listen: false);
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final result = await migrationData.applyAIModifications();
-
-      if (mounted) {
-        final cellsModified = result['total_cells_modified'] as int? ?? 0;
-
-        setState(() {
-          _messages.add(ChatMessage(
-            content: '**Applied $cellsModified modifications successfully!**\n\nYour data has been updated.',
-            isUser: false,
-            cellsModified: cellsModified,
-          ));
-          _isLoading = false;
-          _hasPendingModifications = false;
-        });
-        _scrollToBottom();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Applied $cellsModified fixes to your data'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            content: 'Error applying modifications: ${e.toString()}',
-            isUser: false,
-          ));
-          _isLoading = false;
-        });
-        _scrollToBottom();
-      }
-    }
-  }
-
-  Future<void> _cancelModifications() async {
-    final migrationData = Provider.of<MigrationData>(context, listen: false);
-
-    try {
-      await migrationData.cancelAIModifications();
-
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            content: 'Modifications cancelled. Your data remains unchanged.',
-            isUser: false,
-          ));
-          _hasPendingModifications = false;
-        });
-        _scrollToBottom();
-      }
-    } catch (e) {
-      debugPrint('Error cancelling: $e');
-    }
-  }
-
-  Future<void> _executeCommand(String command) async {
-    final migrationData = Provider.of<MigrationData>(context, listen: false);
-
-    setState(() {
-      _messages.add(ChatMessage(content: 'Executing: $command', isUser: true));
-      _isLoading = true;
-    });
-    _scrollToBottom();
-
-    try {
-      final result = await migrationData.executeOpenAICommand(command);
-
-      if (mounted) {
-        final success = result['success'] ?? false;
-        final message = result['message'] ?? result['description'] ?? 'Command executed';
-
-        setState(() {
-          _messages.add(ChatMessage(
-            content: success
-                ? 'Done! $message'
-                : 'Could not execute: $message',
-            isUser: false,
-          ));
-          _isLoading = false;
-        });
-        _scrollToBottom();
-
-        if (success) {
+        if (cellsModified > 0 || modifications.isNotEmpty) {
+          final count = cellsModified > 0 ? cellsModified : modifications.length;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(message),
+              content: Text('AI fixed $count cells in your data'),
               backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No cells needed fixing - data is already clean!'),
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 3),
             ),
           );
         }
@@ -294,85 +166,79 @@ Just type your request or question below!''',
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add(ChatMessage(
-            content: 'Error executing command: ${e.toString()}',
-            isUser: false,
-          ));
+          _lastResult = AIFixResult(
+            message: 'Error: ${e.toString()}',
+            cellsFixed: 0,
+            cellsEvolved: 0,
+            fitnessImprovement: 0.0,
+            modifiedCells: [],
+            success: false,
+            method: 'LLM',
+          );
           _isLoading = false;
+          _currentOperation = null;
         });
-        _scrollToBottom();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
 
+  /// Get AI analysis of a specific type
   Future<void> _getAnalysis(String type) async {
     final migrationData = Provider.of<MigrationData>(context, listen: false);
 
+    // Check if data is loaded
+    if (migrationData.data == null || migrationData.data!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please load a dataset first'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() {
-      _messages.add(ChatMessage(
-        content: 'Generate ${type.replaceAll('_', ' ')}',
-        isUser: true,
-      ));
       _isLoading = true;
+      _currentOperation = 'Generating ${type.replaceAll('_', ' ')}...';
+      _lastResult = null;
     });
-    _scrollToBottom();
 
     try {
       final result = await migrationData.getOpenAIAnalysis(type);
 
       if (mounted) {
         setState(() {
-          _messages.add(ChatMessage(
-            content: result['analysis'] ?? 'No analysis generated',
-            isUser: false,
-          ));
+          _analysisResult = result['analysis'] ?? 'No analysis generated';
           _isLoading = false;
+          _currentOperation = null;
         });
-        _scrollToBottom();
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add(ChatMessage(
-            content: 'Error: ${e.toString()}',
-            isUser: false,
-          ));
+          _analysisResult = 'Error: ${e.toString()}';
           _isLoading = false;
+          _currentOperation = null;
         });
-        _scrollToBottom();
       }
     }
   }
 
-  void _executeSuggestedAction(Map<String, dynamic> action) {
-    final type = action['type'] as String?;
-    final column = action['column'] as String?;
-    final method = action['method'] as String?;
-
-    String command;
-    switch (type) {
-      case 'fill_nulls':
-        command = 'Fill missing values in $column column with $method';
-        break;
-      case 'remove_nulls':
-        command = 'Remove rows with null values';
-        break;
-      case 'remove_duplicates':
-        command = 'Remove duplicate rows';
-        break;
-      case 'remove_column':
-        command = 'Remove the $column column';
-        break;
-      default:
-        command = 'Apply ${action['type']} to data';
-    }
-
-    _executeCommand(command);
-  }
-
   @override
   Widget build(BuildContext context) {
-    debugPrint('🔵 [AzureOpenAISection] build called - isChecking: $_isChecking, isConfigured: $_isConfigured, messages: ${_messages.length}');
+    final migrationData = Provider.of<MigrationData>(context);
+    final hasData = migrationData.data != null && migrationData.data!.isNotEmpty;
+    final aiModifiedCells = migrationData.aiModifiedCells ?? [];
+
+    debugPrint('🔵 [AzureOpenAISection] build called - isChecking: $_isChecking, isConfigured: $_isConfigured, aiModifiedCells: ${aiModifiedCells.length}');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -427,318 +293,542 @@ Just type your request or question below!''',
             ),
           ),
 
-        // Quick action buttons
+        // Main action button - Fix Data with AI
         Padding(
-          padding: const EdgeInsets.all(8),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _QuickActionChip(
-                label: 'Summary',
-                icon: Icons.summarize,
-                onTap: () => _getAnalysis('summary'),
-              ),
-              _QuickActionChip(
-                label: 'Quality Report',
-                icon: Icons.assessment,
-                onTap: () => _getAnalysis('quality_report'),
-              ),
-              _QuickActionChip(
-                label: 'Recommendations',
-                icon: Icons.lightbulb,
-                onTap: () => _getAnalysis('recommendations'),
-              ),
-            ],
-          ),
-        ),
-
-        const Divider(height: 1),
-
-        // Chat messages
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: _messages.length + (_isLoading ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == _messages.length && _isLoading) {
-                return _buildTypingIndicator();
-              }
-              return _buildMessageBubble(_messages[index]);
-            },
-          ),
-        ),
-
-        // Input area
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            border: Border(
-              top: BorderSide(color: Colors.grey.shade300),
+          padding: const EdgeInsets.all(16),
+          child: ElevatedButton.icon(
+            onPressed: (_isConfigured && hasData && !_isLoading) ? _fixDataWithAI : null,
+            icon: _isLoading && _currentOperation?.contains('Fixing') == true
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.auto_fix_high, size: 24),
+            label: Text(
+              _isLoading && _currentOperation?.contains('Fixing') == true
+                  ? 'Fixing Data...'
+                  : 'Fix Data with AI',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade600,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
+        ),
+
+        // Quick action buttons for analysis
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    hintText: 'Ask about your data or give a command...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  enabled: _isConfigured && !_isLoading,
-                  onSubmitted: (_) => _sendMessage(),
-                  maxLines: null,
-                  textInputAction: TextInputAction.send,
+                child: _ActionButton(
+                  label: 'Summary',
+                  icon: Icons.summarize,
+                  isLoading: _isLoading && _currentOperation?.contains('summary') == true,
+                  onTap: _isConfigured && hasData && !_isLoading
+                      ? () => _getAnalysis('summary')
+                      : null,
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton.filled(
-                onPressed: _isConfigured && !_isLoading ? _sendMessage : null,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.send),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.cyan,
-                  foregroundColor: Colors.white,
+              Expanded(
+                child: _ActionButton(
+                  label: 'Quality Report',
+                  icon: Icons.assessment,
+                  isLoading: _isLoading && _currentOperation?.contains('quality') == true,
+                  onTap: _isConfigured && hasData && !_isLoading
+                      ? () => _getAnalysis('quality_report')
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _ActionButton(
+                  label: 'Recommendations',
+                  icon: Icons.lightbulb,
+                  isLoading: _isLoading && _currentOperation?.contains('recommendations') == true,
+                  onTap: _isConfigured && hasData && !_isLoading
+                      ? () => _getAnalysis('recommendations')
+                      : null,
                 ),
               ),
             ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+        const Divider(height: 1),
+
+        // Results area
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Loading indicator
+                if (_isLoading && _currentOperation != null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            _currentOperation!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue.shade800,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // AI Fix Result
+                if (_lastResult != null) _buildFixResult(_lastResult!),
+
+                // Analysis Result
+                if (_analysisResult != null) _buildAnalysisResult(_analysisResult!),
+
+                // AI Modified Cells Summary
+                if (aiModifiedCells.isNotEmpty) _buildModifiedCellsSummary(aiModifiedCells),
+
+                // Welcome message when no results
+                if (_lastResult == null && _analysisResult == null && !_isLoading)
+                  _buildWelcomeMessage(hasData),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+  /// Build the fix result card with green highlighting
+  Widget _buildFixResult(AIFixResult result) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: result.success ? Colors.green.shade50 : Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: result.success ? Colors.green.shade300 : Colors.red.shade300,
+          width: 2,
+        ),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!message.isUser) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.cyan,
-              child: const Icon(Icons.smart_toy, size: 18, color: Colors.white),
+          // Header with success/error icon
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: result.success ? Colors.green.shade100 : Colors.red.shade100,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Column(
-              crossAxisAlignment: message.isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: message.isUser
-                        ? Colors.cyan.shade100
-                        : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SelectableText(
-                    message.content,
-                    style: const TextStyle(fontSize: 14),
+                Icon(
+                  result.success ? Icons.check_circle : Icons.error,
+                  color: result.success ? Colors.green.shade700 : Colors.red.shade700,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        result.success ? 'AI Data Fix Complete' : 'Fix Failed',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: result.success ? Colors.green.shade800 : Colors.red.shade800,
+                        ),
+                      ),
+                      Text(
+                        'Method: ${result.method}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: result.success ? Colors.green.shade600 : Colors.red.shade600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                // Confirmation buttons for preview mode
-                if (message.needsConfirmation && _hasPendingModifications)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Show modification preview count
-                        if (message.fixesCount != null && message.fixesCount! > 0)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.orange.shade200),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.preview, size: 16, color: Colors.orange.shade700),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '${message.fixesCount} fixes ready to apply',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.orange.shade700,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                if (message.appliedModifications != null &&
-                                    message.appliedModifications!.isNotEmpty) ...[
-                                  const SizedBox(width: 8),
-                                  InkWell(
-                                    onTap: () => _showModificationDetails(message.appliedModifications!),
-                                    child: Text(
-                                      'View details',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.orange.shade700,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        // Apply/Cancel buttons
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: _isLoading ? null : _applyModifications,
-                              icon: const Icon(Icons.check, size: 18),
-                              label: const Text('Apply Changes'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton.icon(
-                              onPressed: _isLoading ? null : _cancelModifications,
-                              icon: const Icon(Icons.close, size: 18),
-                              label: const Text('Cancel'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              ),
-                            ),
-                          ],
+                // "Modified by AI" tag
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade600,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.auto_fix_high, size: 14, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        'Modified by AI',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                      ],
-                    ),
-                  ),
-                // Cell modification indicator (for already applied changes)
-                if (message.cellsModified != null && message.cellsModified! > 0 && !message.needsConfirmation)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.shade200),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check_circle, size: 16, color: Colors.green.shade700),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${message.cellsModified} cells modified',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.green.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (message.appliedModifications != null &&
-                              message.appliedModifications!.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            InkWell(
-                              onTap: () => _showModificationDetails(message.appliedModifications!),
-                              child: Text(
-                                'View details',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.green.shade700,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
-                // Suggested actions
-                if (message.suggestedActions != null &&
-                    message.suggestedActions!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: message.suggestedActions!.map((action) {
-                        return ActionChip(
-                          avatar: const Icon(Icons.play_arrow, size: 16),
-                          label: Text(_getActionLabel(action)),
-                          onPressed: () => _executeSuggestedAction(action),
-                          backgroundColor: Colors.green.shade50,
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                ),
               ],
             ),
           ),
-          if (message.isUser) ...[
-            const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey.shade400,
-              child: const Icon(Icons.person, size: 18, color: Colors.white),
+          // Stats
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Cells fixed stat
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.healing, color: Colors.green.shade700, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '${result.cellsFixed} cells fixed',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Message
+                Text(
+                  result.message,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                ),
+                // Show modified cells list if available
+                if (result.modifiedCells.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () => _showModificationDetails(result.modifiedCells),
+                    icon: const Icon(Icons.visibility, size: 18),
+                    label: Text('View ${result.modifiedCells.length} modified cells'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.green.shade700,
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
+  /// Build analysis result card
+  Widget _buildAnalysisResult(String analysis) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.cyan.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.cyan.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.analytics, color: Colors.cyan.shade700, size: 24),
+              const SizedBox(width: 8),
+              const Text(
+                'AI Analysis',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SelectableText(
+            analysis,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build summary of all AI-modified cells
+  Widget _buildModifiedCellsSummary(List<Map<String, dynamic>> cells) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade300, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade100,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.auto_fix_high, color: Colors.green.shade700, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${cells.length} Cells Modified by AI',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade800,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade600,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text(
+                    'Modified by AI',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Cell list preview (show first 5)
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                ...cells.take(5).map((cell) => _buildCellModificationRow(cell)),
+                if (cells.length > 5)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      onPressed: () => _showModificationDetails(cells),
+                      icon: const Icon(Icons.expand_more, size: 18),
+                      label: Text('View all ${cells.length} modifications'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.green.shade700,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build a single cell modification row
+  Widget _buildCellModificationRow(Map<String, dynamic> cell) {
+    final row = cell['row'] ?? '?';
+    final colName = cell['col_name'] ?? cell['column'] ?? 'col ${cell['col']}';
+    final oldValue = cell['original_value'] ?? cell['old_value'] ?? 'null';
+    final newValue = cell['evolved_value'] ?? cell['new_value'] ?? '?';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        children: [
+          // Row/Column info
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              'R$row',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue.shade800,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.purple.shade100,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              colName.toString(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.purple.shade800,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Old value (struck through)
+          Expanded(
+            child: Text(
+              oldValue.toString(),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.red.shade600,
+                decoration: TextDecoration.lineThrough,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Icon(Icons.arrow_forward, size: 14, color: Colors.grey.shade400),
+          const SizedBox(width: 4),
+          // New value (green, bold)
+          Expanded(
+            child: Text(
+              newValue.toString(),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.green.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build welcome message when no results
+  Widget _buildWelcomeMessage(bool hasData) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.auto_fix_high,
+            size: 48,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'AI Data Assistant',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            hasData
+                ? 'Click "Fix Data with AI" to automatically fix error cells in your data.\nOr use the analysis buttons to get insights about your dataset.'
+                : 'Load a dataset first to use AI features.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show modification details dialog
   void _showModificationDetails(List<Map<String, dynamic>> modifications) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.edit_note, color: Colors.green.shade700),
+            Icon(Icons.auto_fix_high, color: Colors.green.shade700),
             const SizedBox(width: 8),
             const Text('AI Cell Modifications'),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${modifications.length} cells',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ),
           ],
         ),
         content: SizedBox(
           width: double.maxFinite,
-          height: 300,
+          height: 400,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: modifications.length,
             itemBuilder: (context, index) {
               final mod = modifications[index];
+              final row = mod['row'] ?? '?';
+              final colName = mod['col_name'] ?? mod['column'] ?? 'col ${mod['col']}';
+              final oldValue = mod['original_value'] ?? mod['old_value'];
+              final newValue = mod['evolved_value'] ?? mod['new_value'];
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
+                color: Colors.green.shade50,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
@@ -753,7 +843,7 @@ Just type your request or question below!''',
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'Row ${mod['row']}',
+                              'Row $row',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -769,7 +859,7 @@ Just type your request or question below!''',
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              '${mod['column']}',
+                              '$colName',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -777,9 +867,25 @@ Just type your request or question below!''',
                               ),
                             ),
                           ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade600,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'AI',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
@@ -794,9 +900,9 @@ Just type your request or question below!''',
                                   ),
                                 ),
                                 Text(
-                                  '${mod['old_value'] ?? 'null'}',
+                                  '${oldValue ?? 'null'}',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     color: Colors.red.shade700,
                                     decoration: TextDecoration.lineThrough,
                                   ),
@@ -804,7 +910,10 @@ Just type your request or question below!''',
                               ],
                             ),
                           ),
-                          Icon(Icons.arrow_forward, size: 16, color: Colors.grey.shade400),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Icon(Icons.arrow_forward, size: 16, color: Colors.grey.shade400),
+                          ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,9 +926,9 @@ Just type your request or question below!''',
                                   ),
                                 ),
                                 Text(
-                                  '${mod['new_value']}',
+                                  '$newValue',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     color: Colors.green.shade700,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -845,93 +954,54 @@ Just type your request or question below!''',
       ),
     );
   }
-
-  String _getActionLabel(Map<String, dynamic> action) {
-    final type = action['type'] as String?;
-    final column = action['column'] as String?;
-    final method = action['method'] as String?;
-
-    switch (type) {
-      case 'fill_nulls':
-        return 'Fill ${column ?? 'nulls'} with $method';
-      case 'remove_nulls':
-        return 'Remove null rows';
-      case 'remove_duplicates':
-        return 'Remove duplicates';
-      case 'remove_column':
-        return 'Remove $column';
-      default:
-        return type ?? 'Action';
-    }
-  }
-
-  Widget _buildTypingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.cyan,
-            child: const Icon(Icons.smart_toy, size: 18, color: Colors.white),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildDot(0),
-                _buildDot(1),
-                _buildDot(2),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDot(int index) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 600 + (index * 200)),
-      builder: (context, value, child) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade500.withOpacity(0.3 + (value * 0.7)),
-            shape: BoxShape.circle,
-          ),
-        );
-      },
-    );
-  }
 }
 
-class _QuickActionChip extends StatelessWidget {
+/// Action button widget for analysis actions
+class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
-  final VoidCallback onTap;
+  final bool isLoading;
+  final VoidCallback? onTap;
 
-  const _QuickActionChip({
+  const _ActionButton({
     required this.label,
     required this.icon,
-    required this.onTap,
+    this.isLoading = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      avatar: Icon(icon, size: 16),
-      label: Text(label),
+    return ElevatedButton(
       onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.cyan.shade100,
+        foregroundColor: Colors.cyan.shade800,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.cyan.shade700,
+                  ),
+                )
+              : Icon(icon, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

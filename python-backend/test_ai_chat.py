@@ -147,7 +147,7 @@ class TestAIChatConfig(unittest.TestCase):
         )
         self.assertEqual(config.api_version, "2024-02-15-preview")
         self.assertEqual(config.max_tokens, 2000)
-        self.assertLess(config.temperature, 0.5)  # Should be low for JSON output
+        self.assertIsNone(config.temperature)  # None by default (use model default)
 
 
 # ==============================================================================

@@ -248,72 +248,92 @@ class _DataTableSectionState extends State<DataTableSection> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 16),
-                    // Color legend
-                    if (migrationData.errorCells != null &&
-                            migrationData.errorCells!.isNotEmpty ||
-                        migrationData.aiModifiedCells != null &&
-                            migrationData.aiModifiedCells!.isNotEmpty)
-                      Row(
-                        children: [
-                          if (migrationData.errorCells != null &&
-                              migrationData.errorCells!.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade100,
-                                border:
-                                    Border.all(color: Colors.red.shade400),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.warning,
-                                      size: 14, color: Colors.red.shade700),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${migrationData.errorCells!.length} Issues',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.red.shade900,
-                                      fontWeight: FontWeight.w500,
+                    // Color legend - calculate unfixed errors (exclude AI-fixed cells)
+                    Builder(
+                      builder: (context) {
+                        // Build set of AI-fixed cell positions
+                        final aiFixedPositions = <String>{};
+                        if (migrationData.aiModifiedCells != null) {
+                          for (final mod in migrationData.aiModifiedCells!) {
+                            aiFixedPositions.add('${mod['row']}_${mod['col']}');
+                          }
+                        }
+
+                        // Count unfixed errors
+                        final unfixedErrorCount = migrationData.errorCells?.where((error) {
+                          final key = '${error['row']}_${error['col']}';
+                          return !aiFixedPositions.contains(key);
+                        }).length ?? 0;
+
+                        final hasUnfixedErrors = unfixedErrorCount > 0;
+                        final hasAiFixed = migrationData.aiModifiedCells != null &&
+                            migrationData.aiModifiedCells!.isNotEmpty;
+
+                        if (!hasUnfixedErrors && !hasAiFixed) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Row(
+                          children: [
+                            if (hasUnfixedErrors)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade100,
+                                  border:
+                                      Border.all(color: Colors.red.shade400),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.warning,
+                                        size: 14, color: Colors.red.shade700),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$unfixedErrorCount Issues',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.red.shade900,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          if (migrationData.aiModifiedCells != null &&
-                              migrationData.aiModifiedCells!.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade100,
-                                border:
-                                    Border.all(color: Colors.green.shade400),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.check_circle,
-                                      size: 14, color: Colors.green.shade700),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${migrationData.aiModifiedCells!.length} AI Fixed',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.green.shade900,
-                                      fontWeight: FontWeight.w500,
+                            if (hasAiFixed)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  border:
+                                      Border.all(color: Colors.green.shade400),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.check_circle,
+                                        size: 14, color: Colors.green.shade700),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${migrationData.aiModifiedCells!.length} AI Fixed',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.green.shade900,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
+                          ],
+                        );
+                      },
+                    ),
                     const Spacer(),
                   ],
                 ),

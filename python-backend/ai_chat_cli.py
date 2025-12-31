@@ -27,6 +27,10 @@ import sys
 import os
 from typing import Optional
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -194,6 +198,10 @@ class AIChatCLI:
 
         self.log(f"\nSending: {message}")
 
+        # Check if this is a "fix" command
+        if 'fix' in message.lower() and self.df is not None:
+            return self.fix_data()
+
         response = self.chat.chat(
             user_message=message,
             df=self.df,
@@ -216,54 +224,74 @@ class AIChatCLI:
 
         return response
 
-    def display_response(self, response: AIResponse):
-        """Display AI response"""
+    def fix_data(self) -> Optional[AIResponse]:
+        """Fix all error cells in the data"""
+        if self.df is None:
+            print("No data loaded")
+            return None
+
+        if self.chat is None or not self.chat.is_available():
+            print("AI Chat not available")
+            return None
+
+        print("\nFixing data...")
+
+        # Use the fix_data method from AIChat
+        fixed_df, response, details = self.chat.fix_data(self.df)
+
+        if response.success and details.get('applied', 0) > 0:
+            # Update the dataframe with fixes
+            self.df = fixed_df
+
+        # Display the results
+        self.display_response(response, fix_details=details)
+
+        # Show updated data preview
+        if details.get('applied', 0) > 0:
+            print("\nData after fixes:")
+            self.show_data_preview()
+
+        return response
+
+    def display_response(self, response: AIResponse, fix_details: dict = None):
+        """Display AI response - minimal output"""
         if self.json_output:
             print(response.to_json())
             return
-
-        print("\n" + "=" * 50)
-        print("AI Response:")
-        print("=" * 50)
 
         if not response.success:
             print(f"Error: {response.error}")
             return
 
-        print(f"\nMessage: {response.message}")
+        # Show fix details if available
+        if fix_details:
+            applied = fix_details.get('applied', 0)
+            if applied > 0:
+                print(f"\nApplied {applied} fixes:")
+                for fix in fix_details.get('applied_fixes', []):
+                    old_val = fix.get('old_value', 'null')
+                    new_val = fix.get('new_value', 'null')
+                    print(f"  [{fix['row']}][{fix['column']}]: {old_val} -> {new_val}")
+            else:
+                print("\nNo fixes needed - data is clean")
+            return
 
+        # Only show message if not empty
+        if response.message and response.message.strip():
+            print(f"\n{response.message}")
+
+        # Show operations in compact format
         if response.operations:
-            print(f"\nSuggested Operations ({len(response.operations)}):")
+            print(f"\nOperations ({len(response.operations)}):")
             for i, op in enumerate(response.operations, 1):
-                print(f"\n  [{i}] {op.operation.value}")
-                if op.column:
-                    print(f"      Column: {op.column}")
+                if op.operation.value == 'none':
+                    continue
+                params_str = ""
                 if op.parameters:
-                    print(f"      Parameters: {json.dumps(op.parameters)}")
-                if op.description:
-                    print(f"      Description: {op.description}")
-                if op.confidence < 1.0:
-                    print(f"      Confidence: {op.confidence:.0%}")
-                if op.reasoning:
-                    print(f"      Reasoning: {op.reasoning}")
+                    params_str = " " + ", ".join(f"{k}={v}" for k, v in op.parameters.items())
+                col_str = f" [{op.column}]" if op.column else ""
+                print(f"  {i}. {op.operation.value}{col_str}{params_str}")
 
-        if response.analysis:
-            print("\nAnalysis:")
-            if 'summary' in response.analysis:
-                print(f"  Summary: {response.analysis['summary']}")
-            if 'issues_found' in response.analysis:
-                print("  Issues Found:")
-                for issue in response.analysis['issues_found']:
-                    print(f"    - {issue}")
-            if 'recommendations' in response.analysis:
-                print("  Recommendations:")
-                for rec in response.analysis['recommendations']:
-                    print(f"    - {rec}")
-
-        if response.usage:
-            print(f"\nToken Usage: {response.usage.get('total_tokens', 'N/A')} tokens")
-
-        print("=" * 50)
         print()
 
     def execute_operations(self, operations: list):
@@ -294,12 +322,11 @@ class AIChatCLI:
         print("\nInteractive Mode")
         print("-" * 50)
         print("Commands:")
-        print("  /help     - Show help")
+        print("  /fix      - Fix all error cells in data")
         print("  /data     - Show data preview")
         print("  /context  - Show data context as JSON")
         print("  /analyze  - Run data quality analysis")
-        print("  /execute  - Execute last suggested operations")
-        print("  /clear    - Clear conversation history")
+        print("  /help     - Show help")
         print("  /quit     - Exit")
         print("-" * 50)
         print("\nType your message or command:\n")
@@ -319,26 +346,22 @@ class AIChatCLI:
                     if cmd in ('/quit', '/exit', '/q'):
                         print("Goodbye!")
                         break
-                    elif cmd == '/help':
-                        print("\nAvailable commands:")
-                        print("  /help     - Show this help")
-                        print("  /data     - Show data preview")
-                        print("  /context  - Show data context as JSON")
-                        print("  /analyze  - Run data quality analysis")
-                        print("  /execute  - Execute last suggested operations")
-                        print("  /clear    - Clear conversation history")
-                        print("  /quit     - Exit\n")
+                    elif cmd == '/fix':
+                        last_response = self.fix_data()
                     elif cmd == '/data':
                         self.show_data_preview()
                     elif cmd == '/context':
                         self.show_data_context_json()
                     elif cmd == '/analyze':
                         last_response = self.analyze_data()
-                    elif cmd == '/execute':
-                        if last_response and last_response.operations:
-                            self.execute_operations(last_response.operations)
-                        else:
-                            print("No operations to execute")
+                    elif cmd == '/help':
+                        print("\nAvailable commands:")
+                        print("  /fix      - Fix all error cells in data")
+                        print("  /data     - Show data preview")
+                        print("  /context  - Show data context as JSON")
+                        print("  /analyze  - Run data quality analysis")
+                        print("  /help     - Show this help")
+                        print("  /quit     - Exit\n")
                     elif cmd == '/clear':
                         self.conversation_history = []
                         print("Conversation history cleared")

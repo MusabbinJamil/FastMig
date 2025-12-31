@@ -328,9 +328,9 @@ class DataFitnessEvolverGA:
                 
                 # Mark as modified if tracking
                 if self.track_modifications and 'Modified_by_AI' not in evolved_df.columns:
-                    evolved_df['Modified_by_AI'] = False
+                    evolved_df['Modified_by_AI'] = 'No'
                 if self.track_modifications:
-                    evolved_df.at[unhealthy_idx, 'Modified_by_AI'] = True
+                    evolved_df.at[unhealthy_idx, 'Modified_by_AI'] = 'Yes'
                 
                 # Calculate new fitness
                 try:

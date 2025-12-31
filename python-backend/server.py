@@ -348,7 +348,11 @@ def upload_file():
         # Perform data quality analysis
         analyzer = DataQualityAnalyzer()
         quality_report = analyzer.analyze(df)
-        
+
+        # Store error_cells in current_data for AI fixing
+        current_data['error_cells'] = quality_report['error_cells']
+        current_data['column_types'] = quality_report['column_types']
+
         app.logger.info(f"Successfully processed file: {filename} ({df.shape[0]} rows, {df.shape[1]} columns)")
         app.logger.info(f"Found {len(quality_report['error_cells'])} problematic cells")
         app.logger.info(f"DEBUG: error_cells = {quality_report['error_cells']}")
@@ -3934,20 +3938,26 @@ def openai_chat_modify():
 
         # Generate fixes for each error cell
         logger.info(f"Generating fixes for {len(error_cells)} error cells")
+        logger.info(f"Error cells to fix: {error_cells}")
         modifications = []
         preview_df = df.copy()
 
         for err in error_cells:
             row_idx = err.get('row', 0) - 1  # Convert to 0-indexed (error_cells are 1-indexed)
             col_idx = err.get('col', 0)
-            error_type = err.get('type', 'unknown')
-            current_value = err.get('value')
+            # Handle both 'issues' array and 'type' string formats
+            issues = err.get('issues', [])
+            error_type = issues[0] if issues else err.get('type', 'unknown')
 
             if col_idx >= len(df.columns) or row_idx < 0 or row_idx >= len(df):
+                logger.warning(f"Skipping invalid cell: row={row_idx}, col={col_idx}")
                 continue
 
             col_name = df.columns[col_idx]
             col_data = df[col_name]
+            current_value = df.iloc[row_idx, col_idx]
+
+            logger.info(f"Processing error: row={row_idx+1}, col={col_name}, type={error_type}, value={current_value}")
 
             # Calculate fix value based on column type and valid values
             new_value = None
@@ -3967,7 +3977,9 @@ def openai_chat_modify():
             except:
                 pass
 
-            if error_type in ['null', 'empty', 'missing'] or pd.isna(current_value) or current_value in ['', None, 'null', 'NaN']:
+            # Handle missing_value, null, empty, missing error types
+            if error_type in ['null', 'empty', 'missing', 'missing_value'] or pd.isna(current_value) or current_value in ['', None, 'null', 'NaN']:
+                logger.info(f"  -> Fixing missing value in {col_name}")
                 # Fill missing values
                 if is_numeric_col:
                     try:
@@ -3992,7 +4004,9 @@ def openai_chat_modify():
                         new_value = "N/A"
                         reason = "Filled with placeholder"
 
-            elif error_type in ['type_mismatch', 'invalid']:
+            # Handle non_numeric, mixed_content, type_mismatch, invalid types
+            elif error_type in ['type_mismatch', 'invalid', 'non_numeric', 'mixed_content']:
+                logger.info(f"  -> Fixing type mismatch/invalid value in {col_name}: {current_value}")
                 # Try to convert or replace invalid values
                 if is_numeric_col:
                     # Try to extract number from value
@@ -4012,10 +4026,76 @@ def openai_chat_modify():
                         new_value = 0
                         reason = "Reset invalid numeric value"
                 else:
-                    new_value = str(current_value).strip() if current_value else "N/A"
-                    reason = "Cleaned string value"
+                    # For string columns with type issues, try to clean the value
+                    try:
+                        import re
+                        # Remove non-alpha characters for string columns
+                        cleaned = re.sub(r'[^a-zA-Z\s]', '', str(current_value)).strip()
+                        if cleaned:
+                            new_value = cleaned
+                            reason = f"Cleaned string value (removed non-alpha chars)"
+                        else:
+                            valid_vals = col_data[valid_mask]
+                            if len(valid_vals) > 0:
+                                mode_val = valid_vals.mode()
+                                if len(mode_val) > 0:
+                                    new_value = str(mode_val.iloc[0])
+                                    reason = f"Replaced with most common value"
+                    except:
+                        new_value = str(current_value).strip() if current_value else "N/A"
+                        reason = "Cleaned string value"
+
+            # Handle suspicious_numeric_in_string
+            elif error_type in ['suspicious_numeric_in_string']:
+                logger.info(f"  -> Fixing suspicious numeric in string column {col_name}: {current_value}")
+                # This is a string column with a numeric value - might be a data entry error
+                try:
+                    # Get valid string values (excluding numeric-looking ones)
+                    valid_string_vals = []
+                    for i, v in enumerate(col_data):
+                        if pd.notna(v) and v != '' and v != 'null':
+                            v_str = str(v).strip()
+                            # Only include values that are NOT purely numeric
+                            if not v_str.replace('.', '').replace('-', '').replace(',', '').isdigit():
+                                valid_string_vals.append(v_str)
+
+                    logger.info(f"  -> Valid string values for mode: {valid_string_vals[:5]}...")
+
+                    if valid_string_vals:
+                        # Use pandas Series mode to find most common string value
+                        mode_series = pd.Series(valid_string_vals).mode()
+                        if len(mode_series) > 0:
+                            new_value = str(mode_series.iloc[0])
+                            reason = f"Replaced numeric '{current_value}' with most common string value '{new_value}'"
+                        else:
+                            new_value = valid_string_vals[0]  # Use first valid string
+                            reason = f"Replaced numeric '{current_value}' with valid string value"
+                    else:
+                        # No valid string values found, mark as needing manual review
+                        new_value = f"[{current_value}]"
+                        reason = "Marked for manual review (no valid string values found)"
+                except Exception as e:
+                    logger.warning(f"Error fixing suspicious_numeric_in_string: {e}")
+                    new_value = str(current_value)  # Keep as-is if can't fix
+                    reason = "Kept original value (fix failed)"
+
+            # Default handling for unknown types
+            else:
+                logger.info(f"  -> Unknown error type '{error_type}', attempting generic fix")
+                if pd.isna(current_value) or current_value in ['', None]:
+                    try:
+                        valid_vals = col_data[valid_mask]
+                        if len(valid_vals) > 0:
+                            mode_val = valid_vals.mode()
+                            if len(mode_val) > 0:
+                                new_value = mode_val.iloc[0]
+                                reason = f"Filled with most common value"
+                    except:
+                        new_value = "N/A"
+                        reason = "Filled with placeholder"
 
             if new_value is not None:
+                logger.info(f"  -> Fix applied: '{current_value}' -> '{new_value}' ({reason})")
                 # Apply to preview
                 try:
                     preview_df.iloc[row_idx, col_idx] = new_value
@@ -4024,11 +4104,14 @@ def openai_chat_modify():
                     continue
 
                 modifications.append({
-                    'row': row_idx,
+                    'row': row_idx + 1,  # 1-indexed for frontend display (matches data row numbers)
                     'col': col_idx,
                     'column': col_name,
+                    'col_name': col_name,  # Add col_name for frontend compatibility
                     'old_value': str(current_value) if current_value is not None else 'null',
+                    'original_value': str(current_value) if current_value is not None else 'null',  # Alternative key
                     'new_value': new_value,
+                    'evolved_value': new_value,  # Alternative key for frontend
                     'reason': reason,
                     'error_type': error_type
                 })
@@ -4067,33 +4150,52 @@ def openai_chat_modify():
 
         # Auto-execute if requested
         if auto_execute and modifications:
+            # Add "Modified_by_AI" column to track which rows were modified
+            # Note: mod['row'] is 1-indexed, so we need to convert back to 0-indexed for df.index
+            modified_rows_0indexed = set(mod['row'] - 1 for mod in modifications)
+            preview_df['Modified_by_AI'] = preview_df.index.map(
+                lambda idx: 'Yes' if idx in modified_rows_0indexed else 'No'
+            )
+            logger.info(f"Added Modified_by_AI column. Modified rows (0-indexed): {sorted(modified_rows_0indexed)}")
+
             current_data['df'] = preview_df
-            # Track modifications
+
+            # Track modifications (row is already 1-indexed in modifications)
             for mod in modifications:
                 track_ai_modification(
-                    row_index=mod['row'],
+                    row_index=mod['row'] - 1,  # Convert back to 0-indexed for internal tracking
                     column=mod['column'],
                     old_value=mod['old_value'],
                     new_value=mod['new_value'],
                     operation='ai_fix'
                 )
-            # Re-analyze for remaining errors
-            current_data['error_cells'] = _analyze_error_cells(preview_df)
+
+            # Re-analyze for remaining errors using DataQualityAnalyzer
+            analyzer = DataQualityAnalyzer()
+            updated_quality_report = analyzer.analyze(preview_df)
+            current_data['error_cells'] = updated_quality_report.get('error_cells', [])
+            logger.info(f"After AI fix: {len(current_data['error_cells'])} error cells remaining")
             msg = f"**Applied {len(modifications)} fixes to your data.**"
+
+        logger.info(f"Returning response: {len(modifications)} modifications, auto_execute={auto_execute}")
 
         return jsonify({
             'success': True,
             'message': msg,
             'modifications': modifications,
+            'applied_modifications': modifications if auto_execute else [],  # For frontend compatibility
             'preview_data': preview_list if not auto_execute else None,
             'data': _dataframe_to_list(current_data['df'], max_rows=100) if auto_execute else None,
             'columns': current_data['df'].columns.tolist(),
-            'error_cells_count': len(error_cells),
+            'shape': list(current_data['df'].shape),
+            'error_cells': current_data.get('error_cells', []),  # Updated error cells after fix
+            'error_cells_count': len(current_data.get('error_cells', [])),
             'fixes_count': len(modifications),
             'needs_confirmation': not auto_execute and len(modifications) > 0,
             'modifications_applied': auto_execute and len(modifications) > 0,
             'total_cells_modified': len(modifications) if auto_execute else 0,
-            'ai_modifications': get_ai_modifications()
+            'ai_modifications': get_ai_modifications(),
+            'ai_modified_cells': modifications if auto_execute else []  # For data grid highlighting
         })
 
     except Exception as e:

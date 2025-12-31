@@ -401,11 +401,11 @@ class EvolutionaryDataCleaner:
         
         # Add tracking column if enabled and not already present
         if self.track_modifications and 'Modified_by_AI' not in self.df.columns:
-            self.df['Modified_by_AI'] = False
+            self.df['Modified_by_AI'] = 'No'
     
     def _mark_record_as_modified(self, row_idx: int, df_to_update: pd.DataFrame = None):
         """Mark a record as modified by AI
-        
+
         Args:
             row_idx: Index of the record to mark
             df_to_update: DataFrame to update (if None, uses self.df)
@@ -413,9 +413,9 @@ class EvolutionaryDataCleaner:
         if self.track_modifications:
             self.modified_records.add(row_idx)
             if df_to_update is not None:
-                df_to_update.loc[row_idx, 'Modified_by_AI'] = True
+                df_to_update.loc[row_idx, 'Modified_by_AI'] = 'Yes'
             else:
-                self.df.loc[row_idx, 'Modified_by_AI'] = True
+                self.df.loc[row_idx, 'Modified_by_AI'] = 'Yes'
     
     def genetic_algorithm_imputation(self, 
                                      population_size: int = 50,

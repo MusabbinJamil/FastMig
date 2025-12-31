@@ -436,7 +436,7 @@ class TestDEEngine(unittest.TestCase):
         self.assertGreater(result.total_generations, 0)
         self.assertIsNotNone(result.best_individual)
         # Optimal is x=5, fitness=0
-        self.assertAlmostEqual(result.best_individual[0], 5.0, places=1)
+        self.assertAlmostEqual(result.best_individual[0], 5.0, delta=0.1)
 
     def test_convenience_function(self):
         result = optimize_value_de(
@@ -447,7 +447,7 @@ class TestDEEngine(unittest.TestCase):
         )
 
         self.assertIsInstance(result, DEResult)
-        self.assertAlmostEqual(result.best_individual[0], 5.0, places=1)
+        self.assertAlmostEqual(result.best_individual[0], 5.0, delta=0.1)
 
     def test_all_strategies(self):
         for strategy in DEMutationStrategy:

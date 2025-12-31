@@ -1203,20 +1203,36 @@ class MigrationData with ChangeNotifier {
       // Update local data if modifications were applied
       if (result['modifications_applied'] == true && result['data'] != null) {
         _data = result['data'];
-        _columns = result['columns'];
+        _columns = result['columns'] != null
+            ? List<String>.from(result['columns'])
+            : _columns;
         _shape = result['shape'] != null ? List<int>.from(result['shape']) : null;
 
         // Add the new modifications to the AI modified cells list
+        // Try multiple keys for compatibility
         final appliedMods = result['applied_modifications'] as List<dynamic>?;
-        if (appliedMods != null && appliedMods.isNotEmpty) {
+        final mods = result['modifications'] as List<dynamic>?;
+        final aiModCells = result['ai_modified_cells'] as List<dynamic>?;
+        final newMods = appliedMods ?? mods ?? aiModCells ?? [];
+
+        if (newMods.isNotEmpty) {
           _aiModifiedCells ??= [];
-          for (final mod in appliedMods) {
-            _aiModifiedCells!.add(Map<String, dynamic>.from(mod));
+          for (final mod in newMods) {
+            _aiModifiedCells!.add(Map<String, dynamic>.from(mod as Map));
           }
           debugPrint(
-              '✅ DEBUG: AI Chat modified ${appliedMods.length} cells. Total AI-modified: ${_aiModifiedCells?.length ?? 0}');
+              '✅ DEBUG: AI Chat modified ${newMods.length} cells. Total AI-modified: ${_aiModifiedCells?.length ?? 0}');
         }
       }
+
+      // ALWAYS update error cells from response (regardless of modifications_applied)
+      // This ensures the "Issues" chip is updated after AI fix
+      if (result['error_cells'] != null) {
+        _errorCells = List<Map<String, dynamic>>.from(result['error_cells']);
+        debugPrint('✅ DEBUG: Updated error cells: ${_errorCells?.length ?? 0} remaining');
+      }
+
+      notifyListeners(); // Notify to update UI with new data
 
       return result;
     } catch (e) {

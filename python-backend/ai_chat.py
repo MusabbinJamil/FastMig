@@ -70,7 +70,7 @@ class AIChatConfig:
     deployment: Optional[str] = None
     api_version: str = "2024-02-15-preview"
     max_tokens: int = 2000
-    temperature: float = 0.1  # Low temperature for consistent JSON output
+    temperature: Optional[float] = None  # None = use model default (some models don't support custom values)
 
     def __post_init__(self):
         # Load from environment if not provided
@@ -226,69 +226,37 @@ class AIChat:
     ensuring reliable parsing and consistent response formats.
     """
 
-    # JSON response schema for the LLM
+    # JSON response schema for the LLM - returns actual cell fixes
     RESPONSE_SCHEMA = """
 {
-    "message": "Human-readable response to the user's query",
-    "operations": [
-        {
-            "operation": "fill_nulls|remove_nulls|remove_duplicates|remove_column|rename_column|change_case|find_replace|filter_rows|trim_whitespace|convert_type|analyze|none",
-            "column": "column_name or null",
-            "parameters": {
-                "method": "mean|median|mode|constant|ffill|bfill (for fill_nulls)",
-                "value": "value for constant fill or replacements",
-                "new_name": "for rename_column",
-                "case_type": "upper|lower|title (for change_case)",
-                "find_value": "for find_replace",
-                "replace_value": "for find_replace",
-                "operator": "==|!=|>|<|>=|<= (for filter_rows)",
-                "filter_value": "for filter_rows",
-                "target_type": "int|float|str|datetime (for convert_type)"
-            },
-            "description": "Brief description of what this operation will do",
-            "confidence": 0.95,
-            "reasoning": "Why this operation is recommended"
-        }
-    ],
-    "analysis": {
-        "summary": "Optional analysis summary",
-        "issues_found": ["list of data quality issues"],
-        "recommendations": ["list of recommendations"]
-    }
+    "fixes": [
+        {"row": 0, "column": "column_name", "value": "new_value"}
+    ]
 }
 """
 
-    SYSTEM_PROMPT = """You are a data cleaning and migration assistant for the FastMig tool.
-You help users understand, clean, and transform their data using structured JSON responses.
+    SYSTEM_PROMPT = """You are a data repair tool. You return EXACT cell values to fix errors.
 
-IMPORTANT: You MUST respond with ONLY valid JSON. No markdown, no explanations outside JSON.
+CRITICAL RULES:
+1. Respond with ONLY valid JSON - no text, no markdown, no explanations
+2. Return a "fixes" array with the exact values to put in each error cell
+3. Each fix must have: row (index), column (name), value (the fixed value)
+4. For numeric columns with nulls: calculate and return the median of existing values
+5. For text columns with nulls: return "Unknown"
+6. For categorical columns with nulls: return the most common value
+7. For dates with nulls: return null (cannot infer dates)
+8. ONLY include cells that need fixing - do not include valid cells
 
-Available operations:
-- fill_nulls: Fill missing values (methods: mean, median, mode, constant, ffill, bfill)
-- remove_nulls: Remove rows with null values in specified column
-- remove_duplicates: Remove duplicate rows
-- remove_column: Remove a column from the dataset
-- rename_column: Rename a column
-- change_case: Change text case (upper, lower, title)
-- find_replace: Find and replace values in a column
-- filter_rows: Filter rows by condition
-- trim_whitespace: Remove leading/trailing whitespace
-- convert_type: Convert column data type
-- analyze: Analyze data without modifications
-- none: No operation needed (just answering a question)
+Example - if data has:
+  row 0: age=25, name="Alice"
+  row 1: age=null, name="Bob"
+  row 2: age=35, name=null
 
-Response format (MUST be valid JSON):
+Your response should be:
+{{"fixes": [{{"row": 1, "column": "age", "value": 30}}, {{"row": 2, "column": "name", "value": "Unknown"}}]}}
+
+Response format:
 {schema}
-
-Guidelines:
-1. Always respond with valid JSON only - no text before or after
-2. Suggest operations based on the data context provided
-3. Include confidence scores (0-1) for each operation
-4. Provide clear reasoning for each recommendation
-5. For analysis queries, use operation="analyze" with analysis field
-6. If you can't determine an operation, use operation="none"
-7. Use actual column names from the data context
-8. Be specific with parameters
 """
 
     def __init__(self, config: Optional[AIChatConfig] = None):
@@ -456,13 +424,17 @@ Guidelines:
 
             logger.info(f"Sending chat request: {user_message[:100]}...")
 
-            # Call Azure OpenAI
-            response = self.client.chat.completions.create(
-                model=self.config.deployment,
-                messages=messages,
-                max_completion_tokens=self.config.max_tokens,
-                temperature=self.config.temperature
-            )
+            # Call Azure OpenAI - build kwargs dynamically
+            api_kwargs = {
+                "model": self.config.deployment,
+                "messages": messages,
+                "max_completion_tokens": self.config.max_tokens
+            }
+            # Only include temperature if explicitly set (some models don't support it)
+            if self.config.temperature is not None:
+                api_kwargs["temperature"] = self.config.temperature
+
+            response = self.client.chat.completions.create(**api_kwargs)
 
             raw_response = response.choices[0].message.content.strip()
             logger.info(f"Received response ({len(raw_response)} chars)")
@@ -703,6 +675,101 @@ Provide a specific operation with parameters."""
             logger.error(f"Error executing operation: {e}")
 
         return result_df, details
+
+    def apply_fixes(
+        self,
+        df: pd.DataFrame,
+        fixes: List[Dict[str, Any]]
+    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+        """
+        Apply cell fixes from AI response to DataFrame.
+
+        Args:
+            df: DataFrame to modify
+            fixes: List of fixes [{"row": 0, "column": "col", "value": "val"}, ...]
+
+        Returns:
+            Tuple of (modified DataFrame, details with applied fixes)
+        """
+        result_df = df.copy()
+        applied = []
+        failed = []
+
+        for fix in fixes:
+            try:
+                row = fix.get('row')
+                col = fix.get('column')
+                value = fix.get('value')
+
+                if row is None or col is None:
+                    failed.append({"fix": fix, "error": "Missing row or column"})
+                    continue
+
+                if col not in result_df.columns:
+                    failed.append({"fix": fix, "error": f"Column '{col}' not found"})
+                    continue
+
+                if row < 0 or row >= len(result_df):
+                    failed.append({"fix": fix, "error": f"Row {row} out of range"})
+                    continue
+
+                # Store old value for tracking
+                old_value = result_df.iloc[row][col]
+
+                # Apply the fix
+                result_df.at[result_df.index[row], col] = value
+
+                applied.append({
+                    "row": row,
+                    "column": col,
+                    "old_value": str(old_value) if pd.notna(old_value) else None,
+                    "new_value": str(value) if value is not None else None
+                })
+
+            except Exception as e:
+                failed.append({"fix": fix, "error": str(e)})
+
+        details = {
+            "success": len(failed) == 0,
+            "total_fixes": len(fixes),
+            "applied": len(applied),
+            "failed": len(failed),
+            "applied_fixes": applied,
+            "failed_fixes": failed
+        }
+
+        return result_df, details
+
+    def fix_data(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, AIResponse, Dict[str, Any]]:
+        """
+        Fix all error cells in the DataFrame using AI.
+
+        Args:
+            df: DataFrame to fix
+
+        Returns:
+            Tuple of (fixed DataFrame, AI response, fix details)
+        """
+        # Get fixes from AI
+        response = self.chat("fix my data", df=df)
+
+        if not response.success:
+            return df, response, {"success": False, "error": response.error}
+
+        # Parse fixes from response
+        try:
+            parsed = self._parse_json_response(response.raw_response)
+            fixes = parsed.get('fixes', [])
+        except ValueError:
+            fixes = []
+
+        if not fixes:
+            return df, response, {"success": True, "applied": 0, "message": "No fixes needed"}
+
+        # Apply fixes
+        fixed_df, details = self.apply_fixes(df, fixes)
+
+        return fixed_df, response, details
 
 
 def create_sample_dataframe() -> pd.DataFrame:
