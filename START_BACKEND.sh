@@ -1,28 +1,29 @@
 #!/bin/bash
 
 echo "========================================"
-echo "FastMig Backend - Conda Environment"
+echo "FastMig Backend Server"
 echo "========================================"
 echo ""
 
 cd "$(dirname "$0")/python-backend"
 
-echo "Activating conda environment fastmig..."
+echo "Activating Python environment..."
 
-if [ -f ~/anaconda3/etc/profile.d/conda.sh ]; then
+# Try venv first, then conda
+if [ -f ./venv/bin/activate ]; then
+    echo "Using venv..."
+    source ./venv/bin/activate
+elif [ -f ~/anaconda3/etc/profile.d/conda.sh ]; then
     source ~/anaconda3/etc/profile.d/conda.sh
+    conda activate fastmig
 elif [ -f ~/miniconda3/etc/profile.d/conda.sh ]; then
     source ~/miniconda3/etc/profile.d/conda.sh
+    conda activate fastmig
 elif [ -f /opt/conda/etc/profile.d/conda.sh ]; then
     source /opt/conda/etc/profile.d/conda.sh
+    conda activate fastmig
 else
-    echo "ERROR: Could not find conda installation"
-    exit 1
-fi
-
-conda activate fastmig
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to activate conda environment"
+    echo "ERROR: Could not find Python environment (venv or conda)"
     exit 1
 fi
 
