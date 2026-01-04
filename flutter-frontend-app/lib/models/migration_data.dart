@@ -166,14 +166,14 @@ class MigrationData with ChangeNotifier {
     }
   }
 
-  /// Export data to file
-  Future<void> exportData(String outputPath) async {
+  /// Export data and trigger browser download
+  Future<void> exportData(String filename, {String format = 'csv'}) async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
-      final result = await _apiService.exportData(outputPath);
+      final result = await _apiService.exportData(filename, format: format);
 
       if (result['success'] == true) {
         _errorMessage = null;

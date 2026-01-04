@@ -1,7 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'file_picker_service.dart';
 import 'console_log_service.dart';
 
@@ -106,32 +107,76 @@ class ApiService {
     }
   }
 
-  /// Export processed data to file
-  Future<Map<String, dynamic>> exportData(String outputPath) async {
+  /// Export processed data and trigger browser download
+  Future<Map<String, dynamic>> exportData(String filename, {String format = 'csv'}) async {
     try {
-      _consoleLogService.info('Exporting data to: $outputPath',
+      _consoleLogService.info('Exporting data as $format: $filename',
           function: 'exportData');
+
       final response = await http.post(
         Uri.parse('$baseUrl/export'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'output_path': outputPath}),
+        body: jsonEncode({
+          'format': format,
+          'filename': filename,
+        }),
       );
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        // Get the filename from Content-Disposition header or use default
+        String downloadFilename = '$filename.$format';
+        final contentDisposition = response.headers['content-disposition'];
+        if (contentDisposition != null) {
+          final match = RegExp(r'filename="?([^"]+)"?').firstMatch(contentDisposition);
+          if (match != null) {
+            downloadFilename = match.group(1) ?? downloadFilename;
+          }
+        }
+
+        // Determine MIME type
+        String mimeType;
+        switch (format) {
+          case 'xlsx':
+            mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            break;
+          case 'json':
+            mimeType = 'application/json';
+            break;
+          case 'csv':
+          default:
+            mimeType = 'text/csv';
+        }
+
+        // Create blob and trigger download
+        final blob = html.Blob([response.bodyBytes], mimeType);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute('download', downloadFilename)
+          ..style.display = 'none';
+
+        html.document.body?.append(anchor);
+        anchor.click();
+        anchor.remove();
+        html.Url.revokeObjectUrl(url);
+
         _consoleLogService.success(
-            'Data exported successfully to: ${jsonResponse['file_path']}',
+            'Data exported successfully: $downloadFilename',
             function: 'exportData');
         return {
           'success': true,
-          'message': jsonResponse['message'],
-          'file_path': jsonResponse['file_path'],
+          'message': 'Data exported successfully',
+          'filename': downloadFilename,
         };
       } else {
-        final error = jsonDecode(response.body);
-        _consoleLogService.error('Failed to export data: ${error['error']}',
-            function: 'exportData');
-        throw Exception(error['error'] ?? 'Failed to export data');
+        // Try to parse error from JSON response
+        try {
+          final error = jsonDecode(response.body);
+          _consoleLogService.error('Failed to export data: ${error['error']}',
+              function: 'exportData');
+          throw Exception(error['error'] ?? 'Failed to export data');
+        } catch (_) {
+          throw Exception('Failed to export data: ${response.statusCode}');
+        }
       }
     } catch (e) {
       _consoleLogService.error('Error exporting data: $e',
@@ -1002,11 +1047,14 @@ class ApiService {
       return [
         'Unable to connect to backend logs - received status ${response.statusCode}'
       ];
-    } on SocketException {
-      return ['Error: Cannot connect to backend server at $baseUrl'];
     } on TimeoutException {
       return ['Error: Backend server request timed out'];
     } catch (e) {
+      // Handles network errors (connection refused, etc.) and other exceptions
+      final errorMsg = e.toString();
+      if (errorMsg.contains('Failed to fetch') || errorMsg.contains('NetworkError')) {
+        return ['Error: Cannot connect to backend server at $baseUrl'];
+      }
       return ['Error fetching backend logs: $e'];
     }
   }

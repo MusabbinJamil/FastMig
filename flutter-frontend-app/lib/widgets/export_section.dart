@@ -71,19 +71,15 @@ class _ExportSectionState extends State<ExportSection> {
                   ),
                   const SizedBox(height: 20),
 
-                  // File Path
+                  // Filename
                   TextField(
                     controller: _pathController,
                     decoration: InputDecoration(
-                      labelText: 'Output Path',
-                      hintText: 'e.g., output/data.$_selectedFormat',
+                      labelText: 'Filename',
+                      hintText: 'e.g., my_data',
                       border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.folder_open),
-                        onPressed: () {
-                          // TODO: Implement file picker for save location
-                        },
-                      ),
+                      suffixText: '.$_selectedFormat',
+                      prefixIcon: const Icon(Icons.insert_drive_file),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -96,26 +92,34 @@ class _ExportSectionState extends State<ExportSection> {
                       onPressed: (migrationData.data != null &&
                               !migrationData.isLoading)
                           ? () async {
-                              if (_pathController.text.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Please enter an output path'),
-                                    backgroundColor: Colors.orange,
-                                  ),
-                                );
-                                return;
+                              // Use default filename if empty
+                              String filename = _pathController.text.trim();
+                              if (filename.isEmpty) {
+                                filename = 'exported_data';
+                              }
+                              // Remove extension if user added one
+                              if (filename.contains('.')) {
+                                filename = filename.split('.').first;
                               }
 
-                              await migrationData
-                                  .exportData(_pathController.text);
+                              await migrationData.exportData(
+                                filename,
+                                format: _selectedFormat,
+                              );
 
-                              if (migrationData.errorMessage == null) {
+                              if (context.mounted && migrationData.errorMessage == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Data exported successfully!'),
+                                  SnackBar(
+                                    content: Text(
+                                        'Downloaded $filename.$_selectedFormat'),
                                     backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } else if (context.mounted && migrationData.errorMessage != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(migrationData.errorMessage!),
+                                    backgroundColor: Colors.red,
                                   ),
                                 );
                               }
@@ -131,7 +135,7 @@ class _ExportSectionState extends State<ExportSection> {
                               ),
                             )
                           : const Icon(Icons.download),
-                      label: const Text('Export Data'),
+                      label: Text('Download as ${_selectedFormat.toUpperCase()}'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -187,11 +191,6 @@ class _ExportSectionState extends State<ExportSection> {
       onSelected: (selected) {
         setState(() {
           _selectedFormat = format;
-          // Update path extension
-          if (_pathController.text.isNotEmpty) {
-            final pathWithoutExt = _pathController.text.split('.').first;
-            _pathController.text = '$pathWithoutExt.$format';
-          }
         });
       },
       selectedColor: Colors.blue.shade700,

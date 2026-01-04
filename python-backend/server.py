@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
 import pandas as pd
 import json
 import os
+import io
 import logging
 from typing import List, Dict, Any, Optional
 from collections import deque
@@ -521,25 +522,136 @@ def process_data():
 
 @app.route('/export', methods=['POST'])
 def export_file():
-    """Export processed data to file"""
+    """
+    Export processed data as a downloadable file.
+
+    Request body:
+    {
+        "format": "csv" | "xlsx" | "json",  # Export format (default: csv)
+        "filename": "my_data"                # Optional filename (without extension)
+    }
+
+    Returns: The file as a downloadable attachment
+    """
     try:
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+
         if 'df' not in current_data:
             return jsonify({'error': 'No data to export. Please load and process data first.'}), 400
-        
-        output_path = data.get('output_path', 'exported_data.csv')
-        
-        # Export using your existing function
-        export_data(current_data['df'], output_path)
-        
+
+        df = current_data['df']
+        format_type = data.get('format', 'csv').lower()
+        base_filename = data.get('filename', 'exported_data')
+
+        # Validate format
+        valid_formats = ['csv', 'xlsx', 'json']
+        if format_type not in valid_formats:
+            return jsonify({
+                'error': f"Invalid format: {format_type}",
+                'valid_formats': valid_formats
+            }), 400
+
+        # Create file in memory
+        if format_type == 'csv':
+            output = io.StringIO()
+            df.to_csv(output, index=False)
+            output.seek(0)
+
+            response = make_response(output.getvalue())
+            response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+            response.headers['Content-Disposition'] = f'attachment; filename="{base_filename}.csv"'
+
+        elif format_type == 'xlsx':
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Data')
+            output.seek(0)
+
+            response = make_response(output.getvalue())
+            response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            response.headers['Content-Disposition'] = f'attachment; filename="{base_filename}.xlsx"'
+
+        elif format_type == 'json':
+            output = df.to_json(orient='records', indent=2)
+
+            response = make_response(output)
+            response.headers['Content-Type'] = 'application/json; charset=utf-8'
+            response.headers['Content-Disposition'] = f'attachment; filename="{base_filename}.json"'
+
+        logger.info(f"Exported data as {format_type}: {base_filename}.{format_type} ({df.shape[0]} rows, {df.shape[1]} columns)")
+
+        return response
+
+    except Exception as e:
+        logger.error(f"Error in /export: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/export/download/<filename>', methods=['GET'])
+def download_file(filename):
+    """
+    Download an exported file from the uploads folder.
+
+    This endpoint serves files that were saved to the uploads directory.
+    """
+    try:
+        # Secure the filename to prevent directory traversal
+        safe_filename = secure_filename(filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
+
+        if not os.path.exists(file_path):
+            return jsonify({'error': f'File not found: {safe_filename}'}), 404
+
+        # Determine content type based on extension
+        ext = os.path.splitext(safe_filename)[1].lower()
+        if ext == '.csv':
+            mimetype = 'text/csv'
+        elif ext == '.xlsx':
+            mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        elif ext == '.xls':
+            mimetype = 'application/vnd.ms-excel'
+        elif ext == '.json':
+            mimetype = 'application/json'
+        else:
+            mimetype = 'application/octet-stream'
+
+        return send_file(
+            file_path,
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=safe_filename
+        )
+
+    except Exception as e:
+        logger.error(f"Error downloading file: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/export/preview', methods=['GET'])
+def export_preview():
+    """
+    Get a preview of the data that will be exported.
+
+    Returns: First 10 rows of the current data with column info.
+    """
+    try:
+        if 'df' not in current_data:
+            return jsonify({'error': 'No data to export. Please load and process data first.'}), 400
+
+        df = current_data['df']
+
         return jsonify({
             'success': True,
-            'message': f'Data exported to {output_path}',
-            'file_path': output_path
+            'preview': _dataframe_to_list(df, max_rows=10),
+            'total_rows': len(df),
+            'total_columns': len(df.columns),
+            'columns': df.columns.tolist(),
+            'dtypes': {col: str(dtype) for col, dtype in df.dtypes.items()},
+            'available_formats': ['csv', 'xlsx', 'json']
         })
-        
+
     except Exception as e:
+        logger.error(f"Error in /export/preview: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/columns', methods=['GET'])
@@ -2825,12 +2937,12 @@ def export_evolved_data():
             return jsonify({'error': f'Unsupported format: {format_type}'}), 400
         
         logger.info(f"Evolved data exported to {filepath}")
-        
+
         return jsonify({
             'success': True,
             'filename': safe_filename,
             'filepath': filepath,
-            'download_url': f'/uploads/{safe_filename}'
+            'download_url': f'/export/download/{safe_filename}'
         }), 200
     
     except Exception as e:

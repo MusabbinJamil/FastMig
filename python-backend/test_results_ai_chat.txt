@@ -1,0 +1,491 @@
+test_config_default_values (__main__.TestAIChatConfig)
+Test config has sensible defaults ... 
+------------------------------------------------------------
+  TEST: test_config_default_values
+------------------------------------------------------------
+  Description: Test config has sensible defaults
+ok
+  Result: PASSED
+test_config_missing_api_key (__main__.TestAIChatConfig)
+Test config validation fails without API key ... 
+------------------------------------------------------------
+  TEST: test_config_missing_api_key
+------------------------------------------------------------
+  Description: Test config validation fails without API key
+ok
+  Result: PASSED
+test_config_missing_deployment (__main__.TestAIChatConfig)
+Test config validation fails without deployment ... 
+------------------------------------------------------------
+  TEST: test_config_missing_deployment
+------------------------------------------------------------
+  Description: Test config validation fails without deployment
+ok
+  Result: PASSED
+test_config_missing_endpoint (__main__.TestAIChatConfig)
+Test config validation fails without endpoint ... 
+------------------------------------------------------------
+  TEST: test_config_missing_endpoint
+------------------------------------------------------------
+  Description: Test config validation fails without endpoint
+ok
+  Result: PASSED
+test_config_with_all_values (__main__.TestAIChatConfig)
+Test config with all required values ... 
+------------------------------------------------------------
+  TEST: test_config_with_all_values
+------------------------------------------------------------
+  Description: Test config with all required values
+ok
+  Result: PASSED
+test_empty_dataframe (__main__.TestDataContext)
+Test handling of empty DataFrame ... 
+------------------------------------------------------------
+  TEST: test_empty_dataframe
+------------------------------------------------------------
+  Description: Test handling of empty DataFrame
+ok
+  Result: PASSED
+test_from_dataframe_basic (__main__.TestDataContext)
+Test DataContext creation from DataFrame ... 
+------------------------------------------------------------
+  TEST: test_from_dataframe_basic
+------------------------------------------------------------
+  Description: Test DataContext creation from DataFrame
+ok
+  Result: PASSED
+test_from_dataframe_columns (__main__.TestDataContext)
+Test column information extraction ... 
+------------------------------------------------------------
+  TEST: test_from_dataframe_columns
+------------------------------------------------------------
+  Description: Test column information extraction
+ok
+  Result: PASSED
+test_from_dataframe_missing_values (__main__.TestDataContext)
+Test missing values detection ... 
+------------------------------------------------------------
+  TEST: test_from_dataframe_missing_values
+------------------------------------------------------------
+  Description: Test missing values detection
+ok
+  Result: PASSED
+test_from_dataframe_numeric_stats (__main__.TestDataContext)
+Test numeric column statistics ... 
+------------------------------------------------------------
+  TEST: test_from_dataframe_numeric_stats
+------------------------------------------------------------
+  Description: Test numeric column statistics
+ok
+  Result: PASSED
+test_from_dataframe_sample_data (__main__.TestDataContext)
+Test sample data extraction ... 
+------------------------------------------------------------
+  TEST: test_from_dataframe_sample_data
+------------------------------------------------------------
+  Description: Test sample data extraction
+ok
+  Result: PASSED
+test_to_json (__main__.TestDataContext)
+Test JSON serialization ... 
+------------------------------------------------------------
+  TEST: test_to_json
+------------------------------------------------------------
+  Description: Test JSON serialization
+ok
+  Result: PASSED
+test_extract_operations (__main__.TestJSONParsing)
+Test operation extraction from parsed JSON ... 
+------------------------------------------------------------
+  TEST: test_extract_operations
+------------------------------------------------------------
+  Description: Test operation extraction from parsed JSON
+ok
+  Result: PASSED
+test_extract_operations_invalid_type (__main__.TestJSONParsing)
+Test operation extraction with invalid operation type ... 
+------------------------------------------------------------
+  TEST: test_extract_operations_invalid_type
+------------------------------------------------------------
+  Description: Test operation extraction with invalid operation type
+ok
+  Result: PASSED
+test_parse_clean_json (__main__.TestJSONParsing)
+Test parsing clean JSON response ... 
+------------------------------------------------------------
+  TEST: test_parse_clean_json
+------------------------------------------------------------
+  Description: Test parsing clean JSON response
+ok
+  Result: PASSED
+test_parse_invalid_json (__main__.TestJSONParsing)
+Test handling of invalid JSON ... 
+------------------------------------------------------------
+  TEST: test_parse_invalid_json
+------------------------------------------------------------
+  Description: Test handling of invalid JSON
+WARNING:ai_chat:Initial JSON parse failed: Expecting value: line 1 column 1 (char 0)
+ERROR:ai_chat:JSON parse failed after cleanup: Expecting value: line 1 column 1 (char 0)
+ok
+  Result: PASSED
+test_parse_json_with_markdown (__main__.TestJSONParsing)
+Test parsing JSON wrapped in markdown code blocks ... 
+------------------------------------------------------------
+  TEST: test_parse_json_with_markdown
+------------------------------------------------------------
+  Description: Test parsing JSON wrapped in markdown code blocks
+ok
+  Result: PASSED
+test_parse_json_with_smart_quotes (__main__.TestJSONParsing)
+Test parsing JSON with smart quotes as delimiters ... 
+------------------------------------------------------------
+  TEST: test_parse_json_with_smart_quotes
+------------------------------------------------------------
+  Description: Test parsing JSON with smart quotes as delimiters
+ok
+  Result: PASSED
+test_parse_json_with_trailing_comma (__main__.TestJSONParsing)
+Test parsing JSON with trailing commas ... 
+------------------------------------------------------------
+  TEST: test_parse_json_with_trailing_comma
+------------------------------------------------------------
+  Description: Test parsing JSON with trailing commas
+WARNING:ai_chat:Initial JSON parse failed: Expecting property name enclosed in double quotes: line 4 column 9 (char 71)
+ok
+  Result: PASSED
+test_create_operation (__main__.TestAIOperation)
+Test creating an AI operation ... 
+------------------------------------------------------------
+  TEST: test_create_operation
+------------------------------------------------------------
+  Description: Test creating an AI operation
+ok
+  Result: PASSED
+test_operation_default_values (__main__.TestAIOperation)
+Test operation default values ... 
+------------------------------------------------------------
+  TEST: test_operation_default_values
+------------------------------------------------------------
+  Description: Test operation default values
+ok
+  Result: PASSED
+test_operation_to_dict (__main__.TestAIOperation)
+Test converting operation to dictionary ... 
+------------------------------------------------------------
+  TEST: test_operation_to_dict
+------------------------------------------------------------
+  Description: Test converting operation to dictionary
+ok
+  Result: PASSED
+test_create_response (__main__.TestAIResponse)
+Test creating AI response ... 
+------------------------------------------------------------
+  TEST: test_create_response
+------------------------------------------------------------
+  Description: Test creating AI response
+ok
+  Result: PASSED
+test_error_response (__main__.TestAIResponse)
+Test error response ... 
+------------------------------------------------------------
+  TEST: test_error_response
+------------------------------------------------------------
+  Description: Test error response
+ok
+  Result: PASSED
+test_response_to_dict (__main__.TestAIResponse)
+Test converting response to dictionary ... 
+------------------------------------------------------------
+  TEST: test_response_to_dict
+------------------------------------------------------------
+  Description: Test converting response to dictionary
+ok
+  Result: PASSED
+test_response_to_json (__main__.TestAIResponse)
+Test converting response to JSON string ... 
+------------------------------------------------------------
+  TEST: test_response_to_json
+------------------------------------------------------------
+  Description: Test converting response to JSON string
+ok
+  Result: PASSED
+test_analyze_operation_no_change (__main__.TestOperationExecution)
+Test analyze operation doesn't modify data ... 
+------------------------------------------------------------
+  TEST: test_analyze_operation_no_change
+------------------------------------------------------------
+  Description: Test analyze operation doesn't modify data
+ok
+  Result: PASSED
+test_change_case_lower (__main__.TestOperationExecution)
+Test change case to lower ... 
+------------------------------------------------------------
+  TEST: test_change_case_lower
+------------------------------------------------------------
+  Description: Test change case to lower
+ok
+  Result: PASSED
+test_change_case_upper (__main__.TestOperationExecution)
+Test change case to upper ... 
+------------------------------------------------------------
+  TEST: test_change_case_upper
+------------------------------------------------------------
+  Description: Test change case to upper
+ok
+  Result: PASSED
+test_fill_nulls_constant (__main__.TestOperationExecution)
+Test fill nulls with constant value ... 
+------------------------------------------------------------
+  TEST: test_fill_nulls_constant
+------------------------------------------------------------
+  Description: Test fill nulls with constant value
+ok
+  Result: PASSED
+test_fill_nulls_mean (__main__.TestOperationExecution)
+Test fill nulls with mean ... 
+------------------------------------------------------------
+  TEST: test_fill_nulls_mean
+------------------------------------------------------------
+  Description: Test fill nulls with mean
+ok
+  Result: PASSED
+test_fill_nulls_median (__main__.TestOperationExecution)
+Test fill nulls with median ... 
+------------------------------------------------------------
+  TEST: test_fill_nulls_median
+------------------------------------------------------------
+  Description: Test fill nulls with median
+ok
+  Result: PASSED
+test_fill_nulls_mode (__main__.TestOperationExecution)
+Test fill nulls with mode ... 
+------------------------------------------------------------
+  TEST: test_fill_nulls_mode
+------------------------------------------------------------
+  Description: Test fill nulls with mode
+ok
+  Result: PASSED
+test_find_replace (__main__.TestOperationExecution)
+Test find and replace ... 
+------------------------------------------------------------
+  TEST: test_find_replace
+------------------------------------------------------------
+  Description: Test find and replace
+ok
+  Result: PASSED
+test_invalid_column (__main__.TestOperationExecution)
+Test operation on non-existent column ... 
+------------------------------------------------------------
+  TEST: test_invalid_column
+------------------------------------------------------------
+  Description: Test operation on non-existent column
+ok
+  Result: PASSED
+test_remove_column (__main__.TestOperationExecution)
+Test remove column ... 
+------------------------------------------------------------
+  TEST: test_remove_column
+------------------------------------------------------------
+  Description: Test remove column
+ok
+  Result: PASSED
+test_remove_duplicates (__main__.TestOperationExecution)
+Test remove duplicate rows ... 
+------------------------------------------------------------
+  TEST: test_remove_duplicates
+------------------------------------------------------------
+  Description: Test remove duplicate rows
+ok
+  Result: PASSED
+test_remove_nulls (__main__.TestOperationExecution)
+Test remove rows with nulls ... 
+------------------------------------------------------------
+  TEST: test_remove_nulls
+------------------------------------------------------------
+  Description: Test remove rows with nulls
+ok
+  Result: PASSED
+test_rename_column (__main__.TestOperationExecution)
+Test rename column ... 
+------------------------------------------------------------
+  TEST: test_rename_column
+------------------------------------------------------------
+  Description: Test rename column
+ok
+  Result: PASSED
+test_trim_whitespace (__main__.TestOperationExecution)
+Test trim whitespace ... 
+------------------------------------------------------------
+  TEST: test_trim_whitespace
+------------------------------------------------------------
+  Description: Test trim whitespace
+ok
+  Result: PASSED
+test_chat_basic_flow (__main__.TestAIChatIntegration)
+Test basic chat flow with mocked API ... 
+------------------------------------------------------------
+  TEST: test_chat_basic_flow
+------------------------------------------------------------
+  Description: Test basic chat flow with mocked API
+INFO:ai_chat:Azure OpenAI client initialized successfully
+INFO:ai_chat:Sending chat request: How should I handle missing values?...
+INFO:ai_chat:Received response (256 chars)
+ok
+  Result: PASSED
+test_chat_conversation_history (__main__.TestAIChatIntegration)
+Test chat maintains conversation history ... 
+------------------------------------------------------------
+  TEST: test_chat_conversation_history
+------------------------------------------------------------
+  Description: Test chat maintains conversation history
+INFO:ai_chat:Azure OpenAI client initialized successfully
+INFO:ai_chat:Sending chat request: Continue helping me...
+INFO:ai_chat:Received response (86 chars)
+ok
+  Result: PASSED
+test_chat_with_analysis (__main__.TestAIChatIntegration)
+Test chat that returns analysis ... 
+------------------------------------------------------------
+  TEST: test_chat_with_analysis
+------------------------------------------------------------
+  Description: Test chat that returns analysis
+INFO:ai_chat:Azure OpenAI client initialized successfully
+INFO:ai_chat:Sending chat request: Analyze the data quality of this dataset and provide:
+1. A summary of data quality issues found
+2. R...
+INFO:ai_chat:Received response (293 chars)
+ok
+  Result: PASSED
+test_dataframe_with_special_characters (__main__.TestEdgeCases)
+Test DataFrame with special characters in values ... 
+------------------------------------------------------------
+  TEST: test_dataframe_with_special_characters
+------------------------------------------------------------
+  Description: Test DataFrame with special characters in values
+ok
+  Result: PASSED
+test_empty_operations_list (__main__.TestEdgeCases)
+Test handling empty operations list ... 
+------------------------------------------------------------
+  TEST: test_empty_operations_list
+------------------------------------------------------------
+  Description: Test handling empty operations list
+ok
+  Result: PASSED
+test_malformed_operation (__main__.TestEdgeCases)
+Test handling malformed operation object ... 
+------------------------------------------------------------
+  TEST: test_malformed_operation
+------------------------------------------------------------
+  Description: Test handling malformed operation object
+ok
+  Result: PASSED
+test_missing_operations_field (__main__.TestEdgeCases)
+Test handling missing operations field ... 
+------------------------------------------------------------
+  TEST: test_missing_operations_field
+------------------------------------------------------------
+  Description: Test handling missing operations field
+ok
+  Result: PASSED
+test_null_operations_field (__main__.TestEdgeCases)
+Test handling null operations field ... 
+------------------------------------------------------------
+  TEST: test_null_operations_field
+------------------------------------------------------------
+  Description: Test handling null operations field
+ok
+  Result: PASSED
+test_operation_with_missing_fields (__main__.TestEdgeCases)
+Test operation with minimal fields ... 
+------------------------------------------------------------
+  TEST: test_operation_with_missing_fields
+------------------------------------------------------------
+  Description: Test operation with minimal fields
+ok
+  Result: PASSED
+test_very_large_dataframe_context (__main__.TestEdgeCases)
+Test handling large DataFrame context ... 
+------------------------------------------------------------
+  TEST: test_very_large_dataframe_context
+------------------------------------------------------------
+  Description: Test handling large DataFrame context
+ok
+  Result: PASSED
+test_create_sample_dataframe (__main__.TestSampleData)
+Test sample DataFrame creation ... 
+------------------------------------------------------------
+  TEST: test_create_sample_dataframe
+------------------------------------------------------------
+  Description: Test sample DataFrame creation
+ok
+  Result: PASSED
+test_sample_has_missing_values (__main__.TestSampleData)
+Test sample data has missing values for testing ... 
+------------------------------------------------------------
+  TEST: test_sample_has_missing_values
+------------------------------------------------------------
+  Description: Test sample data has missing values for testing
+ok
+  Result: PASSED
+test_sample_has_various_types (__main__.TestSampleData)
+Test sample data has various data types ... 
+------------------------------------------------------------
+  TEST: test_sample_has_various_types
+------------------------------------------------------------
+  Description: Test sample data has various data types
+ok
+  Result: PASSED
+test_all_operation_types_defined (__main__.TestOperationTypes)
+Test all expected operation types are defined ... 
+------------------------------------------------------------
+  TEST: test_all_operation_types_defined
+------------------------------------------------------------
+  Description: Test all expected operation types are defined
+ok
+  Result: PASSED
+test_operation_type_values (__main__.TestOperationTypes)
+Test operation type string values ... 
+------------------------------------------------------------
+  TEST: test_operation_type_values
+------------------------------------------------------------
+  Description: Test operation type string values
+ok
+  Result: PASSED
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.163s
+
+OK
+
+======================================================================
+  AI CHAT SYSTEM - COMPREHENSIVE TEST SUITE
+======================================================================
+
+Running in VERBOSE mode
+----------------------------------------------------------------------
+
+Test Classes:
+  - TestAIChatConfig: Configuration validation tests
+  - TestDataContext: Data context creation and serialization
+  - TestJSONParsing: JSON response parsing tests
+  - TestAIOperation: AIOperation dataclass tests
+  - TestAIResponse: AIResponse dataclass tests
+  - TestOperationExecution: Operation execution on DataFrames
+  - TestAIChatIntegration: Integration tests with mocked API
+  - TestEdgeCases: Edge cases and error handling
+  - TestSampleData: Sample data creation tests
+  - TestOperationTypes: OperationType enum tests
+
+======================================================================
+
+
+======================================================================
+TEST SUMMARY
+======================================================================
+Tests run: 55
+Successes: 55
+Failures: 0
+Errors: 0
+======================================================================
+
